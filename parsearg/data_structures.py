@@ -102,11 +102,11 @@ class Node:
     def __lshift__(self, by=1):
         o = self
         for s in range(by):
-            o = o.from_list(o.tail())
+            o = o.from_nested_list(o.tail())
         return o
 
     @classmethod
-    def from_list(cls, x):
+    def from_nested_list(cls, x):
         assert isinstance(x, list)
 
         def head(x):
