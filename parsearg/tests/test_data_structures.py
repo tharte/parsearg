@@ -88,4 +88,7 @@ def test_Tree_Value():
 def test_Node():
     node = Node()
     assert Node().value==(None, [])
-    # assert Node().head() is None and Node().tail()==[]
+
+    node = Node(head='A', tail=['B', ['C']])
+    assert node.value == ('A', ['B', ['C']])
+
