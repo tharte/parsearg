@@ -1,0 +1,12 @@
+v-0.0.2 :: [2020-11-19] 
+
+    + add data_structures.py: Fifo, Tree, &c
+    + add utils.py
+    + add test harness
+
+
+v-0.0.1 :: [2020-08-18] 
+
+    + init repo
+    + basic structure
+
