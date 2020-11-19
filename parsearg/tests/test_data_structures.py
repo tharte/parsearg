@@ -62,3 +62,9 @@ def test_Tree_show():
     ])
 
     assert tree.show(quiet=True)==s
+
+def test_Tree_Value():
+    value = Tree.Value()
+    assert value.name is None
+    assert value.key is None
+    assert value.payload is None
