@@ -1,4 +1,7 @@
 from collections import deque
+from parsearg.utils import (
+    is_list_of,
+)
 
 # TODO: replace with Queue class that accepts a QueueingPolicy class (mixin?)
 class Fifo:
