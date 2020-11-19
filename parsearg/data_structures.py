@@ -131,3 +131,79 @@ class Node:
                 return cls(head=head(x), tail=[])
 
         return cls(head=head(x), tail=tail(x))
+
+
+class Key:
+    def __init__(self, key=None, d=None):
+        self.key     = key
+        self.d       = d
+        self.value   = self.from_key()
+        self.payload = None
+
+        if d is not None:
+            assert self.key in d
+            self.payload = d[key]
+
+    def from_key(self, sep='|'):
+        if self.key is None:
+            return Node()
+
+        return Node.from_list(
+            Key.unflatten(Key.split(self.key, sep=sep))
+        )
+
+    def is_empty(self):
+        return self.value.is_empty()
+
+    def is_leaf(self):
+        return not self.value.is_empty() and not len(self.value.tail())
+
+    def has_children(self):
+        return len(self.value.tail()) > 0
+
+    def __eq__(self, rv):
+        return True if self.key == rv.key and self.value == rv.value else False
+
+    def __lshift__(self, by=1):
+        o = self
+        for s in range(by):
+            o = o.shift()
+        return o
+
+    def shift(self, by=1):
+        o = Key(key=self.key, d=self.d)
+        o.value = self.value << by
+
+        return o
+
+    def __str__(self):
+        payload = ''
+        if self.payload is not None:
+            payload = '\n'
+            for k, v in self.payload.items():
+                payload += f'\t{k}: {v}\n'
+        return f'{self.key!r}: {self.value}{payload}'
+
+    def __repr__(self):
+        return self.__str__()
+
+    @staticmethod
+    def split(s, sep='|'):
+        if not len(s):
+            return []
+        left, sep, right = s.partition(sep)
+        return [left] + [sep] + Key.split(right) if len(right) else [left]
+
+    @staticmethod
+    def unflatten(x, sep='|'):
+        # UNFLATTEN AS LIST
+        def _unflatten(x, sep=sep):
+            if not len(x):
+                return []
+            elif x[0]==sep:
+                return [_unflatten(x[1:])]
+            else:
+                return [x[0]]  + _unflatten(x[1:])
+
+        assert is_list_of(x, str)
+        return _unflatten(x, sep=sep)
