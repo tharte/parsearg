@@ -140,20 +140,12 @@ class Key:
     def __init__(self, key=None, d=None):
         self.key     = key
         self.d       = d
-        self.value   = self.from_key()
+        self.value   = self.Node_from_key(self.key)
         self.payload = None
 
         if d is not None:
             assert self.key in d
             self.payload = d[key]
-
-    def from_key(self, sep='|'):
-        if self.key is None:
-            return Node()
-
-        return Node.from_list(
-            Key.unflatten(Key.split(self.key, sep=sep))
-        )
 
     def is_empty(self):
         return self.value.is_empty()
@@ -210,3 +202,13 @@ class Key:
 
         assert is_list_of(x, str)
         return _unflatten(x, sep=sep)
+
+    @staticmethod
+    def Node_from_key(key, sep='|'):
+        if key is None:
+            return Node()
+
+        return Node.from_nested_list(
+            Key.unflatten(Key.split(key, sep=sep))
+        )
+
