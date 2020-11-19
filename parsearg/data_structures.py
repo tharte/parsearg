@@ -19,6 +19,10 @@ class Fifo:
         return str(self.values)
         
 
+def is_empty(tree):
+    assert isinstance(tree, Tree) or tree is None
+    return True if tree is None or tree.is_empty() else False
+
 class Tree:
     def __init__(self, value=None, children=None):
         self.value    = value
@@ -30,4 +34,12 @@ class Tree:
     def is_empty(self):
         return (self.value is None) and \
                len(self.children) == 0
+       
+    def show(self, level=0, indent = 4 * ' '):
+        # depth-first search (DFS):
+        if is_empty(self):
+            return 
+        print('{}{}'.format(level*indent, self))
+        for child in self.children:
+            child.show(level=level+1, indent=indent)
        
