@@ -68,3 +68,17 @@ def test_Tree_Value():
     assert value.name is None
     assert value.key is None
     assert value.payload is None
+
+    d = {
+        'A|B|C': {
+            'arg1': {},
+            'arg2': {},
+            'arg3': {},
+        }
+    }
+
+    value = Tree.Value(name='C', key=set(d.keys()).pop(), d=d)
+
+    assert value.name=='C'
+    assert value.key=='A|B|C'
+    assert value.payload==d['A|B|C']
