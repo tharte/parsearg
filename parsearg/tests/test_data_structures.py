@@ -97,3 +97,7 @@ def test_Node_head():
     assert node.head() == 'A' 
 
 def test_Node_tail():
+    node = Node(head='A', tail=['B', ['C']])
+    assert node.tail() == ['B', ['C']]
+
+def test_Node_is_empty():
