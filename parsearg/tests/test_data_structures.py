@@ -101,3 +101,9 @@ def test_Node_tail():
     assert node.tail() == ['B', ['C']]
 
 def test_Node_is_empty():
+    assert Node().is_empty()
+
+def test_Node_lsfhift():
+    node = Node(head='A', tail=['B', ['C']])
+    assert (node << 1).head() == 'B'
+    assert (node << 2).head() == 'C'
