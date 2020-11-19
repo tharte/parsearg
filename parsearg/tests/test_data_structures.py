@@ -2,7 +2,8 @@ import pytest
 from parsearg.data_structures import (
     Fifo,
     Tree,
-    is_empty
+    is_empty,
+    Node,
 )
 
 def test_Fifo():
@@ -82,3 +83,9 @@ def test_Tree_Value():
     assert value.name=='C'
     assert value.key=='A|B|C'
     assert value.payload==d['A|B|C']
+
+
+def test_Node():
+    node = Node()
+    assert Node().value==(None, [])
+    # assert Node().head() is None and Node().tail()==[]
