@@ -114,3 +114,8 @@ def test_Node_eq():
     assert Node() == Node()
     assert Node('A') == Node('A', [])
 
+def test_Node_from_nested_list():
+    # e.g. split from key:
+    #     'A|B|C' -> ['A', '|', 'B', '|', 'C'] -> ['A', ['B', ['C']]]
+    ll = ['A', ['B', ['C']]]
+    assert Node.from_nested_list(ll) == Node(head='A', tail=['B', ['C']])
