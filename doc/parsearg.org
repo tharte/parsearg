@@ -1,0 +1,54 @@
+# -*- org-confirm-babel-evaluate: nil -*- 
+#+author:      Thomas P. Harte
+#+title:       ~parsearg~: turning ~argparse~ on its head the declarative way
+#+email:       tharte@cantab.net
+
+#+latex_class:   review
+#+latex_header:  \usepackage{minted}
+#+latex_header:  \usemintedstyle{colorful}
+#+latex_header:  \usepackage[ruled]{algorithm2e}
+#+latex_header:  \usepackage{enumitem}
+#+options:       tex:imagemagick
+#+include:       /home/tharte/dot/include/newcommands.tex src latex
+#+bind:          org-latex-image-default-width 0.5\linewidth $
+#+bind:          org-latex-prefer-user-labels t
+#+latex_header:  \newtheorem{lemma}{Lemma}[section]
+#+latex_header:  \newtheorem{defn}{Definition}[section]
+#+latex_header:  \newtheorem{remark}{Remark}[section]
+
+#+latex_header_extra: \usepackage{mdframed}
+#+latex_header_extra: \BeforeBeginEnvironment{verbatim}{\begin{mdframed}}
+#+latex_header_extra: \AfterEndEnvironment{verbatim}{\end{mdframed}}
+
+#+begin_export latex
+\newtcbox{\mybox}[1][]{%
+    nobeforeafter, math upper, tcbox raise base,
+    enhanced, colframe=blue!30!black,
+    colback=lightgreen!30, boxrule=0.5pt,
+    #1
+}
+#+end_export
+
+#+begin_abstract
+Python's module for writing command-line interfaces (``CLI'') is ~argparse~.
+There are many other packages for creating CLIs, but ~argparse~ is Python's
+standard.  Creating a CLI with ~argparse~---and especially a CLI that splits
+its functionality into sub-commands, such as ~git init~, ~git commit~, and
+so on---is an exercise in imperative programming: The structure of the CLI
+is specified command by command until the data that specify the behavior
+of each command-line argument are added.  The imperative nature of this
+process obfuscates the CLI design.  The diametric opposite is ~parsearg~,
+which starts with a data structure containing the data that specify the
+behavior of each command-line argument, from which ~parsearg~ generates a
+parser using ~argparse~.  The declarative nature of the ~parsearg~ approach
+places the CLI design front and center with a data structure (a simple ~dict~
+with an appropriate key schema for specifying a flattened data tree).
+#+end_abstract
+
+# 
+# SET-UP
+#
+#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
+
+#+END_SRC
+
