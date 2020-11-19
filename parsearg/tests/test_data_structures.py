@@ -149,9 +149,24 @@ def test_Key_is_empty():
 def test_Key_has_children():
     assert not Key().has_children()
     assert not Key('A').has_children()
+
     assert Key('A|B').has_children()
+
+def test_Key_shift():
+    # because the Key class preserves the key captured at object
+    # instantiation you have to deliberately tamper with the Key's value
+    # to make it equal to the shifted Node
+
+    key = Key('A|B')
+    key.value = Node(head='B', tail=[])
+
+    assert (Key('A|B') << 1) == key
+
+    key.value = Node(head=None, tail=[])
+    assert (Key('A|B') << 2) == key
 
 def test_Key_is_leaf():
     assert Key('A').is_leaf()
+
     assert not Key('A|B').is_leaf()
     assert (Key('A|B') << 1).is_leaf()
