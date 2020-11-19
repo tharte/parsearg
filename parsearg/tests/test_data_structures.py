@@ -6,6 +6,9 @@ def test_Fifo():
     assert isinstance(Fifo().values, collections.deque)
     assert len(Fifo().values)==0
 
+def test_Fifo_is_empty():
+    assert Fifo().is_empty()
+
 def test_Fifo_insert():
     fifo = Fifo()
     fifo.insert('A')
