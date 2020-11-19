@@ -71,3 +71,63 @@ class Tree:
 
         return o
        
+
+class Node:
+    def __init__(self, head=None, tail=None):
+        if not head is None:
+            assert isinstance(head, str)
+        if not tail is None:
+            assert isinstance(tail, list)
+
+        self.value = (head, tail if tail is not None else [])
+
+    def head(self):
+        return self.value[0]
+
+    def tail(self):
+        return self.value[1]
+
+    def is_empty(self):
+        return True if self.head() is None and not len(self.tail()) else False
+
+    def __str__(self):
+        return f'{self.value}'
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, rv):
+        return True if self.head() == rv.head() and self.tail() == rv.tail() else False
+
+    def __lshift__(self, by=1):
+        o = self
+        for s in range(by):
+            o = o.from_list(o.tail())
+        return o
+
+    @classmethod
+    def from_list(cls, x):
+        assert isinstance(x, list)
+
+        def head(x):
+            assert isinstance(x, list)
+            if not len(x):
+                return x
+            return x[0]
+
+        def tail(x):
+            assert isinstance(x, list)
+            if len(x) <= 1:
+                return x
+            return x[1]
+
+        if not len(x):
+            return cls(head=None, tail=[])
+
+        if len(x)==1:
+            if isinstance(head(x), list):
+                return to_node(head(x))
+            else:
+                return cls(head=head(x), tail=[])
+
+        return cls(head=head(x), tail=tail(x))
