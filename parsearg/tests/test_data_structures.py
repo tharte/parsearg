@@ -24,5 +24,8 @@ def test_Fifo_remove():
     assert fifo.remove()=='B'
     assert fifo.is_empty()
 
-
-
+def test_Fifo_str():
+    fifo = Fifo()
+    fifo.insert('A')
+    fifo.insert('B')
+    assert fifo.__str__()=="deque(['A', 'B'])"
