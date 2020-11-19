@@ -143,3 +143,15 @@ def test_Key_Node_from_key():
     assert Key.Node_from_key('A|B|C') == Node(head='A', tail=['B', ['C']])
 
 def test_Key_is_empty():
+    assert Key().is_empty()
+    assert not Key('A').is_empty()
+
+def test_Key_has_children():
+    assert not Key().has_children()
+    assert not Key('A').has_children()
+    assert Key('A|B').has_children()
+
+def test_Key_is_leaf():
+    assert Key('A').is_leaf()
+    assert not Key('A|B').is_leaf()
+    assert (Key('A|B') << 1).is_leaf()
