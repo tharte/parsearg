@@ -92,3 +92,8 @@ def test_Node():
     node = Node(head='A', tail=['B', ['C']])
     assert node.value == ('A', ['B', ['C']])
 
+def test_Node_head():
+    node = Node(head='A', tail=['B', ['C']])
+    assert node.head() == 'A' 
+
+def test_Node_tail():
