@@ -1,5 +1,6 @@
 import pytest
 from parsearg.data_structures import Fifo
+from parsearg.data_structures import Tree
 
 def test_Fifo():
     import collections 
@@ -29,3 +30,8 @@ def test_Fifo_str():
     fifo.insert('A')
     fifo.insert('B')
     assert fifo.__str__()=="deque(['A', 'B'])"
+
+def test_Tree():
+    tree = Tree()
+    assert tree.value is None
+    assert len(tree.children)==0
