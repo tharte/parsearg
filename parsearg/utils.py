@@ -8,3 +8,7 @@ def print_list(x, end='\n'):
     for e in x:
         print(e, end=end)
 
+def is_list_of(x, type=tuple):
+    return True if isinstance(x, list) and \
+        all(map(lambda x: isinstance(x, type), x)) else False
+    
