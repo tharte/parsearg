@@ -1,6 +1,9 @@
 import pytest
-from parsearg.data_structures import Fifo
-from parsearg.data_structures import Tree
+from parsearg.data_structures import (
+    Fifo,
+    Tree,
+    is_empty
+)
 
 def test_Fifo():
     import collections 
