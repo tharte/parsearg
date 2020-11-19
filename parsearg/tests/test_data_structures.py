@@ -109,3 +109,8 @@ def test_Node_lsfhift():
     node = Node(head='A', tail=['B', ['C']])
     assert (node << 1).head() == 'B'
     assert (node << 2).head() == 'C'
+
+def test_Node_eq():
+    assert Node() == Node()
+    assert Node('A') == Node('A', [])
+
