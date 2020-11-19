@@ -131,3 +131,7 @@ def test_Key():
     assert key.value == Node()
     assert key.payload is None
 
+def test_Key_split():
+    key = 'A|B|C'
+    assert Key.split(key) == ['A', '|', 'B', '|', 'C']
+
