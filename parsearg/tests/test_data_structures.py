@@ -135,3 +135,11 @@ def test_Key_split():
     key = 'A|B|C'
     assert Key.split(key) == ['A', '|', 'B', '|', 'C']
 
+def test_Key_unflatten():
+    key = 'A|B|C'
+    assert Key.unflatten(Key.split(key)) == ['A', ['B', ['C']]]
+
+def test_Key_Node_from_key():
+    assert Key.Node_from_key('A|B|C') == Node(head='A', tail=['B', ['C']])
+
+def test_Key_is_empty():
