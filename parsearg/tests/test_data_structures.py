@@ -16,5 +16,13 @@ def test_Fifo_insert():
     assert fifo.values[0]=='A'
     assert fifo.values[1]=='B'
 
+def test_Fifo_remove():
+    fifo = Fifo()
+    fifo.insert('A')
+    fifo.insert('B')
+    assert fifo.remove()=='A'
+    assert fifo.remove()=='B'
+    assert fifo.is_empty()
+
 
 
