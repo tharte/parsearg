@@ -34,10 +34,12 @@ def test_Fifo_str():
     fifo.insert('B')
     assert fifo.__str__()=="deque(['A', 'B'])"
 
+
 def test_Tree():
     tree = Tree()
     assert tree.value is None
     assert len(tree.children)==0
+
 def test_Tree_is_empty():
     tree = Tree()
     assert tree.is_empty()
@@ -46,3 +48,17 @@ def test_is_empty_Tree():
     assert is_empty(None)
     assert is_empty(Tree())
 
+def test_Tree_show():
+    s = 'A\n    B\n    BB\n        C\n        CC\n        CCC\n    BBB'
+
+    tree = Tree('A', children=[
+        Tree('B', []),
+        Tree('BB', children=[
+            Tree('C', []), 
+            Tree('CC', []), 
+            Tree('CCC', [])
+        ]),
+        Tree('BBB', []),
+    ])
+
+    assert tree.show(quiet=True)==s
