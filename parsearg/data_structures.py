@@ -35,11 +35,23 @@ class Tree:
         return (self.value is None) and \
                len(self.children) == 0
        
-    def show(self, level=0, indent = 4 * ' '):
-        # depth-first search (DFS):
-        if is_empty(self):
-            return 
-        print('{}{}'.format(level*indent, self))
-        for child in self.children:
-            child.show(level=level+1, indent=indent)
+    def show(self, level=0, indent = 4 * ' ', quiet=False):
+        # depth-first search (DFS)
+        def _show(tree, level, indent):
+            nonlocal o
+            if is_empty(tree):
+                return 
+
+            o += ['{}{}'.format(level*indent, tree)]
+            for child in tree.children:
+                _show(child, level=level+1, indent=indent)
+
+        o = []
+        _show(self, level, indent)
+        o = '\n'.join(o)
+
+        if not quiet:
+            print(o)
+
+        return o
        
