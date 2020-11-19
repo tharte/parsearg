@@ -4,6 +4,10 @@ from parsearg.data_structures import (
     Tree,
     is_empty,
     Node,
+    Key,
+)
+from parsearg.utils import (
+    is_list_of,
 )
 
 def test_Fifo():
@@ -119,3 +123,11 @@ def test_Node_from_nested_list():
     #     'A|B|C' -> ['A', '|', 'B', '|', 'C'] -> ['A', ['B', ['C']]]
     ll = ['A', ['B', ['C']]]
     assert Node.from_nested_list(ll) == Node(head='A', tail=['B', ['C']])
+
+
+def test_Key():
+    key = Key()
+    assert key.key is None
+    assert key.value == Node()
+    assert key.payload is None
+
