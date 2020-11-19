@@ -24,6 +24,22 @@ def is_empty(tree):
     return True if tree is None or tree.is_empty() else False
 
 class Tree:
+    class Value:
+        def __init__(self, name=None, key=None, d=None):
+            def check(x):
+                if x is not None:
+                    assert isinstance(x, str) 
+            check(name)
+            check(key)
+
+            self.name    = name
+            self.key     = key
+            if d is not None:
+                assert isinstance(d, dict)
+                self.payload = d[key]
+            else:
+                self.payload = d
+
     def __init__(self, value=None, children=None):
         self.value    = value
         self.children = children if children is not None else []
