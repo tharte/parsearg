@@ -108,9 +108,9 @@ def test_ParseArg():
         o = ns.callback(ns)
         a = f'{args!r}'
         sep = '-' * (len(a) + 1)
-        # print(f'{a}:\n{sep}\n\t{o}')
         print(f'{a}:\n{sep}\n{o}')
 
+    do_it('A -h')
     do_it('A -v')
     do_it('A -c')
     do_it('A -c -v')
