@@ -43,6 +43,14 @@ class Tree:
             else:
                 self.payload = d
 
+        def __str__(self):
+            # return f'{self.key!r}: {self.name}'
+            # return f'{self.key!r}: {self.name}\n\tpayload = {self.payload}'
+            return f'{self.name}'
+
+        __repr__ = __str__
+
+
     def __init__(self, value=None, children=None):
         self.value    = value
         self.children = children if children is not None else []
@@ -211,4 +219,3 @@ class Key:
         return Node.from_nested_list(
             Key.unflatten(Key.split(key, sep=sep))
         )
-
