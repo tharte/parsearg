@@ -7,9 +7,8 @@ from parsearg.utils import (
 )
 
 def test_ParseArg(get_a_aa_dict):
-    d = get_a_aa_dict
-    # create the parse from the dict (flat tree)
-    parser = ParseArg(d, root_name='root')
+    # create the parser from the dict (flat tree)
+    parser = ParseArg(d=get_a_aa_dict, root_name='root')
 
     def do_it(node):
         def _do_it(args):
@@ -48,3 +47,26 @@ def test_ParseArg(get_a_aa_dict):
     ]
     list(map(lambda node: do_it(node), nodes))
 
+
+def test_CRUD(get_CRUD_dict):
+    # create the parse from the dict (flat tree)
+    parser = ParseArg(d=get_CRUD_dict, root_name='CRUD')
+
+    def do_it(args):
+        # generate the argparse.Namespace by parsing the arguments:
+        ns     = parser.parse_args(args)
+
+        # perform the associated callback:
+        result = ns.callback()
+
+        # display the result:
+        print('{}\n{}'.format(underline(f'{args!r}'), result))
+
+    nodes = [
+        'create table',
+        'delete table',
+        'read table',
+        'update table',
+    ]
+
+    list(map(lambda node: do_it(node), nodes))

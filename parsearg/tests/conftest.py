@@ -97,3 +97,31 @@ def get_a_aa_dict():
         },
     }
 
+def create_table():
+    return f'CRUD create_table'
+
+def delete_table():
+    return f'CRUD delete_table'
+
+def read_table():
+    return f'CRUD read_table'
+
+def update_table():
+    return f'CRUD update_table'
+
+@pytest.fixture(scope='session')
+def get_CRUD_dict():
+    return {
+        'create|table': {
+            'callback':     create_table,
+        },
+        'delete|table': {
+            'callback':     delete_table,
+        },
+        'read|table': {
+            'callback':     read_table,
+        },
+        'update|table': {
+            'callback':     update_table,
+        },
+    }
