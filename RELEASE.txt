@@ -1,3 +1,15 @@
+v-0.1.0 :: [2020-11-20] 
+
+    + first working version [example: tests/test_parser.py]
+
+          base$ SRC=parser/parser
+          base$ cd $SRC
+          bash$ pytest -v -s tests/test_parser.py | less
+
+    + add parser.py
+    + add tests/test_parser.py
+    + add fixtures [tests/conftest.py]
+
 v-0.0.3 :: [2020-11-19] 
 
     + finish test_data_structures.py 
