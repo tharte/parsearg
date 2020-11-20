@@ -7,6 +7,7 @@ from parsearg.data_structures import (
     Key,
 )
 from parsearg.utils import (
+    print_list,
     is_list_of,
 )
 
@@ -170,3 +171,25 @@ def test_Key_is_leaf():
 
     assert not Key('A|B').is_leaf()
     assert (Key('A|B') << 1).is_leaf()
+
+    d = {
+        'A': {
+            'arg1': {}, 'arg2': {}, 'arg3': {},
+        },
+        'A|B': {
+            'arg1': {}, 'arg2': {}, 'arg3': {},
+        },
+        'A|B|C': {
+            'arg1': {}, 'arg2': {}, 'arg3': {},
+        },
+    }
+
+    keys = list(map(lambda key: Key(key), list(d.keys())))
+    leaves = list(filter(lambda key: key.is_leaf(), keys))
+    assert len(leaves)==1 and leaves[0] == Key('A')
+
+    leaves = list(filter(lambda key: (key << 1).is_leaf(), keys))
+    assert len(leaves)==1 and leaves[0] == Key('A|B')
+
+    leaves = list(filter(lambda key: (key << 2).is_leaf(), keys))
+    assert len(leaves)==1 and leaves[0] == Key('A|B|C')
