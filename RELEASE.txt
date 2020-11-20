@@ -1,3 +1,8 @@
+v-0.0.3 :: [2020-11-19] 
+
+    + finish test_data_structures.py 
+    + add parser.py
+
 v-0.0.2 :: [2020-11-19] 
 
     + add data_structures.py: Fifo, Tree, &c
