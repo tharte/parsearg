@@ -3,6 +3,9 @@ import argparse
 from parsearg.parser import (
     ParseArg,
 )
+from parsearg.utils import (
+    underline,
+)
 from unittest.mock import Mock
 
 m = Mock()
@@ -16,7 +19,6 @@ def make_callback(name):
             args = {k:v for k, v in args.__dict__.items() if k != 'callback'}
 
         a = f'args: {args!r}'
-        # print(a)
 
         m.attach_mock(mm, name)
         o = '\t{}\n\t{}'.format(a, getattr(m, name))
@@ -100,61 +102,43 @@ d = {
 
 
 def test_ParseArg():
-    print('\n')
-    pa = ParseArg(d, root_name='root')
+    # create the parse from the dict (flat tree)
+    parser = ParseArg(d, root_name='root')
 
-    def do_it(args):
-        ns = pa.parse_args(args)
-        o = ns.callback(ns)
-        a = f'{args!r}'
-        sep = '-' * (len(a) + 1)
-        print(f'{a}:\n{sep}\n{o}')
+    def do_it(node):
+        def _do_it(args):
+            # generate the argparse.Namespace by parsing the arguments:
+            ns     = parser.parse_args(args)
 
-    do_it('A -h')
-    do_it('A -v')
-    do_it('A -c')
-    do_it('A -c -v')
+            # perform the associated callback:
+            result = ns.callback(ns)
 
-    do_it('A B -c')
-    do_it('A B -v')
-    do_it('A B -c -v')
+            # display the result:
+            print('{}\n{}'.format(underline(f'{args!r}'), result))
 
-    do_it('A BB -c')
-    do_it('A BB -v')
-    do_it('A BB -c -v')
+        print(underline(f'\n\nNODE :: {node!r}'))
+        with pytest.raises(SystemExit):
+            _do_it(f'{node} -h')
+        print('\n')
 
-    do_it('A BB C -c')
-    do_it('A BB C -v')
-    do_it('A BB C -c -v')
+        _do_it(f'{node}')
+        _do_it(f'{node} -v')
+        _do_it(f'{node} -c')
+        _do_it(f'{node} -v -c')
 
-    do_it('A BB CC -c')
-    do_it('A BB CC -v')
-    do_it('A BB CC -c -v')
+    nodes = [
+        'A',
+        'A B',
+        'A BB',
+        'A BB C',
+        'A BB CC',
+        'A BB CCC',
+        'AA',
+        'AA B',
+        'AA BB',
+        'AA BB C',
+        'AA BB CC',
+        'AA BB CCC',
+    ]
+    list(map(lambda node: do_it(node), nodes))
 
-    do_it('A BB CCC -c')
-    do_it('A BB CCC -v')
-    do_it('A BB CCC -c -v')
-
-    do_it('AA -v')
-    do_it('AA -c')
-    do_it('AA -c -v')
-
-    do_it('AA B -c')
-    do_it('AA B -v')
-    do_it('AA B -c -v')
-
-    do_it('AA BB -c')
-    do_it('AA BB -v')
-    do_it('AA BB -c -v')
-
-    do_it('AA BB C -c')
-    do_it('AA BB C -v')
-    do_it('AA BB C -c -v')
-
-    do_it('AA BB CC -c')
-    do_it('AA BB CC -v')
-    do_it('AA BB CC -c -v')
-
-    do_it('AA BB CCC -c')
-    do_it('AA BB CCC -v')
-    do_it('AA BB CCC -c -v')
