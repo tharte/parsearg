@@ -97,31 +97,45 @@ def get_a_aa_dict():
         },
     }
 
-def create_table():
-    return f'CRUD create_table'
+def create_table(args):
+    return f'created table {args.name!r}'
 
-def delete_table():
-    return f'CRUD delete_table'
+def create_profile(args):
+    return f'created profile {args.profile_name!r}'
 
-def read_table():
-    return f'CRUD read_table'
+def delete_table(args):
+    return f'deleted table {args.table_name!r}'
 
-def update_table():
-    return f'CRUD update_table'
+def read_table(args):
+    return f'read table {args.table_name!r}'
+
+def update_table_name(args):
+    return f'updated table from {args.old!r} to {args.new!r}'
 
 @pytest.fixture(scope='session')
 def get_CRUD_dict():
     return {
         'create|table': {
-            'callback':     create_table,
+            'callback': create_table,
+            'name':     {'help': 'table name', 'action': 'store'},
+        },
+        'create|profile': {
+            'callback': create_profile,
+            'name':     {'help': 'table name', 'action': 'store'},
         },
         'delete|table': {
-            'callback':     delete_table,
+            'callback': delete_table,
+            'name':     {'help': 'table name', 'action': 'store'},
         },
         'read|table': {
-            'callback':     read_table,
+            'callback': read_table,
+            'name':     {'help': 'table name', 'action': 'store'},
+            '-r|--rows':{'help': 'rows: [row_start, row_end]', 'nargs': 2, 'default': [None,None]},
+            '-c|--cols':{'help': 'cols: [col_start, col_end]', 'nargs': 2, 'default': [None,None]},
         },
-        'update|table': {
-            'callback':     update_table,
+        'update|table|name': {
+            'callback': update_table_name,
+            'old':      {'help': 'old table name', 'action': 'store'},
+            'new':      {'help': 'new table name', 'action': 'store'},
         },
     }

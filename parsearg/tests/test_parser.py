@@ -57,16 +57,17 @@ def test_CRUD(get_CRUD_dict):
         ns     = parser.parse_args(args)
 
         # perform the associated callback:
-        result = ns.callback()
+        result = ns.callback(ns)
 
         # display the result:
-        print('{}\n{}'.format(underline(f'{args!r}'), result))
+        print('{}\n\t{}\n'.format(underline(f'{args!r}'), result))
 
     nodes = [
-        'create table',
-        'delete table',
-        'read table',
-        'update table',
+        'create table -n tab',
+        'create profile -n tharte',
+        'delete table -n tab',
+        'read table -n tab',
+        'update table -n tab',
     ]
 
     list(map(lambda node: do_it(node), nodes))
