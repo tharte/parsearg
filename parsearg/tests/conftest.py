@@ -112,6 +112,12 @@ def read_table(args):
 def update_table_name(args):
     return f'updated table from {args.old!r} to {args.new!r}'
 
+def update_profile_add_attribute(args):
+    return f'updated profile {args.profile_name!r} with attribute {args.attribute_name!r}={args.attribute_value}'
+
+def update_profile_remove_attribute(args):
+    return f'updated profile {args.profile_name!r} by removing attribute {args.attribute_name!r}={args.attribute_value}'
+
 @pytest.fixture(scope='session')
 def get_CRUD_dict():
     return {
@@ -137,5 +143,17 @@ def get_CRUD_dict():
             'callback': update_table_name,
             'old':      {'help': 'old table name', 'action': 'store'},
             'new':      {'help': 'new table name', 'action': 'store'},
+        },
+        'update|profile|add|attribute': {
+            'callback': update_profile_add_attribute,
+            'profile_name':   {'help': 'profile name', 'action': 'store'},
+            'attribute_name': {'help': 'attribute name to add', 'action': 'store'},
+            'attribute_value': {'help': 'attribute value', 'action': 'store'},
+        },
+        'update|profile|remove|attribute': {
+            'callback': update_profile_remove_attribute,
+            'profile_name':   {'help': 'profile name', 'action': 'store'},
+            'attribute_name': {'help': 'attribute name to add', 'action': 'store'},
+            'attribute_value': {'help': 'attribute value', 'action': 'store'},
         },
     }
