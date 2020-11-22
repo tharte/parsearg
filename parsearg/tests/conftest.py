@@ -1,5 +1,8 @@
 import pytest 
 import argparse
+from parsearg.data_structures import (
+    Tree,
+)
 
 from unittest.mock import Mock
 
@@ -21,6 +24,47 @@ def make_callback(name):
         return o
 
     return func
+
+def a_tree():
+    return Tree('A', children=[
+        Tree('B', []),
+        Tree('BB', children=[
+            Tree('C', []), 
+            Tree('CC', []), 
+            Tree('CCC', [])
+        ]),
+        Tree('BBB', []),
+    ])
+
+def a_aa_tree():
+    return Tree('root', children=[
+        Tree('A', children=[
+            Tree('B', []),
+            Tree('BB', children=[
+                Tree('C', []), 
+                Tree('CC', []), 
+                Tree('CCC', [])
+            ]),
+            Tree('BBB', []),
+        ]),
+        Tree('AA', children=[
+            Tree('B', []),
+            Tree('BB', children=[
+                Tree('C', []), 
+                Tree('CC', []), 
+                Tree('CCC', [])
+            ]),
+            Tree('BBB', []),
+        ]),
+    ])
+
+@pytest.fixture(scope='session')
+def get_a_tree():
+    return a_tree()
+
+@pytest.fixture(scope='session')
+def get_a_aa_tree():
+    return a_aa_tree()
 
 @pytest.fixture(scope='session')
 def get_a_aa_dict():
