@@ -56,6 +56,7 @@ def test_is_empty_Tree():
 
 def test_Tree_show(get_a_tree, get_a_aa_tree):
     tab = 4 * ' '
+
     s = 'A\n'               \
         + tab + 'B\n'       \
         + tab + 'BB\n'      \

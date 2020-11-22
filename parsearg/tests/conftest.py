@@ -29,8 +29,8 @@ def a_tree():
     return Tree('A', children=[
         Tree('B', []),
         Tree('BB', children=[
-            Tree('C', []), 
-            Tree('CC', []), 
+            Tree('C', []),
+            Tree('CC', []),
             Tree('CCC', [])
         ]),
         Tree('BBB', []),
@@ -41,8 +41,8 @@ def a_aa_tree():
         Tree('A', children=[
             Tree('B', []),
             Tree('BB', children=[
-                Tree('C', []), 
-                Tree('CC', []), 
+                Tree('C', []),
+                Tree('CC', []),
                 Tree('CCC', [])
             ]),
             Tree('BBB', []),
@@ -50,8 +50,8 @@ def a_aa_tree():
         Tree('AA', children=[
             Tree('B', []),
             Tree('BB', children=[
-                Tree('C', []), 
-                Tree('CC', []), 
+                Tree('C', []),
+                Tree('CC', []),
                 Tree('CCC', [])
             ]),
             Tree('BBB', []),
