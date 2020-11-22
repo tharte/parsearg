@@ -106,6 +106,12 @@ def create_profile(args):
 def delete_table(args):
     return f'deleted table {args.table_name!r}'
 
+def delete_profile(args):
+    return f'deleted profile {args.name!r}'
+
+def delete_profile_attribute(args):
+    return f'updated profile {args.profile_name!r} by removing attribute {args.attribute_name!r}={args.attribute_value}'
+
 def read_table(args):
     return f'read table {args.table_name!r}'
 
@@ -114,9 +120,6 @@ def update_table_name(args):
 
 def update_profile_add_attribute(args):
     return f'updated profile {args.profile_name!r} with attribute {args.attribute_name!r}={args.attribute_value}'
-
-def update_profile_remove_attribute(args):
-    return f'updated profile {args.profile_name!r} by removing attribute {args.attribute_name!r}={args.attribute_value}'
 
 @pytest.fixture(scope='session')
 def get_CRUD_dict():
@@ -133,6 +136,16 @@ def get_CRUD_dict():
             'callback': delete_table,
             'name':     {'help': 'table name', 'action': 'store'},
         },
+        'delete|profile': {
+            'callback': update_profile_remove_attribute,
+            'name':       {'help': 'profile name', 'action': 'store'},
+        },
+        'delete|profile|attribute': {
+            'callback': update_profile_remove_attribute,
+            'profile_name':   {'help': 'profile name', 'action': 'store'},
+            'attribute_name': {'help': 'attribute name to add', 'action': 'store'},
+            'attribute_value': {'help': 'attribute value', 'action': 'store'},
+        },
         'read|table': {
             'callback': read_table,
             'name':     {'help': 'table name', 'action': 'store'},
@@ -146,12 +159,6 @@ def get_CRUD_dict():
         },
         'update|profile|add|attribute': {
             'callback': update_profile_add_attribute,
-            'profile_name':   {'help': 'profile name', 'action': 'store'},
-            'attribute_name': {'help': 'attribute name to add', 'action': 'store'},
-            'attribute_value': {'help': 'attribute value', 'action': 'store'},
-        },
-        'update|profile|remove|attribute': {
-            'callback': update_profile_remove_attribute,
             'profile_name':   {'help': 'profile name', 'action': 'store'},
             'attribute_name': {'help': 'attribute name to add', 'action': 'store'},
             'attribute_value': {'help': 'attribute value', 'action': 'store'},
