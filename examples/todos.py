@@ -11,6 +11,12 @@ def purge_users(args=None):
 def purge_todos(args=None):
     model.Todo().purge()
 
+def show_users(args=None):
+    model.User().show()
+    
+def show_todos(args=None):
+    model.Todo().show()
+
 def create_user(args):
     model.User().create(
         name=args.name,
@@ -58,6 +64,12 @@ def main(args):
         },
         'purge|todos': {
             'callback':   purge_todos,
+        },
+        'show|users': {
+            'callback':   show_users,
+        },
+        'show|todos': {
+            'callback':   show_todos,
         },
         'create|user': {
             'callback':   create_user,
@@ -108,4 +120,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
+    
     main(' '.join(args))
