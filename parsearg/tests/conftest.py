@@ -58,16 +58,7 @@ def a_aa_tree():
         ]),
     ])
 
-@pytest.fixture(scope='session')
-def get_a_tree():
-    return a_tree()
-
-@pytest.fixture(scope='session')
-def get_a_aa_tree():
-    return a_aa_tree()
-
-@pytest.fixture(scope='session')
-def get_a_aa_dict():
+def a_aa_dict():
     return {
         'A': {
             'callback':     make_callback('A'),
@@ -140,6 +131,18 @@ def get_a_aa_dict():
             '-v|--verbose': {'help': 'AA BBB verbosity', 'action': 'store_true'},
         },
     }
+
+@pytest.fixture(scope='session')
+def get_a_tree():
+    return a_tree()
+
+@pytest.fixture(scope='session')
+def get_a_aa_tree():
+    return a_aa_tree()
+
+@pytest.fixture(scope='session')
+def get_a_aa_dict():
+    return a_aa_dict()
 
 def create_table(args):
     return f'created table {args.name!r}'
