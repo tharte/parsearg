@@ -1,3 +1,8 @@
+v-0.1.7 :: [2020-11-23] 
+
+    + added README.pdf to the distribution [just in case]
+
+
 v-0.1.6 :: [2020-11-23] 
 
     + added To-Do example along with A-tree and A-AA tree examples
