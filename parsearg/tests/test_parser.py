@@ -65,9 +65,23 @@ def test_CRUD(get_CRUD_dict):
     nodes = [
         'create table -n tab',
         'create profile -n tharte',
-        'delete table -n tab',
         'read table -n tab',
-        'update table -n tab',
+        'update table name',
+        'purge Todo',                   # purge Todo table
+        'purge User',                   # purge User table
+        'purge all',                    # purge all tables
+    ]
+
+    nodes = [
+        'purge User',                   # purge all records from the User table
+        'purge Todo',                   # purge all records from the Todo table
+        'create user foo foo@foo.com',
+        'create user bar bar@bar.com',
+        'create user qux qux@qux.com',
+        'create todo foo title1 description1 2020-11-30',
+        'create todo foo title2 description2 2020-12-31',
+        # 'update todo title id title',
+        # 'update todo description id description',
     ]
 
     list(map(lambda node: do_it(node), nodes))
