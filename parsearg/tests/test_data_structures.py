@@ -54,19 +54,38 @@ def test_is_empty_Tree():
     assert is_empty(None)
     assert is_empty(Tree())
 
-def test_Tree_show():
-    s = 'A\n    B\n    BB\n        C\n        CC\n        CCC\n    BBB'
+def test_Tree_show(get_a_tree, get_a_aa_tree):
+    tab = 4 * ' '
 
-    tree = Tree('A', children=[
-        Tree('B', []),
-        Tree('BB', children=[
-            Tree('C', []), 
-            Tree('CC', []), 
-            Tree('CCC', [])
-        ]),
-        Tree('BBB', []),
-    ])
+    s = 'A\n'               \
+        + tab + 'B\n'       \
+        + tab + 'BB\n'      \
+        + 2 * tab + 'C\n'   \
+        + 2 * tab + 'CC\n'  \
+        + 2 * tab + 'CCC\n' \
+        + tab + 'BBB'
 
+    tree = get_a_tree
+    assert tree.show(quiet=True)==s
+
+    s = \
+        'root\n'            \
+        + tab + 'A\n'       \
+        + 2 * tab + 'B\n'   \
+        + 2 * tab + 'BB\n'  \
+        + 3 * tab + 'C\n'   \
+        + 3 * tab + 'CC\n'  \
+        + 3 * tab + 'CCC\n' \
+        + 2 * tab + 'BBB\n' \
+        + tab + 'AA\n'      \
+        + 2 * tab + 'B\n'   \
+        + 2 * tab + 'BB\n'  \
+        + 3 * tab + 'C\n'   \
+        + 3 * tab + 'CC\n'  \
+        + 3 * tab + 'CCC\n' \
+        + 2 * tab + 'BBB'
+
+    tree = get_a_aa_tree
     assert tree.show(quiet=True)==s
 
 def test_Tree_Value():
