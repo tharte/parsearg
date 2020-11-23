@@ -4,6 +4,16 @@ from datetime import datetime
 
 db_filename = 'todo.db'
 
+def fill_model():
+    User().create(name='foo', email='foo@foo.com')
+    User().create(name='bar', email='bar@bar.com')
+    User().create(name='qux', email='qux@qux.com')
+
+    Todo().create(user='foo', title='first todo', description='clean up desk', due='2020-11-30')
+    Todo().create(user='foo', title='2nd todo', description='clean bedroom')
+
+    Todo().create(user='qux', title='todo #1', description='organize Christmas party', due='2020-11-30')
+    Todo().create(user='foo', title='todo #2', description='organize New Year party')
 
 class Schema:
     def __init__(self, db_filename=db_filename):
