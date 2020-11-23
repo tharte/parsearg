@@ -17,3 +17,6 @@ python todos.py update user phone bar 203-555-1212
 
 python todos.py update todo title 4 most-important
 python todos.py update todo description 4 2021-party
+
+python todos.py show users
+python todos.py show todos
