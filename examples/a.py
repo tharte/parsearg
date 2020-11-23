@@ -1,14 +1,16 @@
-import pytest
 from parsearg.parser import (
     ParseArg,
+)
+from parsearg.tests.conftest import (
+    a_dict,
 )
 from parsearg.utils import (
     underline,
 )
 
-def test_ParseArg(get_a_aa_dict):
+def main():
     # create the parser from the dict (flat tree)
-    parser = ParseArg(d=get_a_aa_dict, root_name='root')
+    parser = ParseArg(d=a_dict(), root_name='root')
 
     def do_it(node):
         def _do_it(args):
@@ -22,8 +24,10 @@ def test_ParseArg(get_a_aa_dict):
             print('{}\n{}'.format(underline(f'{args!r}'), result))
 
         print(underline(f'\n\nNODE :: {node!r}'))
-        with pytest.raises(SystemExit):
+        try:
             _do_it(f'{node} -h')
+        except SystemExit as e:
+            pass
         print('\n')
 
         _do_it(f'{node}')
@@ -38,12 +42,9 @@ def test_ParseArg(get_a_aa_dict):
         'A BB C',
         'A BB CC',
         'A BB CCC',
-        'AA',
-        'AA B',
-        'AA BB',
-        'AA BB C',
-        'AA BB CC',
-        'AA BB CCC',
     ]
     list(map(lambda node: do_it(node), nodes))
 
+
+if __name__ == '__main__':
+    main()
