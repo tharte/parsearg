@@ -1,3 +1,4 @@
+import sys
 import model
 from parsearg.parser import ParseArg
 from parsearg.utils import (
@@ -51,8 +52,6 @@ def update_todo_description(args):
 
 
 def main(args):
-    args = args.split() if isinstance(args, str) else args
-        
     d = {
         'purge|users': {
             'callback':   purge_users,
@@ -100,6 +99,7 @@ def main(args):
     ns     = parser.parse_args(args)
 
     # perform the associated callback:
+    model.Schema()
     result = ns.callback(ns)
 
     # display the result:
@@ -108,7 +108,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-
-    EXIT_CODE = wrex(args)
-
-    sys.exit(EXIT_CODE)
+    main(' '.join(args))
