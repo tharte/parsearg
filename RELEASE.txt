@@ -1,3 +1,10 @@
+v-0.1.1 :: [2020-11-22] 
+
+    + added comprehensive example:
+        ./examples/todos.sh
+
+    + fixtures in conftest 
+
 v-0.1.0 :: [2020-11-20] 
 
     + first working version [example: tests/test_parser.py]
