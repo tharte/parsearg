@@ -1,16 +1,18 @@
 from parsearg.parser import (
     ParseArg,
 )
-from parsearg.tests.conftest import (
-    a_aa_dict,
-)
 from parsearg.utils import (
     underline,
 )
+from parsearg.tests.conftest import (
+    a_aa_dict,
+)
+
+view = a_aa_dict()
 
 def main():
     # create the parser from the dict (flat tree)
-    parser = ParseArg(d=a_aa_dict(), root_name='root')
+    parser = ParseArg(d=view, root_name='root')
 
     def do_it(node):
         def _do_it(args):
