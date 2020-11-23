@@ -4,6 +4,51 @@ from parsearg.utils import (
     underline,
 )
 
+def purge_users(args=None):
+    model.User().purge()
+    
+def purge_todos(args=None):
+    model.Todo().purge()
+
+def create_user(args):
+    model.User().create(
+        name=args.name,
+        email=args.email,
+        phone=args.phone
+    )
+
+def create_todo(args):
+    model.Todo().create(
+        user=args.user,
+        title=args.title,
+        description=args.description,
+        due=args.due_date
+    )
+
+def update_user_email(args):
+    model.User().update_email(
+        name=args.name,
+        email=args.email
+    )
+
+def update_user_phone(args):
+    model.User().update_phone(
+        name=args.name,
+        phone=args.phone
+    )
+
+def update_todo_title(args):
+    model.Todo().update_title(
+        _id=args.id,
+        title=args.title
+    )
+
+def update_todo_description(args):
+    model.Todo().update_description(
+        _id=args.id,
+        description=args.description
+    )
+
 
 def main(args):
     args = args.split() if isinstance(args, str) else args
