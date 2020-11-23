@@ -59,57 +59,57 @@ def update_todo_description(args):
         description=args.description
     )
 
+# VIEW:
+view = {
+    'purge|users': {
+        'callback':   purge_users,
+    },
+    'purge|todos': {
+        'callback':   purge_todos,
+    },
+    'show|users': {
+        'callback':   show_users,
+    },
+    'show|todos': {
+        'callback':   show_todos,
+    },
+    'create|user': {
+        'callback':   create_user,
+        'name':       {'help': 'create user name', 'action': 'store'},
+        '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
+        '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
+    },
+    'create|todo': {
+        'callback':   create_todo,
+        'user':       {'help': 'user name', 'action': 'store'},
+        'title':      {'help': 'title of to-do', 'action': 'store'},
+        '-c|--description': {'help': 'description of to-do', 'action': 'store', 'default': ''},
+        '-d|--due-date': {'help': 'due date for the to-do', 'action': 'store', 'default': None},
+    },
+    'update|user|email': {
+        'callback':   update_user_email,
+        'name':       {'help': 'user name', 'action': 'store'},
+        'email':      {'help': 'user email', 'action': 'store'},
+    },
+    'update|user|phone': {
+        'callback':   update_user_phone,
+        'name':       {'help': 'user name', 'action': 'store'},
+        'phone':      {'help': 'user phone', 'action': 'store'},
+    },
+    'update|todo|title': {
+        'callback':   update_todo_title,
+        'id':         {'help': 'ID of to-do', 'action': 'store'},
+        'title':      {'help': 'title of to-do', 'action': 'store'},
+    },
+    'update|todo|description': {
+        'callback':   update_todo_description,
+        'id':         {'help': 'ID of to-do', 'action': 'store'},
+        'description':{'help': 'description of to-do', 'action': 'store'},
+    },
+}
 
 # CONTROLLER (Part II):
 def main(args):
-    d = {
-        'purge|users': {
-            'callback':   purge_users,
-        },
-        'purge|todos': {
-            'callback':   purge_todos,
-        },
-        'show|users': {
-            'callback':   show_users,
-        },
-        'show|todos': {
-            'callback':   show_todos,
-        },
-        'create|user': {
-            'callback':   create_user,
-            'name':       {'help': 'create user name', 'action': 'store'},
-            '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
-            '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
-        },
-        'create|todo': {
-            'callback':   create_todo,
-            'user':       {'help': 'user name', 'action': 'store'},
-            'title':      {'help': 'title of to-do', 'action': 'store'},
-            '-c|--description': {'help': 'description of to-do', 'action': 'store', 'default': ''},
-            '-d|--due-date': {'help': 'due date for the to-do', 'action': 'store', 'default': None},
-        },
-        'update|user|email': {
-            'callback':   update_user_email,
-            'name':       {'help': 'user name', 'action': 'store'},
-            'email':      {'help': 'user email', 'action': 'store'},
-        },
-        'update|user|phone': {
-            'callback':   update_user_phone,
-            'name':       {'help': 'user name', 'action': 'store'},
-            'phone':      {'help': 'user phone', 'action': 'store'},
-        },
-        'update|todo|title': {
-            'callback':   update_todo_title,
-            'id':         {'help': 'ID of to-do', 'action': 'store'},
-            'title':      {'help': 'title of to-do', 'action': 'store'},
-        },
-        'update|todo|description': {
-            'callback':   update_todo_description,
-            'id':         {'help': 'ID of to-do', 'action': 'store'},
-            'description':{'help': 'description of to-do', 'action': 'store'},
-        },
-    }
-    parser = ParseArg(d=d, root_name='todos')
     setup_model()
 
     # create the parser from the dict (flat tree):
@@ -119,7 +119,6 @@ def main(args):
     ns     = parser.parse_args(args)
 
     # perform the associated callback:
-    model.Schema()
     result = ns.callback(ns)
 
     # display the result:
