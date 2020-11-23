@@ -1,3 +1,8 @@
+v-0.1.6 :: [2020-11-23] 
+
+    + added To-Do example along with A-tree and A-AA tree examples
+
+
 v-0.1.5 :: [2020-11-23] 
 
     + add README.org, Makefile at the top level

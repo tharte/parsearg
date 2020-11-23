@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
     
 setuptools.setup(
     name='parsearg',
-    version='0.1.5',
+    version='0.1.6',
     author='Thomas P. Harte',
     author_email='tharte@cantab.net',
     description='parsearg turns argparse on its head the declarative way',

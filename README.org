@@ -259,6 +259,27 @@ digraph G {
 
 Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a.py][~a.py~]].
 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.examples.a import view
+from parsearg.parser import ParseArg
+
+print(
+    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
+)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+TODO
+    A
+        B
+        BB
+            C
+            CC
+            CCC
+        BBB
+#+end_example
+
 
 The extended ``ABC'' example (this is the ``A-AA'' tree):
 #+headers:  :width 800 :height 500 
@@ -313,5 +334,34 @@ digraph G {
 [[file:./doc/img/tree-abc-a-aa.png]]
 
 Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a_aa.py][~a_aa.py~]].
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.examples.a_aa import view
+from parsearg.parser import ParseArg
+
+print(
+    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
+)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+TODO
+    A
+        B
+        BB
+            C
+            CC
+            CCC
+        BBB
+    AA
+        B
+        BB
+            C
+            CC
+            CCC
+        BBB
+
+
+#+end_example
 
 Let's examine ~parsearg~'s ~parser.py.Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/parser.py][~parser.py~]].
