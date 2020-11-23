@@ -1,0 +1,84 @@
+# -*- org-confirm-babel-evaluate: nil -*- 
+#+author:      Thomas P. Harte
+#+title:       ~parsearg~: turns ~argparse~ on its head, the declarative way
+#+email:       tharte@cantab.net
+
+#+latex_class:   review
+#+latex_header:  \usepackage{minted}
+#+latex_header:  \usemintedstyle{colorful}
+#+latex_header:  \usepackage[ruled]{algorithm2e}
+#+latex_header:  \usepackage{enumitem}
+#+options:       tex:imagemagick
+#+include:       /home/tharte/dot/include/newcommands.tex src latex
+#+bind:          org-latex-image-default-width 0.5\linewidth $
+#+bind:          org-latex-prefer-user-labels t
+#+latex_header:  \newtheorem{lemma}{Lemma}[section]
+#+latex_header:  \newtheorem{defn}{Definition}[section]
+#+latex_header:  \newtheorem{remark}{Remark}[section]
+
+#+latex_header_extra: \usepackage{mdframed}
+#+latex_header_extra: \BeforeBeginEnvironment{verbatim}{\begin{mdframed}}
+#+latex_header_extra: \AfterEndEnvironment{verbatim}{\end{mdframed}}
+
+#+begin_export latex
+\newtcbox{\mybox}[1][]{%
+    nobeforeafter, math upper, tcbox raise base,
+    enhanced, colframe=blue!30!black,
+    colback=lightgreen!30, boxrule=0.5pt,
+    #1
+}
+#+end_export
+
+# 
+# SET-UP
+#
+#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
+
+#+END_SRC
+
+
+* Overview
+The ``standard'' Python module for writing command-line interfaces (``CLI'') 
+is ~argparse~. It is standard in so far as it is one of the batteries included
+with the Python distribution, so no special installation is required. 
+There are many other packages for creating CLIs, probably because ~argparse~
+is a bit clunky to use. Putting together a CLI with ~argparse~
+alone is nothing if not an exercise in imperative programming, and this
+has three very negative consequences:
+
+1. It obfuscates the intention of the CLI design;
+1. It is prone to errors;
+1. It discourages CLI design, debugging the design, and refactoring or
+   re-configuration of the design.
+
+The ~parsearg~ package is nothing more than a layer
+over ~argparse~ that exposes the ~argparse~ functionality via a ~dict~.
+The ~dict~ is the view component of the model-view-controller (``MVC'')
+design pattern. The ~dict~ embeds callbacks to the controller component, 
+thereby achieving a clean separation of duties, which is what the MVC
+pattern calls for. By separating the view component into a ~dict~,
+the CLI design can be expressed in a declarative way: ~parsearg~ 
+manifests the /intention/ of the CLI design without having to 
+specify how that design is implemented in terms of ~argparse~'s 
+parsers and subparsers.
+
+Other packages---such as ~click~ and ~plac~---effectively
+decorate functions that are part of the controller component of the MVC: This
+dissipates the view component across the controller component and makes
+the CLI design difficult to grasp, though they expose the functionality of
+~argparse~ in a more friendly way. The ~parsearg~ philosophy is that 
+~argparse~ is already good enough in terms of the functionality that it
+provides, but that it just needs a little nudge in terms of how it's used. 
+Arguments to be added to a CLI with ~argparse~ can be 
+clearly---and solely---specified
+as data, as can the callbacks that consume these arguments. ~parsearg~
+takes advantage of this by specifiying everything (in the view component
+of MVC) as a ~dict~, from which ~parsearg~ then generates a
+parser (or set of nested parsers) using ~argparse~.  
+The declarative nature of the ~parsearg~ approach
+places the CLI design front and center via a ~dict~ 
+(one of Python's a built-in data structures), the keys of
+which specify a flattened tree that ~parsearg~ renders as an unflattened
+tree of ~argparse~ parsers.
+
+Simple? The following examples should help.
