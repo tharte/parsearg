@@ -5,6 +5,10 @@ from parsearg.utils import (
     underline,
 )
 
+# CONTROLLER (Part I):
+def setup_model():
+    model.Schema()
+    
 def purge_users(args=None):
     model.User().purge()
     
@@ -35,8 +39,7 @@ def create_todo(args):
 def update_user_email(args):
     model.User().update_email(
         name=args.name,
-        email=args.email
-    )
+        email=args.email)
 
 def update_user_phone(args):
     model.User().update_phone(
@@ -57,6 +60,7 @@ def update_todo_description(args):
     )
 
 
+# CONTROLLER (Part II):
 def main(args):
     d = {
         'purge|users': {
@@ -106,6 +110,10 @@ def main(args):
         },
     }
     parser = ParseArg(d=d, root_name='todos')
+    setup_model()
+
+    # create the parser from the dict (flat tree):
+    parser = ParseArg(d=view, root_name='todos')
 
     # generate the argparse.Namespace by parsing the arguments:
     ns     = parser.parse_args(args)
