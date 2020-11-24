@@ -287,33 +287,36 @@ print(
 #+RESULTS:
 #+begin_example
 TODO
+    show
+        users
+        todos
     update
+        todo
+            description
+            title
         user
             phone
             email
-        todo
-            title
-            description
-    show
-        todos
-        users
     purge
-        todos
         users
+        todos
     create
-        user
         todo
+        user
 #+end_example
 
-* How ~parsearg~ works: Illustration with the A-tree and the A-AA tree
-The ``A tree'' example (simpler form of the ``ABC'' example). Note that 
-~[-f]~ and ~[-g]~ here indicate optional arguments that attach to the nodes 
-(~A~ and ~BB~, respectively): Why ``optional''? Because ~B~, ~BB~ and ~BBB~
-are /positional arguments/: once a positional argument is in place it must
-be attributed to one of  ~B~, ~BB~ or ~BBB~, so anything associated with ~A~
-must be optional by definition. This also means that ~[-f]~ and ~[-g]~ should
-/not/ be interpreted as child nodes of ~A~ and ~BB~, respectively.
+* How ~parsearg~ works 
+It is easier to explain how ~parsearg~ works with a simpler abstraction 
+than the above example ~parsearg.examples.todos.py~. Here, we will 
+consider nested parsers as trees. We introduce two trees for this purpose:
+1. The ``A tree'', and
+2. The ``A-AA tree''.
 
+** The A-tree 
+The ``A tree'' has three levels. As each node of the tree must
+necessarily occupy a positional argument of the command line,
+~[-f]~ and ~[-g]~ must correspondingly be /optional arguments/ that attach to the nodes 
+(~A~ and ~BB~, respectively, in the below diagram). 
 #+headers:  :width 800 :height 500 
 #+begin_src dot :exports results :results output graphics :file ./doc/img/tree-abc-a.png
 digraph G {
@@ -346,8 +349,69 @@ digraph G {
 
 Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a.py][~a.py~]].
 
+Consider the ~dict~ that represents the View component:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from parsearg.examples.a import view
+
+show(view)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+'A':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c992550>
+    '-c':
+    {'help': 'A [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A verbosity', 'action': 'store_true'}
+'A|B':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5bdaf0>
+    '-c':
+    {'help': 'A B [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A B verbosity', 'action': 'store_true'}
+'A|BB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5bdb80>
+    '-c':
+    {'help': 'A BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB erbosity', 'action': 'store_true'}
+'A|BB|C':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5bdc10>
+    '-c':
+    {'help': 'A BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB C verbosity', 'action': 'store_true'}
+'A|BB|CC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5bdca0>
+    '-c':
+    {'help': 'A BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CC verbosity', 'action': 'store_true'}
+'A|BB|CCC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5bdd30>
+    '-c':
+    {'help': 'A BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CCC verbosity', 'action': 'store_true'}
+'A|BBB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5bddc0>
+    '-c':
+    {'help': 'A BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BBB verbosity', 'action': 'store_true'}
+
+
+#+end_example
+and then the tree that the parsed ~dict~ is represented by:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from parsearg.parser import ParseArg
 
 print(
@@ -359,16 +423,18 @@ print(
 #+begin_example
 TODO
     A
+        BBB
         B
         BB
-            C
             CC
             CCC
-        BBB
+            C
+
+
 #+end_example
 
-
-The extended ``ABC'' example (this is the ``A-AA'' tree):
+** The A-A tree 
+The A-AA tree simply extends the A tree one level:
 #+headers:  :width 800 :height 500 
 #+begin_src dot :exports results :results output graphics :file ./doc/img/tree-abc-a-aa.png
 digraph G {
@@ -421,10 +487,117 @@ digraph G {
 [[file:./doc/img/tree-abc-a-aa.png]]
 
 Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a_aa.py][~a_aa.py~]].
+
+Consider the ~dict~ that represents the View component:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from parsearg.examples.a_aa import view
-from parsearg.parser import ParseArg
 
+show(view)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+'A':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5d0820>
+    '-c':
+    {'help': 'A [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A verbosity', 'action': 'store_true'}
+'A|B':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5d08b0>
+    '-c':
+    {'help': 'A B [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A B verbosity', 'action': 'store_true'}
+'A|BB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5d0940>
+    '-c':
+    {'help': 'A BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB erbosity', 'action': 'store_true'}
+'A|BB|C':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5d09d0>
+    '-c':
+    {'help': 'A BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB C verbosity', 'action': 'store_true'}
+'A|BB|CC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5d0a60>
+    '-c':
+    {'help': 'A BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CC verbosity', 'action': 'store_true'}
+'A|BB|CCC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c05e0>
+    '-c':
+    {'help': 'A BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CCC verbosity', 'action': 'store_true'}
+'A|BBB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c0f70>
+    '-c':
+    {'help': 'A BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BBB verbosity', 'action': 'store_true'}
+'AA':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c0ee0>
+    '-c':
+    {'help': 'AA [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA verbosity', 'action': 'store_true'}
+'AA|B':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c0e50>
+    '-c':
+    {'help': 'AA B [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA B verbosity', 'action': 'store_true'}
+'AA|BB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c0d30>
+    '-c':
+    {'help': 'AA BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB verbosity', 'action': 'store_true'}
+'AA|BB|C':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c0ca0>
+    '-c':
+    {'help': 'AA BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB C verbosity', 'action': 'store_true'}
+'AA|BB|CC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c0c10>
+    '-c':
+    {'help': 'AA BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB CC verbosity', 'action': 'store_true'}
+'AA|BB|CCC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c00d0>
+    '-c':
+    {'help': 'AA BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB CCC verbosity', 'action': 'store_true'}
+'AA|BBB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f535c5c04c0>
+    '-c':
+    {'help': 'AA BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BBB verbosity', 'action': 'store_true'}
+#+end_example
+and then the tree that the parsed ~dict~ is represented by:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
 )
@@ -434,21 +607,18 @@ print(
 #+begin_example
 TODO
     A
+        BBB
         B
         BB
-            C
             CC
             CCC
-        BBB
+            C
     AA
+        BBB
         B
         BB
-            C
             CC
             CCC
-        BBB
-
-
+            C
 #+end_example
 
-Let's examine ~parsearg~'s ~parser.py.Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/parser.py][~parser.py~]].
