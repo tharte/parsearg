@@ -70,3 +70,18 @@ def is_valid(d, sep='|'):
 
     return True
 
+def show(d):
+    assert is_valid(d)
+    # ensure that d, the data structure: dict of argparse options, 
+    # has been set up properly
+    def _show_dict(d, indent=''):
+        assert isinstance(d, dict)
+        for e in d.items(): 
+            print('{}{}:\n{}{}'.format(indent, e[0], indent, e[1]))
+    for k in d: 
+        e = d[k]
+        if isinstance(e, dict):
+            print(f'{k}:')
+            _show_dict(e, indent='    ')
+        else:
+            print(f'{k}:\t{e}\n')
