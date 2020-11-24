@@ -35,7 +35,7 @@ The ``standard'' Python module for writing command-line interfaces (``CLI'')
 is ~argparse~. It is standard in so far as it is one of the batteries 
 that comes included with the Python distribution, so no special 
 installation is required. 
-Probably because ~argparse~ is a bit clunky to use. 
+Probably because ~argparse~ is a bit clunky to use,
 many other (non-standard) packages have been developed for creating CLIs.
 Why ``clunky''? Putting together a CLI with ~argparse~
 alone is nothing if not an exercise in imperative programming, and this
