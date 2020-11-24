@@ -1,3 +1,8 @@
+v-0.1.8 :: [2020-11-23] 
+
+    + tweaks to README.org
+    
+
 v-0.1.7 :: [2020-11-23] 
 
     + added README.pdf to the distribution [just in case]
