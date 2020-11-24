@@ -1,3 +1,8 @@
+v-0.1.10 :: [2020-11-23] 
+
+    + add full parseargs.examples.a.py and parseargs.examples.a_aa.py output
+
+    
 v-0.1.9 :: [2020-11-23] 
 
     + more tweaks to README.org

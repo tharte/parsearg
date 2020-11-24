@@ -77,7 +77,7 @@ then generates a parser (or set of nested parsers) using ~argparse~ which
 the Controller then uses.
 The declarative nature of the ~parsearg~ approach places the CLI design
 front and center via a ~dict~ (one of Python's built-in data structures).
-The keys of this ~dict~ form a flattened tree of sub-commands. 
+The keys of this ~dict~ form a flattened tree of subcommands. 
 ~parsearg~ unflattens the flattened tree into
 a tree of ~argparse~ parsers. ~parsearg~ requires nothing 
 special: It works with Python out of the box, and therefore uses
@@ -85,7 +85,7 @@ what's already available without introducing dependencies.
 
 Simple? The following examples should help.
 
-* ~todos~ 
+* ~parsearg.examples.todos.py~
 Yet another To-Do app? Yes, because:
 
 1. It illustrates a  sufficiently realistic, but not overly complex, problem;
@@ -117,7 +117,7 @@ python todos.py create user qux -p 212-123-5555
 : ----------------------------------
 : 	None
 
-Second, create some to-dos in the ~Todo~ table with the ~create todo~ subcommand of ~todos.py~. Note that 
+Second, create some to-dos in the ~Todo~ table with the ~create todo~ subcommand of ~todos.py~. 
 #+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes :tangle ./parsearg/examples/todos.sh
 python todos.py create todo foo title1 -c description1 -d 2020-11-30
 python todos.py create todo foo title2 -c description2 --due-date=2020-12-31
@@ -142,7 +142,8 @@ python todos.py create todo qux todo-2 --description=New-Year-party
 #+end_example
 
 Let's make some changes to the records entered so far. We can add an email address
-for user ~qux~ and a phone number for user ~bar~:
+for user ~qux~ and a phone number for user ~bar~ using the ~update user email~ 
+and ~update user phone~ subcommands, respectively:
 #+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes :tangle ./parsearg/examples/todos.sh
 python todos.py update user email qux qux@quxbar.com
 python todos.py update user phone bar 203-555-1212
@@ -157,7 +158,7 @@ python todos.py update user phone bar 203-555-1212
 : 	None
 
 Now update two of the to-dos, changing the ~title~ and the ~description~ in the fourth
-to-do:
+to-do using the ~update todo title~ and ~update todo description~ subcommands, respectively:
 #+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes :tangle ./parsearg/examples/todos.sh
 python todos.py update todo title 4 most-important
 python todos.py update todo description 4 2021-party
@@ -321,7 +322,7 @@ consider nested parsers as trees. We introduce two trees for this purpose:
 ** The A-tree 
 The ``A tree'' has three levels. As each node of the tree must
 necessarily occupy a positional argument of the command line,
-~[-f]~ and ~[-g]~ must correspondingly be /optional arguments/ that attach to the nodes 
+~[-f]~ and ~[-g]~ are correspondingly /optional arguments/ that attach to the nodes 
 (~A~ and ~BB~, respectively, in the below diagram). 
 #+headers:  :width 800 :height 500 
 #+begin_src dot :exports results :results output graphics :file ./doc/img/tree-abc-a.png
@@ -418,8 +419,6 @@ show(view)
 #+end_example
 and then the tree that the parsed ~dict~ is represented by:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from parsearg.parser import ParseArg
-
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
 )
@@ -628,3 +627,544 @@ TODO
             C
 #+end_example
 
+
+We can now run the A-tree and the A-AA-tree examples, respectively:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.examples.a import main
+main()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+NODE :: 'A':
+--------------
+usage: ipython A [-h] [-c] [-v] {BBB,B,BB} ...
+
+positional arguments:
+  {BBB,B,BB}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A [optional pi]
+  -v, --verbose  A verbosity
+
+
+'A':
+----
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A' id='139996012374000'>
+'A -v':
+-------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A' id='139996012374000'>
+'A -c':
+-------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A' id='139996012374000'>
+'A -v -c':
+----------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A' id='139996012374000'>
+
+
+NODE :: 'A B':
+----------------
+usage: ipython A B [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A B [optional pi]
+  -v, --verbose  A B verbosity
+
+
+'A B':
+------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_B' id='139996008444592'>
+'A B -v':
+---------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_B' id='139996008444592'>
+'A B -c':
+---------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_B' id='139996008444592'>
+'A B -v -c':
+------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_B' id='139996008444592'>
+
+
+NODE :: 'A BB':
+-----------------
+usage: ipython A BB [-h] [-c] [-v] {CC,CCC,C} ...
+
+positional arguments:
+  {CC,CCC,C}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB [optional pi]
+  -v, --verbose  A BB erbosity
+
+
+'A BB':
+-------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB' id='139996008493984'>
+'A BB -v':
+----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB' id='139996008493984'>
+'A BB -c':
+----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB' id='139996008493984'>
+'A BB -v -c':
+-------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB' id='139996008493984'>
+
+
+NODE :: 'A BB C':
+-------------------
+usage: ipython A BB C [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB C [optional pi]
+  -v, --verbose  A BB C verbosity
+
+
+'A BB C':
+---------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139996008494176'>
+'A BB C -v':
+------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139996008494176'>
+'A BB C -c':
+------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139996008494176'>
+'A BB C -v -c':
+---------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139996008494176'>
+
+
+NODE :: 'A BB CC':
+--------------------
+usage: ipython A BB CC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CC [optional pi]
+  -v, --verbose  A BB CC verbosity
+
+
+'A BB CC':
+----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139996008494368'>
+'A BB CC -v':
+-------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139996008494368'>
+'A BB CC -c':
+-------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139996008494368'>
+'A BB CC -v -c':
+----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139996008494368'>
+
+
+NODE :: 'A BB CCC':
+---------------------
+usage: ipython A BB CCC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CCC [optional pi]
+  -v, --verbose  A BB CCC verbosity
+
+
+'A BB CCC':
+-----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139996008494560'>
+'A BB CCC -v':
+--------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139996008494560'>
+'A BB CCC -c':
+--------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139996008494560'>
+'A BB CCC -v -c':
+-----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139996008494560'>
+
+
+#+end_example
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.examples.a_aa import main
+main()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+NODE :: 'A':
+--------------
+usage: ipython A [-h] [-c] [-v] {BBB,B,BB} ...
+
+positional arguments:
+  {BBB,B,BB}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A [optional pi]
+  -v, --verbose  A verbosity
+
+
+'A':
+----
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A' id='139996008617584'>
+'A -v':
+-------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A' id='139996008617584'>
+'A -c':
+-------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A' id='139996008617584'>
+'A -v -c':
+----------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A' id='139996008617584'>
+
+
+NODE :: 'A B':
+----------------
+usage: ipython A B [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A B [optional pi]
+  -v, --verbose  A B verbosity
+
+
+'A B':
+------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_B' id='139996008617728'>
+'A B -v':
+---------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_B' id='139996008617728'>
+'A B -c':
+---------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_B' id='139996008617728'>
+'A B -v -c':
+------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_B' id='139996008617728'>
+
+
+NODE :: 'A BB':
+-----------------
+usage: ipython A BB [-h] [-c] [-v] {CC,CCC,C} ...
+
+positional arguments:
+  {CC,CCC,C}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB [optional pi]
+  -v, --verbose  A BB erbosity
+
+
+'A BB':
+-------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB' id='139996008616048'>
+'A BB -v':
+----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB' id='139996008616048'>
+'A BB -c':
+----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB' id='139996008616048'>
+'A BB -v -c':
+-------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB' id='139996008616048'>
+
+
+NODE :: 'A BB C':
+-------------------
+usage: ipython A BB C [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB C [optional pi]
+  -v, --verbose  A BB C verbosity
+
+
+'A BB C':
+---------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139996008141152'>
+'A BB C -v':
+------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139996008141152'>
+'A BB C -c':
+------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139996008141152'>
+'A BB C -v -c':
+---------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139996008141152'>
+
+
+NODE :: 'A BB CC':
+--------------------
+usage: ipython A BB CC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CC [optional pi]
+  -v, --verbose  A BB CC verbosity
+
+
+'A BB CC':
+----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139996008141344'>
+'A BB CC -v':
+-------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139996008141344'>
+'A BB CC -c':
+-------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139996008141344'>
+'A BB CC -v -c':
+----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139996008141344'>
+
+
+NODE :: 'A BB CCC':
+---------------------
+usage: ipython A BB CCC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CCC [optional pi]
+  -v, --verbose  A BB CCC verbosity
+
+
+'A BB CCC':
+-----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139996008619792'>
+'A BB CCC -v':
+--------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139996008619792'>
+'A BB CCC -c':
+--------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139996008619792'>
+'A BB CCC -v -c':
+-----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139996008619792'>
+
+
+NODE :: 'AA':
+---------------
+usage: ipython AA [-h] [-c] [-v] {BBB,B,BB} ...
+
+positional arguments:
+  {BBB,B,BB}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA [optional pi]
+  -v, --verbose  AA verbosity
+
+
+'AA':
+-----
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA' id='139996008619504'>
+'AA -v':
+--------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA' id='139996008619504'>
+'AA -c':
+--------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA' id='139996008619504'>
+'AA -v -c':
+-----------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA' id='139996008619504'>
+
+
+NODE :: 'AA B':
+-----------------
+usage: ipython AA B [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA B [optional pi]
+  -v, --verbose  AA B verbosity
+
+
+'AA B':
+-------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_B' id='139996008619216'>
+'AA B -v':
+----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_B' id='139996008619216'>
+'AA B -c':
+----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_B' id='139996008619216'>
+'AA B -v -c':
+-------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_B' id='139996008619216'>
+
+
+NODE :: 'AA BB':
+------------------
+usage: ipython AA BB [-h] [-c] [-v] {CC,CCC,C} ...
+
+positional arguments:
+  {CC,CCC,C}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB [optional pi]
+  -v, --verbose  AA BB verbosity
+
+
+'AA BB':
+--------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB' id='139996008619072'>
+'AA BB -v':
+-----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB' id='139996008619072'>
+'AA BB -c':
+-----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB' id='139996008619072'>
+'AA BB -v -c':
+--------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB' id='139996008619072'>
+
+
+NODE :: 'AA BB C':
+--------------------
+usage: ipython AA BB C [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB C [optional pi]
+  -v, --verbose  AA BB C verbosity
+
+
+'AA BB C':
+----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB_C' id='139996008618928'>
+'AA BB C -v':
+-------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB_C' id='139996008618928'>
+'AA BB C -c':
+-------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB_C' id='139996008618928'>
+'AA BB C -v -c':
+----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB_C' id='139996008618928'>
+
+
+NODE :: 'AA BB CC':
+---------------------
+usage: ipython AA BB CC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB CC [optional pi]
+  -v, --verbose  AA BB CC verbosity
+
+
+'AA BB CC':
+-----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB_CC' id='139996008619456'>
+'AA BB CC -v':
+--------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB_CC' id='139996008619456'>
+'AA BB CC -c':
+--------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB_CC' id='139996008619456'>
+'AA BB CC -v -c':
+-----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB_CC' id='139996008619456'>
+
+
+NODE :: 'AA BB CCC':
+----------------------
+usage: ipython AA BB CCC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB CCC [optional pi]
+  -v, --verbose  AA BB CCC verbosity
+
+
+'AA BB CCC':
+------------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB_CCC' id='139996008618832'>
+'AA BB CCC -v':
+---------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB_CCC' id='139996008618832'>
+'AA BB CCC -c':
+---------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB_CCC' id='139996008618832'>
+'AA BB CCC -v -c':
+------------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB_CCC' id='139996008618832'>
+
+
+#+end_example
