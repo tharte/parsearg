@@ -75,17 +75,20 @@ consume these arguments. ~parsearg~ takes advantage of this by specifiying
 everything (in the View component of MVC) as a ~dict~, from which ~parsearg~
 then generates a parser (or set of nested parsers) using ~argparse~ which
 the Controller then uses.
-The declarative nature of the ~parsearg~ approach places the CLI design
-front and center via a ~dict~ (one of Python's built-in data structures).
-The keys of this ~dict~ form a flattened tree of subcommands. 
-~parsearg~ unflattens the flattened tree into
-a tree of ~argparse~ parsers. ~parsearg~ requires nothing 
+
+The ~parsearg~ approach is declarative because it manifests the CLI design
+in a data structure: a ~dict~, which is one of Python's built-in data structures.
+The keys of this ~dict~ form a flattened tree of the CLI's subcommands. 
+Keys like ~A|B|C~ are easy to specify and neatly summarize the nested
+hierarchy of subcommands: ~A -> B -> C~. They are also easy to change. 
+The magic, such as it is, of ~parsearg~ is that it unflattens 
+this flattened tree into a tree of ~argparse~ parsers. ~parsearg~ requires nothing 
 special: It works with Python out of the box, and therefore uses
 what's already available without introducing dependencies.
 
 Simple? The following examples should help.
 
-* ~parsearg.examples.todos.py~
+* ~parsearg.examples.todos~
 Yet another To-Do app? Yes, because:
 
 1. It illustrates a  sufficiently realistic, but not overly complex, problem;
