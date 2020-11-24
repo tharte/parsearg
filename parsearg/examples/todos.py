@@ -1,5 +1,5 @@
 import sys
-import model
+import parsearg.examples.model as model
 from parsearg.parser import ParseArg
 from parsearg.utils import (
     underline,
