@@ -73,8 +73,8 @@ in terms of how it's used.  Arguments to be added to a CLI with ~argparse~
 can be clearly specified as data, as can the callbacks that
 consume these arguments. ~parsearg~ takes advantage of this by specifiying
 everything (in the View component of MVC) as a ~dict~, from which ~parsearg~
-then generates a parser (or set of nested parsers) using ~argparse~ which
-the Controller then uses.
+then generates a parser (or set of nested parsers) using ~argparse~. 
+The Controller is then free to use the generated parser.
 
 The ~parsearg~ approach is declarative because it manifests the CLI design
 in a data structure: a ~dict~, which is one of Python's built-in data structures.
