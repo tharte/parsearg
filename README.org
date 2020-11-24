@@ -52,7 +52,7 @@ terms of functionality. ~parsearg~, then, is nothing more than a layer
 over ~argparse~ that exposes the ~argparse~ functionality via a ~dict~.
 The ~dict~ is the View component of the 
 [[https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller][Model-View-Controller (``MVC'')]]
-design pattern. The ~dict~ embeds callbacks within the Controller component,
+design pattern. The ~dict~ embeds callbacks from the Controller component,
 thereby achieving a clean separation of duties, which is what the MVC pattern
 calls for. By separating the View component into a ~dict~, the CLI design
 can be expressed in a declarative way: ~parsearg~ manifests the /intention/
