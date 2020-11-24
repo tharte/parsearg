@@ -29,13 +29,6 @@
 }
 #+end_export
 
-# 
-# SET-UP
-#
-#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
-
-#+END_SRC
-
 
 * Overview
 The ``standard'' Python module for writing command-line interfaces (``CLI'') 
