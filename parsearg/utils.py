@@ -77,11 +77,11 @@ def show(d):
     def _show_dict(d, indent=''):
         assert isinstance(d, dict)
         for e in d.items(): 
-            print('{}{}:\n{}{}'.format(indent, e[0], indent, e[1]))
+            print('{}{!r}:\n{}{}'.format(indent, e[0], indent, e[1]))
     for k in d: 
         e = d[k]
         if isinstance(e, dict):
-            print(f'{k}:')
+            print(f'{k!r}:')
             _show_dict(e, indent='    ')
         else:
             print(f'{k}:\t{e}\n')
