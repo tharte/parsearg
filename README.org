@@ -32,10 +32,12 @@
 
 * Overview
 The ``standard'' Python module for writing command-line interfaces (``CLI'') 
-is ~argparse~. It is standard in so far as it is one of the batteries included
-with the Python distribution, so no special installation is required. 
-There are many other packages for creating CLIs, probably because ~argparse~
-is a bit clunky to use. Putting together a CLI with ~argparse~
+is ~argparse~. It is standard in so far as it is one of the batteries 
+that comes included with the Python distribution, so no special 
+installation is required. 
+Probably because ~argparse~ is a bit clunky to use. 
+many other (non-standard) packages have been developed for creating CLIs.
+Why ``clunky''? Putting together a CLI with ~argparse~
 alone is nothing if not an exercise in imperative programming, and this
 has three very negative consequences:
 
@@ -45,46 +47,50 @@ has three very negative consequences:
    makes debugging a CLI design very difficult; and it makes refactoring or
    re-configuring the CLI design overly burdensome.
 
-The ~parsearg~ package is nothing more than a layer over ~argparse~ that
-exposes the ~argparse~ functionality via a ~dict~.  The ~dict~ is the
-view component of the model-view-controller (``MVC'') design pattern. The
-~dict~ embeds callbacks to the Controller component, thereby achieving
-a clean separation of duties, which is what the MVC pattern calls for. By
-separating the View component into a ~dict~, the CLI design can be expressed
-in a declarative way: ~parsearg~ manifests the /intention/ of the CLI
-design without having to specify how that design is implemented in terms of
-~argparse~'s parsers and subparsers.
+In spite of this clunkiness, ~argparse~ has everything we need in 
+terms of functionality. ~parsearg~, then, is nothing more than a layer
+over ~argparse~ that exposes the ~argparse~ functionality via a ~dict~.
+The ~dict~ is the View component of the 
+[[https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller][Model-View-Controller (``MVC'')]]
+design pattern. The ~dict~ embeds callbacks within the Controller component,
+thereby achieving a clean separation of duties, which is what the MVC pattern
+calls for. By separating the View component into a ~dict~, the CLI design
+can be expressed in a declarative way: ~parsearg~ manifests the /intention/
+of the CLI design without having to specify how that design is implemented
+in terms of ~argparse~'s parsers and subparsers (~parsearg~ does that
+for you).
 
 Other packages---such as [[https://click.palletsprojects.com][~click~]] and [[https://micheles.github.io/plac/][~plac~]]---effectively
 decorate functions that are part of the Controller with functionality
 from the View. Unfortunately, while this may 
 expose the functionality of ~argparse~ in a more friendly way
-via the decorators, it dissipates the elements of the View 
-across the Controller and makes the CLI design difficult to grasp.
+via the packages' decorators, it dissipates the elements of the View 
+across the Controller and in so doing it makes the CLI design difficult to grasp.
 
 The ~parsearg~ philosophy is that ~argparse~ is already good enough in terms
 of the functionality that it provides, but that it just needs a little nudge
 in terms of how it's used.  Arguments to be added to a CLI with ~argparse~
-can be clearly---and solely---specified as data, as can the callbacks that
+can be clearly specified as data, as can the callbacks that
 consume these arguments. ~parsearg~ takes advantage of this by specifiying
 everything (in the View component of MVC) as a ~dict~, from which ~parsearg~
 then generates a parser (or set of nested parsers) using ~argparse~ which
 the Controller then uses.
 The declarative nature of the ~parsearg~ approach places the CLI design
-front and center via a ~dict~ (one of Python's built-in data structures),
-the keys of which specify a flattened tree that ~parsearg~ renders as an
-unflattened tree of ~argparse~ parsers. ~parsearg~ requires nothing 
+front and center via a ~dict~ (one of Python's built-in data structures).
+The keys of this ~dict~ form a flattened tree of sub-commands. 
+~parsearg~ unflattens the flattened tree into
+a tree of ~argparse~ parsers. ~parsearg~ requires nothing 
 special: It works with Python out of the box, and therefore uses
 what's already available without introducing dependencies.
 
 Simple? The following examples should help.
 
 * ~todos~ 
-Yet another To-Do app? Yes. It illustrates:
+Yet another To-Do app? Yes, because:
 
-1. A sufficiently realistic, but not overly complex, problem;
-2. The MVC pattern in the wild;
-3. How ~parsearg~ neatly segments the View component into a ~dict~.
+1. It illustrates a  sufficiently realistic, but not overly complex, problem;
+2. It also illustrates the MVC pattern in the wild;
+3. It shows how ~parsearg~ neatly segments the View component into a ~dict~.
   
 Let's start with the outer layer of the onion. How do we interact with ~todos.py~?
 #+BEGIN_SRC bash :session *bash* :exports none :results silent :eval yes 
