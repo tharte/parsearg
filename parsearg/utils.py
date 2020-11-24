@@ -40,3 +40,33 @@ def is_argument_field(field):
 
     return field in fields 
 
+def is_valid_node(node):
+    assert isinstance(node, dict)
+
+    for key, value in node.items():
+        if key != 'callback':
+            if not isinstance(value, dict) and value is not None:
+                return False
+
+            if value is not None:
+                if not all(map(
+                    lambda key: is_argument_field(key), value.keys()
+                )): 
+                    return False
+        else:
+            if type(value) != FunctionType:
+                return False 
+
+    return True
+
+def is_valid(d, sep='|'):
+    assert isinstance(d, dict)
+    assert all(map(lambda x: isinstance(x, str), d.keys()))
+
+    for key, value in d.items():
+        if value is not None:
+            if not is_valid_node(value):
+                return False
+
+    return True
+
