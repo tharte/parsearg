@@ -1,3 +1,9 @@
+v-0.2.0 :: [2021-06-08] 
+
+    + README.md at top level (contains Quickstart)
+    + moved README.org within ./doc
+
+    
 v-0.1.10 :: [2020-11-23] 
 
     + add full parseargs.examples.a.py and parseargs.examples.a_aa.py output
