@@ -328,7 +328,7 @@ necessarily occupy a positional argument of the command line,
 ~[-f]~ and ~[-g]~ are correspondingly /optional arguments/ that attach to the nodes 
 (~A~ and ~BB~, respectively, in the below diagram). 
 #+headers:  :width 800 :height 500 
-#+begin_src dot :exports results :results output graphics :file ./doc/img/tree-abc-a.png
+#+begin_src dot :exports results :results output graphics :file ./img/tree-abc-a.png
 digraph G {
     subgraph {
     edge [penwidth=0.5; arrowsize=0.65, arrowhead=normal];
@@ -354,8 +354,9 @@ digraph G {
 }
 #+END_SRC
 
+#+attr_latex: :width 0.5\linewidth
 #+RESULTS:
-[[file:./doc/img/tree-abc-a.png]]
+[[file:./img/tree-abc-a.png]]
 
 Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a.py][~a.py~]].
 
@@ -444,7 +445,7 @@ TODO
 ** The A-A tree 
 The A-AA tree simply extends the A tree one level:
 #+headers:  :width 800 :height 500 
-#+begin_src dot :exports results :results output graphics :file ./doc/img/tree-abc-a-aa.png
+#+begin_src dot :exports results :results output graphics :file ./img/tree-abc-a-aa.png
 digraph G {
     subgraph {
     edge [penwidth=0.5; arrowsize=0.65];
@@ -491,8 +492,9 @@ digraph G {
 }
 #+END_SRC
 
+#+attr_latex: :width 1.0\linewidth
 #+RESULTS:
-[[file:./doc/img/tree-abc-a-aa.png]]
+[[file:./img/tree-abc-a-aa.png]]
 
 Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a_aa.py][~a_aa.py~]].
 
