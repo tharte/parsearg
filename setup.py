@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def get_version():
     import re
 
-    with open("parsearg/version.py") as version_file:
+    with open("src/parsearg/version.py") as version_file:
         return re.search(
             r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""", version_file.read()
         ).group("version")
@@ -36,6 +36,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     keywords=["CLI", "subcommand", "parser", "argparse"],
-    packages=find_packages(),
+    packages=find_packages(where='src'),
     python_requires='>=3.8',
 )
