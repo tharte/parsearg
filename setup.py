@@ -36,6 +36,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     keywords=["CLI", "subcommand", "parser", "argparse"],
+    package_dir={'': 'src'},
     packages=find_packages(where='src'),
     python_requires='>=3.8',
 )
