@@ -1,9 +1,9 @@
 import sys
-import parsearg.examples.model as model
 from parsearg.parser import ParseArg
 from parsearg.utils import (
     underline,
 )
+import model
 
 # CONTROLLER (Part I):
 def setup_model():
