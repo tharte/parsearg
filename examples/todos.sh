@@ -1,7 +1,11 @@
 #!/bin/bash
 
-#python todos purge users
-#python todos purge todos
+DATABASE=./todo.db
+
+if [[ -e $DATABASE ]]; then
+    python todos.py purge users
+    python todos.py purge todos
+fi
 
 python todos.py create user foo -e foo@foo.com -p 212-555-1234
 python todos.py create user bar -e bar@bar.com
