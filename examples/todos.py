@@ -1,9 +1,9 @@
 import sys
-import parsearg.examples.model as model
 from parsearg.parser import ParseArg
 from parsearg.utils import (
     underline,
 )
+import model
 
 # CONTROLLER (Part I):
 def setup_model():
@@ -122,7 +122,7 @@ def main(args):
     result = ns.callback(ns)
 
     # display the result:
-    print('{}\n\t{}\n'.format(underline(f'{args!r}'), result))
+    print('{}\n\t{}\n'.format(underline(f'{args!r}'), result if result is not None else "SUCCESS"))
 
 
 if __name__ == "__main__":
