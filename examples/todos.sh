@@ -24,3 +24,11 @@ python todos.py update todo description 4 2021-party
 
 python todos.py show users
 python todos.py show todos
+
+echo "running SQL on $DATABASE:"
+echo "-------------------------"
+echo
+sqlite3 todo.db 'select * from User;'
+echo
+sqlite3 todo.db 'select * from Todo;'
+echo
