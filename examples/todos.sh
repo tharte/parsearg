@@ -28,7 +28,11 @@ python todos.py show todos
 echo "running SQL on $DATABASE:"
 echo "-------------------------"
 echo
-sqlite3 todo.db 'select * from User;'
-echo
-sqlite3 todo.db 'select * from Todo;'
+query="select * from User;"
+echo "$query"
+sqlite3 todo.db "$query"
+echo 
+query="select * from Todo;"
+echo "$query"
+sqlite3 todo.db "$query"
 echo
