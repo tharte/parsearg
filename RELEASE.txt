@@ -1,3 +1,15 @@
+v-0.2.1 :: [2021-06-10] 
+
+    + restructured:
+
+        - ./parsearg/examples -> ./examples
+        - ./parsearg/tests -> ./tests
+        - ./parsearg -> ./src/parsearg
+
+    + adjusted examples and tests to match restructuring
+    + tweaked setup.py
+
+    
 v-0.2.0 :: [2021-06-08] 
 
     + README.md at top level (contains Quickstart)
