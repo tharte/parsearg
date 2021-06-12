@@ -4,7 +4,7 @@ from parsearg.parser import (
 from parsearg.utils import (
     underline,
 )
-from parsearg.tests.conftest import (
+from parsearg.example_trees import (
     a_dict,
 )
 
