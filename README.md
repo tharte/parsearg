@@ -11,25 +11,27 @@ subcommands that have subcommands).  Moreover, because of the imperative
 nature of `argparse`, it makes it hard to understand how a program's interface
 is structured (*viz.* the program's "view").
 
-`parsearg` puts a layer on top of `argparse` that makes writing a CLI easy. you
-declare your CLI, *i.e.* your program's view, with a `dict` so that the view
-is a data structure (*i.e.* pure configuration). The view declares the *intent* of
-the CLI and you are relieved of the trouble of having to instruct `argparse`
+`parsearg` puts a layer on top of `argparse` that makes writing a CLI easy: You
+declare your view (*i.e.* the CLI), with a `dict` so that the view
+is a data structure (*i.e.* pure configuration). The data structure declares
+the *intent* of the CLI and you no longer have to instruct `argparse`
 on how to put the CLI together: `parsearg` does that for you.
+In this respect, `parsearg` turns `argparse` on its head, in the sense that
+it replaces imperative instructions with declarative data.
 
 ## Usage
 
-Suppose we wish to create a program called `todos.py` to manage the TO-DOs
-of a set of different users. We want to have subprograms of `todos.py`; for
-example, we may want to create a user (`python todos.py create user`, say),
-or we may want to create a TO-DO for a particular user (`python todos.py
+Suppose we wish to create a program called `quickstart-todos.py` to manage the TO-DOs
+of a set of different users. We want to have subprograms of `quickstart-todos.py`; for
+example, we may want to create a user (`python quickstart-todos.py create user`, say),
+or we may want to create a TO-DO for a particular user (`python quickstart-todos.py
 create todo`, say).  We might also want to add optional parameters to each
 subprogram such as the user's email and phone number, or the TO-DO's 
 due date. An invocation of the program's CLI might look like
 the following:
 ```bash
-$ python todos.py create user Bob --email=bob@email.com --phone=+1-212-555-1234
-$ python todos.py create todo Bob 'taxes' --due-date=2021-05-17
+$ python quickstart-todos.py create user Bob --email=bob@email.com --phone=+1-212-555-1234
+$ python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
 ```
 With `argparse`, the subprogram `create` would necessitate fiddling
 with subparsers.  With `parsearg`, the CLI for the above is declared
@@ -57,8 +59,8 @@ view = {
     'create|todo': {
         'callback':   create_todo,
         'user':       {'help': 'user name', 'action': 'store'},
-        'title':      {'help': 'title of to-do', 'action': 'store'},
-        '-d|--due-date': {'help': 'due date for the to-do', 'action': 'store', 'default': None},
+        'title':      {'help': 'title of TO-DO', 'action': 'store'},
+        '-d|--due-date': {'help': 'due date for the TO-DO', 'action': 'store', 'default': None},
     },
 }
 
@@ -78,13 +80,13 @@ if __name__ == "__main__":
     main(' '.join(args))
 ```
 
-A fully worked version of the `todos.py` example is presented in the docs. The output
+A fully-worked version of this TO-DO example is presented in the docs. The output
 of the above is:
 ```
-$ python todos.py create user Bob --email=bob@email.com --phone=212-555-1234
+$ python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
 created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
 
-$ python todos.py create todo Bob 'taxes' --due-date=2021-05-17
+$ python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
 created TO-DO for user 'Bob': taxes (due: 2021-05-17)
 ```
 
@@ -92,8 +94,8 @@ Because `parsearg` is built on top of `argparse`, all the usual features
 are available, such as the extensive help features (essentially
 making the CLI self-documenting):
 ```
-$ python todos.py --help
-usage: todos.py [-h] {create} ...
+$ python quickstart-todos.py --help
+usage: quickstart-todos.py [-h] {create} ...
 
 positional arguments:
   {create}
@@ -101,8 +103,8 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
 
-$ python todos.py create --help
-usage: todos.py create [-h] {todo,user} ...
+$ python quickstart-todos.py create --help
+usage: quickstart-todos.py create [-h] {todo,user} ...
 
 positional arguments:
   {todo,user}
@@ -110,8 +112,8 @@ positional arguments:
 optional arguments:
   -h, --help   show this help message and exit
 
-$ python todos.py create user --help
-usage: todos.py create user [-h] [-e EMAIL] [-p PHONE] name
+$ python quickstart-todos.py create user --help
+usage: quickstart-todos.py create user [-h] [-e EMAIL] [-p PHONE] name
 
 positional arguments:
   name                  create user name
@@ -122,8 +124,8 @@ optional arguments:
                         create user's email address
   -p PHONE, --phone PHONE
                         create user's phone number
-$ python todos.py create todo --help
-usage: todos.py create todo [-h] [-d DUE_DATE] user title
+$ python quickstart-todos.py create todo --help
+usage: quickstart-todos.py create todo [-h] [-d DUE_DATE] user title
 
 positional arguments:
   user                  user name

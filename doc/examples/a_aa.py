@@ -4,11 +4,11 @@ from parsearg.parser import (
 from parsearg.utils import (
     underline,
 )
-from parsearg.tests.conftest import (
-    a_dict,
+from parsearg.example_trees import (
+    a_aa_dict,
 )
 
-view = a_dict()
+view = a_aa_dict()
 
 def main():
     # create the parser from the dict (flat tree)
@@ -44,6 +44,12 @@ def main():
         'A BB C',
         'A BB CC',
         'A BB CCC',
+        'AA',
+        'AA B',
+        'AA BB',
+        'AA BB C',
+        'AA BB CC',
+        'AA BB CCC',
     ]
     list(map(lambda node: do_it(node), nodes))
 
