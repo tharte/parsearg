@@ -1,12 +1,6 @@
-from parsearg.parser import (
-    ParseArg,
-)
-from parsearg.utils import (
-    underline,
-)
-from parsearg.example_trees import (
-    a_aa_dict,
-)
+from parsearg import ParseArg
+from parsearg.utils import underline
+from parsearg.example_trees import a_aa_dict
 
 view = a_aa_dict()
 
