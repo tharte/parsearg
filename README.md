@@ -41,7 +41,7 @@ each subcommand is explicitly linked to its declaration.
 
 ```python
 import sys
-from parsearg.parser import ParseArg
+from parsearg import ParseArg
 
 def create_user(args):
     print(f'created user: {args.name!r} (email: {args.email}, phone: {args.phone})')
