@@ -1,1 +1,4 @@
-from parsearg.parser import ParseArg
+from parsearg.parser import (
+    ParseArg,
+    version,
+)
