@@ -126,6 +126,8 @@ def test_Node_tail():
 
 def test_Node_is_empty():
     assert Node().is_empty()
+    assert Node(None).is_empty()
+    assert Node(None, []).is_empty()
     assert not Node('A').is_empty() 
     assert not Node('A', []).is_empty() 
 
