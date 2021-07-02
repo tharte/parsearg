@@ -493,9 +493,11 @@ TODO
 #+end_example
 
 * How ~parsearg~ works 
-It is easier to explain how ~parsearg~ works with a simpler abstraction 
-than the above example ~parsearg.examples.todos.py~. Here, we will 
-consider nested parsers as trees. We introduce two trees for this purpose:
+In order to explain how ~parsearg~ works, 
+we will entertain a simpler abstraction than 
+that used in the ~parsearg.examples.todos.py~ example.
+Because ~parsearg~ treats nested parsers as trees, we introduce 
+two trees to illustrate:
 1. The ``A tree'', and
 2. The ``A-AA tree''.
 
@@ -1354,3 +1356,90 @@ optional arguments:
 
 
 #+end_example
+** Trees: flat and unflattened
+We can create the A tree ``longhand'' (for clarity here without the nodes'
+payloads, or values), but it is cumbersome to do it this way, and ironically
+such explicit specification can quickly obfuscate the tree's structure
+if we add a payload to each node:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+tree = Tree('A', children=[
+    Tree('B', []),
+    Tree('BB', children=[
+        Tree('C', []),
+        Tree('CC', []),
+        Tree('CCC', [])
+    ]),
+    Tree('BBB', []),
+])
+
+print(tree.show(quiet=True))
+#+END_SRC
+
+#+RESULTS:
+: A
+:     B
+:     BB
+:         C
+:         CC
+:         CCC
+:     BBB
+: 
+: 
+
+We need a shorthand, and for this purpose ~parsearg~ uses a set of delimited strings: 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from a import view
+
+print(list(view.keys()))
+#+END_SRC
+
+#+RESULTS:
+: ['A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
+: 
+: 
+
+This representation is a ``flat tree'' or a ``flattened tree''. Each key
+names a node in the tree. At any level of the tree there must be a 
+unique set of node names, otherwise the tree's structure becomes
+indeterminate. Leaf nodes are terminating nodes in the
+tree's hierarchy. In the above, the terminating nodes are
+easily discerned visually within the tree's hierarchy:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( ParseArg.to_tree(view, root_name='').show(quiet=True) )
+#+END_SRC
+
+#+RESULTS:
+: A
+:         BBB
+:         BB
+:             CCC
+:             CC
+:             C
+:         B
+: 
+: 
+
+Thus, the terminating nodes are:
+#+begin_example
+'A|B'
+'A|BBB'
+'A|BB|C'
+'A|BB|CC'
+'A|BB|CCC'
+#+end_example
+
+while the non-terminating nodes are:
+#+begin_example
+'A'
+'A|BB'
+#+end_example
+
+The separator in each key (here, a pipe ~|~) separates one level of the tree
+from the next level down. It is this delimited-string representation that 
+allows us to easily specify a tree. But taking advantage of 
+a tree as a data structure requires working with a tree, not a flattened
+version of it. In other words, we have a 
+flattened-tree shorthand with which to specify a tree, but we need 
+to unflatten this shorthand to create the tree data structure in order to 
+for it to be useful.
+
