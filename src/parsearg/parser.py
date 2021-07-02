@@ -13,7 +13,7 @@ from parsearg.utils import (
 
 class ParseArg:
     def __init__(self, d, root_name=None):
-        assert isinstance(d, dict)
+        assert isinstance(d, dict) and is_valid(d)
 
         self.d       = d
         self.tree    = ParseArg.to_tree(self.d, root_name=root_name)
