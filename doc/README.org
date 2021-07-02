@@ -1443,3 +1443,70 @@ flattened-tree shorthand with which to specify a tree, but we need
 to unflatten this shorthand to create the tree data structure in order to 
 for it to be useful.
 
+** Unflattening the flattened tree
+~parsearg~ transforms a ~dict~---the keys of which are shorthand for the
+tree's nodes and the values of which are the nodes' payloads---into a 
+~Tree~. We need the shorthand of the ~dict~ for ease of specification, 
+and we need the ~Tree~ to avail of the data structure's properties. 
+
+First, ~parsearg~ defines a ~Key~. Take a key that represents a leaf
+node ~'A|BB|C'~:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+key = 'A|BB|C'
+print( Key(key) )
+#+END_SRC
+
+#+RESULTS:
+: 'A|BB|C': ('A', ['BB', ['C']])
+: 
+: 
+
+The ~Key~ stores the key: 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Key(key).key )
+#+END_SRC
+
+#+RESULTS:
+: A|BB|C
+: 
+: 
+
+along with a ~Node~, which is a representation of the key's delimited string
+as a nested list:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Key(key).value )
+print( type(Key(key).value) )
+#+END_SRC
+
+#+RESULTS:
+: ('A', ['BB', ['C']])
+: <class 'parsearg.data_structures.Node'>
+: 
+: 
+
+What is a ~Node~? It is a tuple that has a ~head~ and a ~tail~. The 
+~head~ is the name of the node and the ~tail~ is a nested list containing
+the remainder of the leaf node's specification:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Key(key).value.head() )
+print( Key(key).value.tail() )
+#+END_SRC
+
+#+RESULTS:
+: A
+: ['BB', ['C']]
+: 
+: 
+
+Each ~Key~ can also store a ~payload~, but it is ~None~ here:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+payload = 3.141593
+d = {key: payload}
+
+print( Key(key, d).payload )
+#+END_SRC
+
+#+RESULTS:
+: 3.141593
+: 
+: 
