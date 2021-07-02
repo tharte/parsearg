@@ -161,8 +161,8 @@ def test_Key_unflatten():
     key = 'A|B|C'
     assert Key.unflatten(Key.split(key)) == ['A', ['B', ['C']]]
 
-def test_Key_Node_from_key():
-    assert Key.Node_from_key('A|B|C') == Node(head='A', tail=['B', ['C']])
+def test_Key_to_node():
+    assert Key.to_node('A|B|C') == Node(head='A', tail=['B', ['C']])
 
 def test_Key_is_empty():
     assert Key().is_empty()
@@ -176,8 +176,8 @@ def test_Key_has_children():
 
 def test_Key_shift():
     # because the Key class preserves the key captured at object
-    # instantiation you have to deliberately tamper with the Key's value
-    # to make it equal to the shifted Node
+    # instantiation you have to expressly test the Key's value,
+    # e.g. to make it equal to a shifted Node
 
     key = Key('A|B')
     key.value = Node(head='B', tail=[])
