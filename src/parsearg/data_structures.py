@@ -148,7 +148,7 @@ class Key:
     def __init__(self, key=None, d=None):
         self.key     = key
         self.d       = d
-        self.value   = self.Node_from_key(self.key)
+        self.value   = self.to_node(self.key)
         self.payload = None
 
         if d is not None:
@@ -206,13 +206,13 @@ class Key:
             elif x[0]==sep:
                 return [_unflatten(x[1:])]
             else:
-                return [x[0]]  + _unflatten(x[1:])
+                return [x[0]] + _unflatten(x[1:])
 
         assert is_list_of(x, str)
         return _unflatten(x, sep=sep)
 
     @staticmethod
-    def Node_from_key(key, sep='|'):
+    def to_node(key, sep='|'):
         if key is None:
             return Node()
 
