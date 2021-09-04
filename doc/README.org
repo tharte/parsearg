@@ -1559,7 +1559,7 @@ print( Node(head='A', tail=['B', ['C']]) << 3 )
 : 
 : 
 
-** Creating a tree from its leaf nodes
+** Heterogenous trees: recursive data structures
 At any level, there is a sense in which a node is identified by 
 its parent in a /recursive/ way. Indeed, trees are recursive data structures. 
 
@@ -1573,9 +1573,10 @@ An heterogeneous tree is either:
        of child trees (the ``children'' of the value/node/name); or,
     2. the empty tree.
 
-We represent the value/node/name and its set of children with a tuple: 
+We represent the value/node/name and its set of children as the tuple: 
+~(value, {e1, e2, ....})~,
 where ~{e1, e2, ...}~ is the set of children and each element of the 
-set ~e1~, ~e2~, ..., are themselves trees.
+set ~e1~, ~e2~, and so on, is itself a tree.
 The empty tree is represented by ~(None, {})~.
        
 This type of tree is termed /heterogeneous/ because each node's set of 
@@ -1591,24 +1592,25 @@ a tree whose ~set~ of child trees is empty.
 Note that, by this definition, the empty tree (represented by ~(None, {})~) is 
 a terminating node, because nothing in the definition requires its parent 
 node to exist.
+In this light, ~(None, {})~ is a perfectly valid leaf node, as is
+~(value, {(None, {})})~.
        
 We can define an heterogeneous tree in reverse, /viz./ 
 first from its terminating nodes. To do so
 requires that we enrich the existing terminology to avert linguistic gymnastics.
-``Siblings'' are the children of a particular node: the siblings' ``parent''.
-It's simply the flip side of the definition of an heterogeneous tree, above. 
+``Siblings'' are the children of a particular node, namely the siblings' ``parent''.
+This is nothing more than the flip side of the above ``top-down'' definition of an 
+heterogeneous tree. 
 
 Therefore, an heterogeneous tree can also be defined as being either:
 
     1. a ~set~ (possibly empty) of child trees having a common parent 
        (being a value/node/name); or,
     2. the empty tree.
+       
+We will regard this as the ``bottom-up'' definition. 
 
-Inverting this structure from the terminating nodes (the leaf nodes), we have
-*TODO*: unfinished here
-
-In other words, ~(None, {})~ is a perfectly valid leaf node, as is
-~(value, {(None, {})})~, which reduces to ~(value, {})~.
+** Creating a tree from its leaf nodes
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from a_aa import view
