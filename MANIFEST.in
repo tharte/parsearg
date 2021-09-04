@@ -4,5 +4,5 @@ global-exclude *~ *.py[cod]
 graft doc
 global-exclude *~ _minted-tmp/* tmp*
 
-ecursive-include tests *.py
+recursive-include tests *.py
 
