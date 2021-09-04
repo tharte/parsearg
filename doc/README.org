@@ -1407,9 +1407,13 @@ print(list(view.keys()))
 : 
 
 This representation is a ``flat tree'' or a ``flattened tree''. Each key
-names a node in the tree. At any level of the tree there must be a 
-unique set of node names, otherwise the tree's structure becomes
-indeterminate. Leaf nodes are terminating nodes in the
+names a node in the tree. At any level of the tree, each node's
+/children/ must contain a unique set of node names, 
+otherwise the tree's structure would be indeterminate. 
+The example of the A-AA tree illustrates that the structure of 
+the A tree can be duplicated into the AA tree; only the root
+nodes of each sub-tree (A and AA, respectively) need to be unique.
+Leaf nodes are terminating nodes in the
 tree's hierarchy. In the above, the terminating nodes are
 easily discerned visually within the tree's hierarchy:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1516,5 +1520,37 @@ print( Key(key, d).payload )
 
 #+RESULTS:
 : 3.141593
+: 
+: 
+A ~Key~ can be shifted:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Key(key) )
+print( Key(key) << 1 )
+print( Key(key) << 2 )
+print( Key(key) << 3 )
+#+END_SRC
+
+#+RESULTS:
+: 'A|BB|C': ('A', ['BB', ['C']])
+: 'A|BB|C': ('BB', ['C'])
+: 'A|BB|C': ('C', [])
+: 'A|BB|C': (None, [])
+: 
+: 
+
+but the ~key~ is preserved. A ~Node~, upon which the ~Key~ is based, can also 
+be shifted:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Node(head='A', tail=['B', ['C']]) )
+print( Node(head='A', tail=['B', ['C']]) << 1 )
+print( Node(head='A', tail=['B', ['C']]) << 2 )
+print( Node(head='A', tail=['B', ['C']]) << 3 )
+#+END_SRC
+
+#+RESULTS:
+: ('A', ['B', ['C']])
+: ('B', ['C'])
+: ('C', [])
+: (None, [])
 : 
 : 
