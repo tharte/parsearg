@@ -1522,6 +1522,7 @@ print( Key(key, d).payload )
 : 3.141593
 : 
 : 
+
 A ~Key~ can be shifted:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( Key(key) )
@@ -1552,5 +1553,214 @@ print( Node(head='A', tail=['B', ['C']]) << 3 )
 : ('B', ['C'])
 : ('C', [])
 : (None, [])
+: 
+: 
+
+** Creating a tree from its leaf nodes
+At any level, there is a sense in which a node is identified by 
+its parent in a /recursive/ way.
+#+attr_latex: :width 1.0\linewidth
+#+RESULTS:
+[[file:./img/tree-abc-a-aa.png]]
+
+Trees are defined recursively. An heterogeneous tree is either:
+
+    1. the empty tree (represented by ~None~), or
+    2. a value (represented by ~value~ or ~payload~) and a ~list~ of child trees.
+       
+To create this structure from its inverse, /viz./ the child nodes (and ultimately
+its leaf nodes), requires that we introduce the concept of the /parent/ node
+and /sibling/ nodes. Siblings are the children of a node, so they are already
+defined and therefore ``sibling'' is synonymous with children. 
+       
+Inverting this structure from the terminating nodes (the leaf nodes), we have
+A leaf node is:
+
+    1. the empty tree (represented by ~None~), or
+    2. a tree whose ~list~ of child trees is empty and whose parent node is either non-empty or empty.
+       
+In other words, ~(None, [])~ is a perfectly valid leaf node, as is
+~([value, [(None, []]])~, which reduces to ~(value, [])~.
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from a_aa import view
+sep = '|'
+
+k = list(map(lambda x: x.split(sep), view.keys())) 
+for e in k: print(e)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+['A']
+['A', 'B']
+['A', 'BB']
+['A', 'BB', 'C']
+['A', 'BB', 'CC']
+['A', 'BB', 'CCC']
+['A', 'BBB']
+['AA']
+['AA', 'B']
+['AA', 'BB']
+['AA', 'BB', 'C']
+['AA', 'BB', 'CC']
+['AA', 'BB', 'CCC']
+['AA', 'BBB']
+
+
+#+end_example
+
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+n = list(map(len, k))
+
+for key, depth, lkey in zip(view.keys(), n, k): print(f'({key}:\t{depth}, {lkey})')
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+(1, ['A'])
+(2, ['A', 'B'])
+(2, ['A', 'BB'])
+(3, ['A', 'BB', 'C'])     # Tree('BB', [Tree('C'), Tree('CC'), Tree('CCC')])
+(3, ['A', 'BB', 'CC'])
+(3, ['A', 'BB', 'CCC'])
+(2, ['A', 'BBB'])
+(1, ['AA'])
+(2, ['AA', 'B'])
+(2, ['AA', 'BB'])
+(3, ['AA', 'BB', 'C'])    # Tree('AA', [Tree('BB', [Tree('C'), Tree('CC'), Tree('CCC')])])
+(3, ['AA', 'BB', 'CC'])
+(3, ['AA', 'BB', 'CCC'])
+(2, ['AA', 'BBB'])
+
+
+#+end_example
+
+#+begin_example
+(1, ['A'])
+(2, ['A', 'B'])
+(2, ['A', 'BB'])
+(3, ['A', 'BB', 'C'])     # Tree('AA', [Tree('BB', [Tree('C'), Tree('CC'), Tree('CCC')])])
+(3, ['A', 'BB', 'CC'])
+(3, ['A', 'BB', 'CCC'])
+(2, ['A', 'BBB'])
+(1, ['AA'])
+(2, ['AA', 'B'])
+(2, ['AA', 'BB'])
+(3, ['AA', 'BB', 'C'])    # Tree('AA', [Tree('BB', [Tree('C'), Tree('CC'), Tree('CCC')])])
+(3, ['AA', 'BB', 'CC'])
+(3, ['AA', 'BB', 'CCC'])
+(2, ['AA', 'BBB'])
+
+
+# Tree('A',  [Tree('BB', [Tree('C'), Tree('CC'), Tree('CCC')])])
+# Tree('AA', [Tree('BB', [Tree('C'), Tree('CC'), Tree('CCC')])])
+(1, ['A'])
+(2, ['A', 'B'])
+(2, ['A', 'BB'])
+(2, ['A', 'BBB'])
+(1, ['AA'])
+(2, ['AA', 'B'])
+(2, ['AA', 'BB'])
+(2, ['AA', 'BBB'])
+
+#+end_example
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+import pandas as pd
+from a_aa import view
+sep = '|'
+
+keys  = list(view.keys())
+skeys = list(map(lambda x: x.split(sep), keys))
+lkeys = list(map(len, skeys))
+
+root  = 'root'
+
+depth = max(lkeys)
+while depth > 0:
+    ix        = [i for i, e in enumerate(lkeys) if e == depth]
+    k         = [key for i, key in enumerate(skeys) if i in ix]
+    ancestors = list(map(lambda x: x[0:depth-1], k))
+    parent    = list(map(lambda x: x[-1], ancestors))
+    ancestors = list(map(lambda x: sep.join(x), ancestors))
+    
+    for a in set(ancestors):
+        ii  = [i for i, e in enumerate(ancestors) if e == a]
+        k   = [key for i, key in enumerate(skeys) if i in ix]
+        kk = 
+
+    for key, ll, n in zip(keys, skeys, lkeys):
+        if n == depth:
+            ancestors = ll[:-1]
+            parent    = ancestors[-1]
+            ancestors = sep.join(ancestors)
+    depth -= 1
+        
+#+END_SRC
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+import numpy as np
+import pandas as pd
+from a_aa import view
+
+def to_tree_backwards(view, root_name='root', sep='|'):
+    def make_key_frame(view, root_name):
+        keys = list(view.keys())
+        if not all(map(lambda key: key.startswith(root_name), keys)):
+            keys = list(map(lambda key: root_name + sep + key, keys))
+        d = pd.DataFrame({
+            'orig_key': list(view.keys()),
+            'key':      keys
+        })
+        d['skey']      = d['key'].apply(lambda x: x.split(sep))
+        d['depth']     = d['skey'].apply(len)
+        d['leaf']      = np.NaN
+        d['parent']    = np.NaN
+        d['ancestors'] = np.NaN
+        return d
+
+    d = make_key_frame(view, root_name)
+
+    which = lambda ix: [i for i, e in enumerate(ix) if e]
+    col   = lambda cn: which(d.columns==cn)[0]
+
+    depth = max(d['depth'])
+    while depth > 1:
+        ix = d['depth']==depth
+        d.loc[ix, 'leaf'] = d.loc[ix, 'skey'] \
+            .apply(lambda x: x[-1])
+        d.loc[ix, 'ancestors'] = d.loc[ix, 'skey'] \
+            .apply(lambda x: sep.join(x[:-1]))
+        d.loc[ix, 'parent'] = d.loc[ix, 'ancestors'] \
+            .apply(lambda x: x.split(sep)[-1])
+        for a in set(d['ancestors'].dropna()):
+            ii = d['ancestors']==a
+            parent = set(d.loc[ii, 'parent'])
+            assert len(parent)==1
+            parent = parent.pop()
+            for i in which(ii):
+                orig_key = d.iloc[i, col('orig_key')] 
+                key      = d.iloc[i, col('key')] 
+                leaf     = d.iloc[i, col('leaf')]
+                children = d['leaf'].loc[d['ancestors']==key].to_list()
+                d.iloc[i, col('leaf')] = Tree(
+                    Tree.Value( 
+                        name=leaf if isinstance(leaf, str) else leaf.value.name, 
+                        key=orig_key, d=view
+                    ), 
+                    children=children
+                )
+        depth -= 1
+
+    return Tree(
+        root_name, 
+        children=d.iloc[which(d['ancestors']==root_name), col('leaf')].to_list()
+    )
+#+END_SRC
+
+#+RESULTS:
+: 
 : 
 : 
