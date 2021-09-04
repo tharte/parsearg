@@ -397,19 +397,19 @@ show(view)
 #+begin_example
 'purge|users':
     'callback':
-    <function purge_users at 0x7f47f9487af0>
+    <function purge_users at 0x7fa92bce5430>
 'purge|todos':
     'callback':
-    <function purge_todos at 0x7f47f942b820>
+    <function purge_todos at 0x7fa92bcf0160>
 'show|users':
     'callback':
-    <function show_users at 0x7f47f942b8b0>
+    <function show_users at 0x7fa92bcf01f0>
 'show|todos':
     'callback':
-    <function show_todos at 0x7f47f942b940>
+    <function show_todos at 0x7fa92bcf0280>
 'create|user':
     'callback':
-    <function create_user at 0x7f47f942b9d0>
+    <function create_user at 0x7fa92bcf0310>
     'name':
     {'help': 'create user name', 'action': 'store'}
     '-e|--email':
@@ -418,7 +418,7 @@ show(view)
     {'help': "create user's phone number", 'action': 'store', 'default': ''}
 'create|todo':
     'callback':
-    <function create_todo at 0x7f47f942ba60>
+    <function create_todo at 0x7fa92bcf03a0>
     'user':
     {'help': 'user name', 'action': 'store'}
     'title':
@@ -429,28 +429,28 @@ show(view)
     {'help': 'due date for the to-do', 'action': 'store', 'default': None}
 'update|user|email':
     'callback':
-    <function update_user_email at 0x7f47f942baf0>
+    <function update_user_email at 0x7fa92bcf0430>
     'name':
     {'help': 'user name', 'action': 'store'}
     'email':
     {'help': 'user email', 'action': 'store'}
 'update|user|phone':
     'callback':
-    <function update_user_phone at 0x7f47f942bb80>
+    <function update_user_phone at 0x7fa92bcf04c0>
     'name':
     {'help': 'user name', 'action': 'store'}
     'phone':
     {'help': 'user phone', 'action': 'store'}
 'update|todo|title':
     'callback':
-    <function update_todo_title at 0x7f47f942bc10>
+    <function update_todo_title at 0x7fa92bcf0550>
     'id':
     {'help': 'ID of to-do', 'action': 'store'}
     'title':
     {'help': 'title of to-do', 'action': 'store'}
 'update|todo|description':
     'callback':
-    <function update_todo_description at 0x7f47f942bca0>
+    <function update_todo_description at 0x7fa92bcf05e0>
     'id':
     {'help': 'ID of to-do', 'action': 'store'}
     'description':
@@ -472,20 +472,20 @@ print(
 #+RESULTS:
 #+begin_example
 TODO
-    update
-        user
-            phone
-            email
-        todo
-            description
-            title
-    purge
-        todos
-        users
     create
         user
         todo
     show
+        todos
+        users
+    update
+        user
+            email
+            phone
+        todo
+            description
+            title
+    purge
         todos
         users
 
@@ -612,11 +612,11 @@ print(
 TODO
     A
         B
-        BB
-            C
-            CCC
-            CC
         BBB
+        BB
+            CCC
+            C
+            CC
 
 
 #+end_example
@@ -1357,10 +1357,9 @@ optional arguments:
 
 #+end_example
 ** Trees: flat and unflattened
-We can create the A tree ``longhand'' (for clarity here without the nodes'
-payloads, or values), but it is cumbersome to do it this way, and ironically
-such explicit specification can quickly obfuscate the tree's structure
-if we add a payload to each node:
+We can create a ``longhand'' version of the A tree using the 
+~Tree~ class, but it is cumbersome to use and---more specifically---it can easily obfuscate the
+tree structure itself when the node names and payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted.] 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 """
        A
@@ -1394,7 +1393,8 @@ print(tree.show(quiet=True))
 : 
 : 
 
-We need a shorthand, and for this purpose ~parsearg~ uses a set of delimited strings: 
+We need a ``shorthand'' for constructing trees.
+To this end ~parsearg~ uses a set of pipe-delimited strings: 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from a import view
 
@@ -1406,15 +1406,17 @@ print(list(view.keys()))
 : 
 : 
 
-This representation is a ``flat tree'' or a ``flattened tree''. Each key
-names a node in the tree. At any level of the tree, each node's
-/children/ must contain a unique set of node names, 
-otherwise the tree's structure would be indeterminate. 
-The example of the A-AA tree illustrates that the structure of 
-the A tree can be duplicated into the AA tree; only the root
-nodes of each sub-tree (A and AA, respectively) need to be unique.
-Leaf nodes are terminating nodes in the
-tree's hierarchy. In the above, the terminating nodes are
+This representation is a ``flat tree'' or a ``flattened tree''. Each string
+represents a node in the tree and names that node. 
+The singular constraint on the tree's structure is that each node's
+children must contain a unique set of node names.
+If this were not the case, then the tree's structure would be indeterminate. 
+In point of fact, the example of the A-AA tree illustrates that the structure of 
+the A tree can be duplicated: only the root
+node names of each sub-tree (~A~ and ~AA~, respectively) need to be unique.
+
+Leaf nodes are terminating nodes in the tree's hierarchy. 
+In the above, the terminating nodes are
 easily discerned visually within the tree's hierarchy:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( ParseArg.to_tree(view, root_name='').show(quiet=True) )
@@ -1422,14 +1424,15 @@ print( ParseArg.to_tree(view, root_name='').show(quiet=True) )
 
 #+RESULTS:
 : A
+:         B
 :         BBB
 :         BB
 :             CCC
-:             CC
 :             C
-:         B
+:             CC
 : 
 : 
+
 
 Thus, the terminating nodes are:
 #+begin_example
@@ -1558,29 +1561,54 @@ print( Node(head='A', tail=['B', ['C']]) << 3 )
 
 ** Creating a tree from its leaf nodes
 At any level, there is a sense in which a node is identified by 
-its parent in a /recursive/ way.
+its parent in a /recursive/ way. Indeed, trees are recursive data structures. 
+
 #+attr_latex: :width 1.0\linewidth
 #+RESULTS:
 [[file:./img/tree-abc-a-aa.png]]
 
-Trees are defined recursively. An heterogeneous tree is either:
+An heterogeneous tree is either:
 
-    1. the empty tree (represented by ~None~), or
-    2. a value (represented by ~value~ or ~payload~) and a ~list~ of child trees.
+    1. a value (or ``node'', or ``name'') and a ~set~ (possibly empty)
+       of child trees (the ``children'' of the value/node/name); or,
+    2. the empty tree.
+
+We represent the value/node/name and its set of children with a tuple: 
+where ~{e1, e2, ...}~ is the set of children and each element of the 
+set ~e1~, ~e2~, ..., are themselves trees.
+The empty tree is represented by ~(None, {})~.
        
-To create this structure from its inverse, /viz./ the child nodes (and ultimately
-its leaf nodes), requires that we introduce the concept of the /parent/ node
-and /sibling/ nodes. Siblings are the children of a node, so they are already
-defined and therefore ``sibling'' is synonymous with children. 
+This type of tree is termed /heterogeneous/ because each node's set of 
+child trees can vary in its cardinality, whereas an n-ary tree has the
+same number of children at each node 
+(/e.g./ two for a binary tree, three for a ternary tree, and in general 
+$n$ for an n-ary tree).
        
+A terminating (or ``leaf'') node is:
+#+begin_quote
+a tree whose ~set~ of child trees is empty.
+#+end_quote
+Note that, by this definition, the empty tree (represented by ~(None, {})~) is 
+a terminating node, because nothing in the definition requires its parent 
+node to exist.
+       
+We can define an heterogeneous tree in reverse, /viz./ 
+first from its terminating nodes. To do so
+requires that we enrich the existing terminology to avert linguistic gymnastics.
+``Siblings'' are the children of a particular node: the siblings' ``parent''.
+It's simply the flip side of the definition of an heterogeneous tree, above. 
+
+Therefore, an heterogeneous tree can also be defined as being either:
+
+    1. a ~set~ (possibly empty) of child trees having a common parent 
+       (being a value/node/name); or,
+    2. the empty tree.
+
 Inverting this structure from the terminating nodes (the leaf nodes), we have
-A leaf node is:
+*TODO*: unfinished here
 
-    1. the empty tree (represented by ~None~), or
-    2. a tree whose ~list~ of child trees is empty and whose parent node is either non-empty or empty.
-       
-In other words, ~(None, [])~ is a perfectly valid leaf node, as is
-~([value, [(None, []]])~, which reduces to ~(value, [])~.
+In other words, ~(None, {})~ is a perfectly valid leaf node, as is
+~(value, {(None, {})})~, which reduces to ~(value, {})~.
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from a_aa import view
