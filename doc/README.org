@@ -621,7 +621,7 @@ TODO
 
 #+end_example
 
-** The A-A tree 
+** The A-AA tree 
 The A-AA tree simply extends the A tree one level:
 #+headers:  :width 800 :height 500 
 #+begin_src dot :exports results :results output graphics :file ./img/tree-abc-a-aa.png
@@ -1362,6 +1362,14 @@ payloads, or values), but it is cumbersome to do it this way, and ironically
 such explicit specification can quickly obfuscate the tree's structure
 if we add a payload to each node:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+"""
+       A
+     / | \
+    B  BB BBB
+      /| \
+     C CC CCC
+"""
+
 tree = Tree('A', children=[
     Tree('B', []),
     Tree('BB', children=[
