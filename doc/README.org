@@ -494,9 +494,8 @@ TODO
 
 * How ~parsearg~ works 
 ** Heterogeneous trees: recursive data structures
-Any node of a tree is identified by 
-a value and a set of children in a /recursive/ way. 
-Indeed, all trees are recursive data structures. 
+Any node of a tree is identified by a value and a set of children in a
+/recursive/ way.  Indeed, all trees are recursive data structures.
 
 An heterogeneous tree is either:
 
