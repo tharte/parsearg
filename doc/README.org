@@ -493,6 +493,20 @@ TODO
 #+end_example
 
 * How ~parsearg~ works 
+** Heterogenous trees: recursive data structures
+Any node of a tree is identified by 
+a value and a set of children in a /recursive/ way. 
+Indeed, all trees are recursive data structures. 
+
+An heterogeneous tree is either:
+
+    1. a value and a set of child trees; or,
+    2. the empty tree.
+
+The value is also known as a ``node'', or ``name''. Its ~set~ of child trees 
+(also known as the ``children'' of the value/node/name) is possibly empty.
+The empty tree has no value/node/name and an empty set of children.
+
 In order to explain how ~parsearg~ works, 
 we will entertain a simpler abstraction than 
 that used in the ~parsearg.examples.todos.py~ example.
