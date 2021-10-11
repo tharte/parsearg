@@ -506,6 +506,24 @@ The value is also known as a ``node'', or ``name''. Its ~set~ of child trees
 (also known as the ``children'' of the value/node/name) is possibly empty.
 The empty tree has no value/node/name and an empty set of children.
 
+We represent the value/node/name and its set of children as the tuple: 
+#+begin_quote
+~(value, {e1, e2, ....})~,
+#+end_quote
+where ~{e1, e2, ...}~ is the set of children, and each element of the set
+~e1~, ~e2~, and so on, is itself a tree.  
+The empty tree is represented by
+#+begin_quote
+~(None, {})~,
+#+end_quote
+where ~None~ represents no value, and ~{}~ is the empty set.
+       
+This type of tree is termed /heterogeneous/ because the cardinality of
+the set of child trees for each value can vary. Contrast with
+an n-ary tree, which has the same number of children at each node 
+(/e.g./ two for a binary tree, three for a ternary tree, and in general 
+$n$ for an n-ary tree).
+       
 In order to explain how ~parsearg~ works, 
 we will entertain a simpler abstraction than 
 that used in the ~parsearg.examples.todos.py~ example.
