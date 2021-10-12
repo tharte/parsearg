@@ -497,36 +497,99 @@ TODO
 \newpage
 * How ~parsearg~ works 
 ** Heterogeneous trees: recursive data structures
-Any node of a tree is identified by a value and a set of children in a
-/recursive/ way.  Indeed, all trees are recursive data structures.
+Trees are recursive data structures.  Any node of a tree is identified by
+a value and a set of /child trees/, thus establishing the recursion.
 
 An heterogeneous tree is either:
 
     1. a value and a set of child trees; or,
     2. the empty tree.
 
-The value is also known as a ``node'', or ``name''. Its ~set~ of child trees 
+The value is also known as a ``node'', or ``name''; its set of child trees 
 (also known as the ``children'' of the value/node/name) is possibly empty.
 The empty tree has no value/node/name and an empty set of children.
 
-We represent the value/node/name and its set of children as the tuple: 
+\begin{remark}
+The definition implies that a tree ``points'' to its children, in so 
+far as the tree is aware of its children, whereas its children are
+not necessarily aware of it.
+\end{remark}
+
+In Python, we represent the value/node/name and its ~set~ of children as the 
+~tuple~: 
 #+begin_quote
 ~(value, {e1, e2, ....})~,
 #+end_quote
-where ~{e1, e2, ...}~ is the set of children, and each element of the set
-~e1~, ~e2~, and so on, is itself a tree.  
-The empty tree is represented by
+where ~{e1, e2, ...}~ is the ~set~ of children, and each element of the ~set~
+~e1~, ~e2~, ~...~, is itself a tree.  The empty tree is represented by
 #+begin_quote
 ~(None, {})~,
 #+end_quote
-where ~None~ represents no value, and ~{}~ is the empty set.
+where ~None~ represents no value, and ~{}~ is the empty set of children.
        
 This type of tree is termed /heterogeneous/ because the cardinality of
-the set of child trees for each value can vary. Contrast with
-an n-ary tree, which has the same number of children at each node 
+the set of child trees for each value can vary. Contrast with 
+#+latex: an $n$-ary tree, 
+which has the same number of children at each node 
 (/e.g./ two for a binary tree, three for a ternary tree, and in general 
-$n$ for an n-ary tree).
+$n$ for an 
+#+latex: an $n$-ary tree).
+
+Nothing in the definition precludes the possibility of a child tree's
+value from containing an identical value to that of its parent. Thus,
+#+begin_quote
+~(value, {(value, {e1, e2, ....}), e2, ....})~,
+#+end_quote
+is perfectly valid. The requirement does explicitly require 
+each of node's child trees to be unique, in so far as they are members
+of a /set/.
        
+A terminating (or ``leaf'') node is:
+#+begin_quote
+a tree whose set of child trees is empty.
+#+end_quote
+A leaf node is represented by ~(value, {})~.  Note that the empty tree,
+~(None, {})~, is also a valid leaf node.
+
+\textcolor{blue}{\bf QUESTION:}
+#+begin_quote
+Is ~(value, {(None, {})})~ equivalent to ~(value, {})~?
+
+This would mean that the representation of an empty tree, /viz./ ~(None, {})~,
+is perfectly equivalent to the null set
+#+latex: $\varnothing$, 
+/i.e./
+~(value, {(None, {})})~ is equivalent to 
+~(value, {~
+#+latex: $\varnothing$
+~})~
+is equivalent to 
+~(value, {})~.
+But this requires a little mental gymnastics: Isn't the /tuple/ 
+~(None, {})~ equivalent to 
+#+latex: $(\varnothing, \{\varnothing\})$,
+which is /not/ the same as 
+#+latex: $\{\varnothing\} \equiv$
+~{}~, /i.e./ a /tuple/ containing a null value and the null set
+is not the same as the null set itself?
+#+end_quote
+       
+We can define an heterogeneous tree in reverse, /viz./ 
+first from its terminating nodes. To do so
+requires that we enrich the existing terminology to avert linguistic gymnastics.
+``Siblings'' are the children of a particular node, namely the siblings' ``parent''.
+This is nothing more than the flip side of the above ``top-down'' definition of an 
+heterogeneous tree. 
+
+Therefore, an heterogeneous tree can also be defined as being either:
+
+    1. a ~set~ (possibly empty) of child trees having a common parent 
+       (being a value/node/name); or,
+    2. the empty tree.
+       
+We will regard this as the ``bottom-up'' definition. 
+
+** The A-tree 
 In order to explain how ~parsearg~ works, 
 we will entertain a simpler abstraction than 
 that used in the ~parsearg.examples.todos.py~ example.
