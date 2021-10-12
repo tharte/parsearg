@@ -379,18 +379,146 @@ be aware of its children, so it is not strictly the reverse of the
 \ref{defn:2} as the ``bottom-up'' definition.
 \end{remark}
 
+** Trees: flat and unflattened
+While it's possible to create a ``longhand'' version of the A tree using the 
+~Tree~ class that comes with the ~parsearg~ package, 
+it is cumbersome to use and---more specifically---it can 
+easily obfuscate the tree structure itself when the node names and 
+payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted.] 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+"""
+       A
+     / | \
+    B  BB BBB
+      /| \
+     C CC CCC
+"""
+
+from parsearg.data_structures import Tree, Node, Key
+
+tree = Tree('A', children=[
+    Tree('B', []),
+    Tree('BB', children=[
+        Tree('C', []),
+        Tree('CC', []),
+        Tree('CCC', [])
+    ]),
+    Tree('BBB', []),
+])
+
+print(tree.show(quiet=True))
+#+END_SRC
+
+#+RESULTS:
+: A
+:     B
+:     BB
+:         C
+:         CC
+:         CCC
+:     BBB
+: 
+: 
+
+We need a ``shorthand'' for constructing trees.
+To this end, ~parsearg~ uses a set of pipe-delimited strings: 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+# from a import view
+from doc.examples.a import view
+
+print(['root'] + list(view.keys()))
+#+END_SRC
+
+#+RESULTS:
+: ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
+: 
+: 
+
+This representation can be considered to be a ``flattened'' version
+of the A-tree:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print(
+    ParseArg.to_tree(view, root_name='root').show(quiet=True) 
+)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+root
+    A
+        B
+        BBB
+        BB
+            CCC
+            C
+            CC
+
+
+#+end_example
+
+Each string in this ``flat tree'' (or ``flattened tree'')
+represents a node in the tree and names that node. 
+The singular constraint on the tree's structure is that each node's
+children must contain a unique set of node names.
+If this were not the case, then the tree's structure would be indeterminate. 
+In point of fact, the example of the A-AA Tree illustrates that the structure of 
+the A tree can be duplicated: only the root
+node names of each sub-tree (~A~ and ~AA~, respectively) need to be unique.
+
+Leaf nodes are terminating nodes in the tree's hierarchy. 
+In the above, the terminating nodes are
+easily discerned visually within the tree's hierarchy:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+root
+    A
+        B
+        BBB
+        BB
+            CCC
+            C
+            CC
+
+
+#+end_example
+
+Thus, the terminating nodes are:
+#+begin_example
+'A|B'
+'A|BBB'
+'A|BB|C'
+'A|BB|CC'
+'A|BB|CCC'
+#+end_example
+
+while the non-terminating nodes are:
+#+begin_example
+'A'
+'A|BB'
+#+end_example
+
+The separator in each key (here, a pipe ~|~) separates one level of the tree
+from the next level down. It is this delimited-string representation that 
+allows us to easily specify a tree. But taking advantage of 
+a tree as a data structure requires working with a tree, not a flattened
+version of it. In other words, we have a 
+flattened-tree which is shorthand to specify the tree, but we need 
+to unflatten this shorthand to create the tree data structure in order to 
+for it to be useful.
+
 ** The A Tree and the AA Tree 
-In order to explain how ~parsearg~ works, we will use two simple abstractions,
-based on nested trees (or ``sub-trees''):
+In order to further explain how ~parsearg~ works, we will make repeated
+use two simple abstractions, based on nested trees (or ``sub-trees''):
 
 1. The ``A Tree'', and
 2. The ``A-AA Tree''.
 
 *** The A Tree 
-The ``A tree'' has three levels. As each node of the tree must
-necessarily occupy a positional argument of the command line,
-~[-f]~ and ~[-g]~ are correspondingly /optional arguments/ that attach to the nodes 
-(~A~ and ~BB~, respectively, in the below diagram). 
+We have already seen the A Tree. It has three levels. 
 #+headers:  :width 800 :height 500 
 #+begin_src dot :exports results :results output graphics :file ./img/a-tree.png
 digraph G {
@@ -527,137 +655,6 @@ TODO
 
 
 #+end_example
-
-** Trees: flat and unflattened
-While it's possible to create a ``longhand'' version of the A tree using the 
-~Tree~ class that comes with the ~parsearg~ package, 
-it is cumbersome to use and---more specifically---it can 
-easily obfuscate the tree structure itself when the node names and 
-payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted.] 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-"""
-       A
-     / | \
-    B  BB BBB
-      /| \
-     C CC CCC
-"""
-
-from parsearg.data_structures import Tree, Node, Key
-
-tree = Tree('A', children=[
-    Tree('B', []),
-    Tree('BB', children=[
-        Tree('C', []),
-        Tree('CC', []),
-        Tree('CCC', [])
-    ]),
-    Tree('BBB', []),
-])
-
-print(tree.show(quiet=True))
-#+END_SRC
-
-#+RESULTS:
-: A
-:     B
-:     BB
-:         C
-:         CC
-:         CCC
-:     BBB
-: 
-: 
-
-We need a ``shorthand'' for constructing trees.
-To this end, ~parsearg~ uses a set of pipe-delimited strings: 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-# from a import view
-from doc.examples.a import view
-
-print(['root'] + list(view.keys()))
-#+END_SRC
-
-#+RESULTS:
-: ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
-: 
-: 
-
-This representation can be considered to be a ``flattened'' version
-of the A-tree:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print(
-    ParseArg.to_tree(view, root_name='root').show(quiet=True) 
-)
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-root
-    A
-        B
-        BBB
-        BB
-            CCC
-            C
-            CC
-
-
-#+end_example
-
-Each string in this ``flat tree'' (or ``flattened tree'')
-represents a node in the tree and names that node. 
-The singular constraint on the tree's structure is that each node's
-children must contain a unique set of node names.
-If this were not the case, then the tree's structure would be indeterminate. 
-In point of fact, the example of the A-AA Tree illustrates that the structure of 
-the A tree can be duplicated: only the root
-node names of each sub-tree (~A~ and ~AA~, respectively) need to be unique.
-
-Leaf nodes are terminating nodes in the tree's hierarchy. 
-In the above, the terminating nodes are
-easily discerned visually within the tree's hierarchy:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-root
-    A
-        B
-        BBB
-        BB
-            CCC
-            C
-            CC
-
-
-#+end_example
-
-Thus, the terminating nodes are:
-#+begin_example
-'A|B'
-'A|BBB'
-'A|BB|C'
-'A|BB|CC'
-'A|BB|CCC'
-#+end_example
-
-while the non-terminating nodes are:
-#+begin_example
-'A'
-'A|BB'
-#+end_example
-
-The separator in each key (here, a pipe ~|~) separates one level of the tree
-from the next level down. It is this delimited-string representation that 
-allows us to easily specify a tree. But taking advantage of 
-a tree as a data structure requires working with a tree, not a flattened
-version of it. In other words, we have a 
-flattened-tree which is shorthand to specify the tree, but we need 
-to unflatten this shorthand to create the tree data structure in order to 
-for it to be useful.
 
 ** Some useful helper data structures 
 ~parsearg~ transforms a ~dict~---the keys of which are shorthand for the
