@@ -6,14 +6,15 @@ from parsearg.data_structures import (
     Key,
 )
 from parsearg.utils import (
+    is_valid,
     print_list,
     is_list_of,
 )
 
 
 class ParseArg:
-    def __init__(self, d, root_name=None):
-        assert isinstance(d, dict)
+    def __init__(self, d, root_name='root'):
+        assert isinstance(d, dict) and is_valid(d)
 
         self.d       = d
         self.tree    = ParseArg.to_tree(self.d, root_name=root_name)
@@ -59,9 +60,8 @@ class ParseArg:
                 make_parser(child, subparsers)
 
     @staticmethod
-    def to_tree(d, root_name=None):
+    def to_tree(d, root_name='root'):
         assert isinstance(d, dict)
-        root_name = 'root' if root_name is None else root_name
 
         nodes = map(lambda key: Key(key), d.keys())
         nodes = list(filter(lambda x: not x.is_empty(), nodes))

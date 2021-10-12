@@ -37,6 +37,6 @@ setup(
     ],
     keywords=["CLI", "subcommand", "parser", "argparse"],
     package_dir={'': 'src'},
-    packages=find_packages(where='src'),
+    packages=find_packages(where='src', exclude=['tests']),
     python_requires='>=3.6',
 )
