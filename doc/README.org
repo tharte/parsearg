@@ -1656,57 +1656,6 @@ print( Node(head='A', tail=['B', ['C']]) << 3 )
 : 
 : 
 
-** Heterogenous trees: recursive data structures
-At any level, there is a sense in which a node is identified by 
-its parent in a /recursive/ way. Indeed, trees are recursive data structures. 
-
-#+attr_latex: :width 1.0\linewidth
-#+RESULTS:
-[[file:./img/tree-abc-a-aa.png]]
-
-An heterogeneous tree is either:
-
-    1. a value (or ``node'', or ``name'') and a ~set~ (possibly empty)
-       of child trees (the ``children'' of the value/node/name); or,
-    2. the empty tree.
-
-We represent the value/node/name and its set of children as the tuple: 
-~(value, {e1, e2, ....})~,
-where ~{e1, e2, ...}~ is the set of children and each element of the 
-set ~e1~, ~e2~, and so on, is itself a tree.
-The empty tree is represented by ~(None, {})~.
-       
-This type of tree is termed /heterogeneous/ because each node's set of 
-child trees can vary in its cardinality, whereas an n-ary tree has the
-same number of children at each node 
-(/e.g./ two for a binary tree, three for a ternary tree, and in general 
-$n$ for an n-ary tree).
-       
-A terminating (or ``leaf'') node is:
-#+begin_quote
-a tree whose ~set~ of child trees is empty.
-#+end_quote
-Note that, by this definition, the empty tree (represented by ~(None, {})~) is 
-a terminating node, because nothing in the definition requires its parent 
-node to exist.
-In this light, ~(None, {})~ is a perfectly valid leaf node, as is
-~(value, {(None, {})})~.
-       
-We can define an heterogeneous tree in reverse, /viz./ 
-first from its terminating nodes. To do so
-requires that we enrich the existing terminology to avert linguistic gymnastics.
-``Siblings'' are the children of a particular node, namely the siblings' ``parent''.
-This is nothing more than the flip side of the above ``top-down'' definition of an 
-heterogeneous tree. 
-
-Therefore, an heterogeneous tree can also be defined as being either:
-
-    1. a ~set~ (possibly empty) of child trees having a common parent 
-       (being a value/node/name); or,
-    2. the empty tree.
-       
-We will regard this as the ``bottom-up'' definition. 
-
 ** Creating a tree from its leaf nodes
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
