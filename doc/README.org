@@ -767,6 +767,9 @@ print( Node(head='A', tail=['B', ['C']]) << 3 )
 : 
 
 ** Reverse-definition tree: Creating a tree from its leaf nodes
+   
+\mbox{}
+
 \textcolor{blue}{\bf TODO:}
 #+begin_quote
 This section is incomplete. 
