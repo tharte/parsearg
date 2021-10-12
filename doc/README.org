@@ -259,6 +259,7 @@ Trees are recursive data structures.  Any node of a tree is identified by
 a value and a set of /child trees/, thus establishing the recursion.
 
 \begin{defn}
+\label{defn:1}
 An heterogeneous tree is either:
     \begin{enumerate}
         \item a value and a set of child trees; or,
@@ -269,13 +270,15 @@ An heterogeneous tree is either:
 The value is also known as a ``node'', or ``name''; its set of child trees 
 (also known as the ``children'' of the value/node/name) is possibly empty.
 The value/node/name is referred to as the ``parent'' of its children.
+The children of a unique parent tree are termed ``siblings'', though
+they are not necessarily aware of each other.
 The empty tree has no value/node/name and an empty set of children.
 
 \begin{remark}
-The definition implies that a tree ``points'' to its children, in so far
-as the tree is necessarily aware of the children it contains, whereas its
-children are not necessarily aware of their parent.  We will therefore regard
-this definition as the ``top-down'' definition.
+The definition implies that a parent tree ``points'' to its children, in so far
+as the parent is necessarily aware of the children it contains, whereas its
+children are not necessarily aware of their parent, nor of each other.  
+We will therefore regard Definition \ref{defn:1} as the ``top-down'' definition.
 \end{remark}
 
 In Python, we represent the value/node/name and its ~set~ of children as the 
@@ -283,8 +286,9 @@ In Python, we represent the value/node/name and its ~set~ of children as the
 #+begin_quote
 ~(value, {e1, e2, ....})~,
 #+end_quote
-where ~{e1, e2, ...}~ is the ~set~ of children, and each element of the ~set~
-~e1~, ~e2~, ~...~, is itself a tree.  The empty tree is represented by
+where ~{e1, e2, ...}~ is the ~set~ of children containing elements 
+~e1~, ~e2~, and so on, and each element of the ~set~ is itself a tree.  
+The empty tree is represented by
 #+begin_quote
 ~(None, {})~,
 #+end_quote
@@ -337,37 +341,59 @@ which is /not/ the same as
 is not the same as the null set itself?
 #+end_quote
        
-We can define an heterogeneous tree in reverse, /viz./ 
-first from its terminating nodes. To do so
-requires that we enrich the existing terminology to avert linguistic gymnastics.
-``Siblings'' are the children of a particular node, namely the siblings' ``parent''.
-This is nothing more than the flip side of the above ``top-down'' definition of an 
-heterogeneous tree. 
+We can define an heterogeneous tree in reverse, /viz./ instead of starting
+with a parent and recursively defining the tree through its children, we
+can start with a terminating node and recursively define the tree 
+by identifying each node's parent. 
 
-Therefore, an heterogeneous tree can also be defined as being either:
+This definition yields the flip side of the ``top-down'' definition, above.
 
-    1. a ~set~ (possibly empty) of child trees having a common parent 
-       (being a value/node/name); or,
-    2. the empty tree.
-       
-We will regard this as the ``bottom-up'' definition. 
+\begin{defn}
+\label{defn:2}
+An heterogeneous tree is either:
+    \begin{enumerate}
+        \item a set of sibling trees sharing a common parent value/node/name; or,
+        \item the empty tree.
+    \end{enumerate}
+\end{defn}
 
-** The A-tree 
-In order to explain how ~parsearg~ works, 
-we will entertain a simpler abstraction than 
-that used in the ~parsearg.examples.todos.py~ example.
-Because ~parsearg~ treats nested parsers as trees, we introduce 
+The set of sibling trees that shares a common parent is possibly empty. What is
+the parent of an empty set (/i.e./ that contains no trees)? It is the same as 
+any other tree: It must point to its parent. Optionally, siblings may point
+to each other. Further still, a child node may point to all of its ancestors
+(its parent's parent, and so on).
+
+In Python, we represent the ``reverse tree'' as.
+
+\textcolor{blue}{\bf TODO:}
+#+begin_quote
+Insert appropriate representation here. 
+#+end_quote
+
+\begin{remark}
+Definition \ref{defn:2} implies that a child tree points to its parent, which means
+that the child must be able to uniquely identify the parent tree in which
+it is contained. Because a parent contains its children, a parent must
+be aware of its children, so it is not strictly the reverse of the 
+``top-down'' definition. Nonetheless, we'll refer to Definition 
+\ref{defn:2} as the ``bottom-up'' definition.
+\end{remark}
+
+** The A Tree and the AA Tree 
+In order to explain how ~parsearg~ works, we will entertain two simple abstractions,
+based on nested trees (or ``sub-trees''):
 two trees to illustrate:
-1. The ``A tree'', and
-2. The ``A-AA tree''.
 
-** The A-tree 
+1. The ``A Tree'', and
+2. The ``A-AA Tree''.
+
+*** The A Tree 
 The ``A tree'' has three levels. As each node of the tree must
 necessarily occupy a positional argument of the command line,
 ~[-f]~ and ~[-g]~ are correspondingly /optional arguments/ that attach to the nodes 
 (~A~ and ~BB~, respectively, in the below diagram). 
 #+headers:  :width 800 :height 500 
-#+begin_src dot :exports results :results output graphics :file ./img/tree-abc-a.png
+#+begin_src dot :exports results :results output graphics :file ./img/a-tree.png
 digraph G {
     subgraph {
     edge [penwidth=0.5; arrowsize=0.65, arrowhead=normal];
