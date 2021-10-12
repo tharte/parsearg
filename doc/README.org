@@ -951,248 +951,6 @@ def to_tree_backwards(view, root_name='root', sep='|'):
 : 
 
 * Worked Examples
-** Let's build the interface for a TO-DO app 
-The ~examples~ folder in the source distribution contains a TO-DO app.
-The app
-
-1. illustrates a sufficiently realistic, but not overly complex, problem;
-2. illustrates operation of the MVC pattern in the wild;
-3. shows how ~parsearg~ neatly segments the View component of MVC with a ~dict~.
-  
-Let's start with the outer layer of the onion. How do we interact with
-~todos.py~?  First, we can create some users in a ~User~ table with the 
-~create user~ subcommand of ~todos.py~.  Note that we do not (yet) have a phone
-number for user ~Dick~, nor do we have an email address for user ~Harry~:
-#+BEGIN_SRC bash :session *bash* :exports none :results silent
-cd ./examples
-DATABASE=./todo.db
-
-if [[ -e $DATABASE ]]; then
-    python todos.py purge users
-    python todos.py purge todos
-fi
-#+END_SRC
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py create user Tom -e tom@email.com -p 212-555-1234
-python todos.py create user Dick -e dick@email.com
-python todos.py create user Harry -p 212-123-5555
-#+END_SRC
-
-#+RESULTS:
-: 'create user Tom -e tom@email.com -p 212-555-1234':
-: ---------------------------------------------------
-: 	SUCCESS
-: 'create user Dick -e dick@email.com':
-: -------------------------------------
-: 	SUCCESS
-: 'create user Harry -p 212-123-5555':
-: ------------------------------------
-: 	SUCCESS
-
-Second, create some TO-DOs in the ~Todo~ table with the ~create todo~ subcommand of ~todos.py~. 
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py create todo Tom title1 -c description1 -d 2020-11-30
-python todos.py create todo Tom title2 -c description2 --due-date=2020-12-31
-python todos.py create todo Harry todo-1 --description=Christmas-party -d 2020-11-30
-python todos.py create todo Harry todo-2 --description=New-Year-party
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-'create todo Tom title1 -c description1 -d 2020-11-30':
--------------------------------------------------------
-	SUCCESS
-'create todo Tom title2 -c description2 --due-date=2020-12-31':
----------------------------------------------------------------
-	SUCCESS
-'create todo Harry todo-1 --description=Christmas-party -d 2020-11-30':
------------------------------------------------------------------------
-	SUCCESS
-'create todo Harry todo-2 --description=New-Year-party':
---------------------------------------------------------
-	SUCCESS
-#+end_example
-
-Let's make some changes to the records entered so far. We can add an email address
-for user ~Harry~ (using the ~update user email~ subcommands) and a phone number for user ~Dick~ 
-(using the ~update user phone~ subcommands):
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py update user email Harry harry@email.com
-python todos.py update user phone Dick 203-555-1212
-#+END_SRC
-
-#+RESULTS:
-: 'update user email Harry harry@email.com':
-: ------------------------------------------
-: 	SUCCESS
-: 'update user phone Dick 203-555-1212':
-: --------------------------------------
-: 	SUCCESS
-
-Now update two of the TO-DOs, changing the ~title~ (using the ~update todo
-title~ subcommands) and the ~description~ (using the ~update todo description~
-subcommands) in the fourth TO-DO:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py update todo title 4 most-important
-python todos.py update todo description 4 2021-party
-#+END_SRC
-
-#+RESULTS:
-: 'update todo title 4 most-important':
-: -------------------------------------
-: 	SUCCESS
-: 'update todo description 4 2021-party':
-: ---------------------------------------
-: 	SUCCESS
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py show users
-python todos.py show todos
-#+END_SRC
-
-#+RESULTS:
-: 'show users':
-: -------------
-: 	SUCCESS
-: 'show todos':
-: -------------
-: 	SUCCESS
-
-The result of these commands is that the two tables (~User~ and ~Todo~)
-are populated in a [[https://www.sqlite.org/index.html][SQLite]] database:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-sqlite3 todo.db 'select * from User;'
-#+END_SRC
-
-#+RESULTS:
-: Tom|tom@email.com|212-555-1234|2021-06-12 18:41:44
-: Dick|dick@email.com|203-555-1212|2021-06-12 18:41:44
-: Harry|harry@email.com|212-123-5555|2021-06-12 18:41:44
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-sqlite3 todo.db 'select * from Todo;'
-#+END_SRC
-
-#+RESULTS:
-: 17|title1|description1|2020-11-30|2021-06-12 18:41:47|Tom
-: 18|title2|description2|2020-12-31|2021-06-12 18:41:47|Tom
-: 19|todo-1|Christmas-party|2020-11-30|2021-06-12 18:41:47|Harry
-: 20|todo-2|New-Year-party|None|2021-06-12 18:41:47|Harry
-
-Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/doc/examples/todos.py][~todos.py~]].
-
-The View component is entirely contained within a single ~dict~, /viz./ 
-~view~, which has been formatted here for clarity using ~parsearg.utils.show~:
-#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
-%cd ./examples
-#+END_SRC
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes
-from todos import view
-from parsearg.utils import show
-
-show(view)
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-'purge|users':
-    'callback':
-    <function purge_users at 0x7fa92bce5430>
-'purge|todos':
-    'callback':
-    <function purge_todos at 0x7fa92bcf0160>
-'show|users':
-    'callback':
-    <function show_users at 0x7fa92bcf01f0>
-'show|todos':
-    'callback':
-    <function show_todos at 0x7fa92bcf0280>
-'create|user':
-    'callback':
-    <function create_user at 0x7fa92bcf0310>
-    'name':
-    {'help': 'create user name', 'action': 'store'}
-    '-e|--email':
-    {'help': "create user's email address", 'action': 'store', 'default': ''}
-    '-p|--phone':
-    {'help': "create user's phone number", 'action': 'store', 'default': ''}
-'create|todo':
-    'callback':
-    <function create_todo at 0x7fa92bcf03a0>
-    'user':
-    {'help': 'user name', 'action': 'store'}
-    'title':
-    {'help': 'title of to-do', 'action': 'store'}
-    '-c|--description':
-    {'help': 'description of to-do', 'action': 'store', 'default': ''}
-    '-d|--due-date':
-    {'help': 'due date for the to-do', 'action': 'store', 'default': None}
-'update|user|email':
-    'callback':
-    <function update_user_email at 0x7fa92bcf0430>
-    'name':
-    {'help': 'user name', 'action': 'store'}
-    'email':
-    {'help': 'user email', 'action': 'store'}
-'update|user|phone':
-    'callback':
-    <function update_user_phone at 0x7fa92bcf04c0>
-    'name':
-    {'help': 'user name', 'action': 'store'}
-    'phone':
-    {'help': 'user phone', 'action': 'store'}
-'update|todo|title':
-    'callback':
-    <function update_todo_title at 0x7fa92bcf0550>
-    'id':
-    {'help': 'ID of to-do', 'action': 'store'}
-    'title':
-    {'help': 'title of to-do', 'action': 'store'}
-'update|todo|description':
-    'callback':
-    <function update_todo_description at 0x7fa92bcf05e0>
-    'id':
-    {'help': 'ID of to-do', 'action': 'store'}
-    'description':
-    {'help': 'description of to-do', 'action': 'store'}
-
-
-#+end_example
-
-We can generate a tree view of the CLI design specified by the above ~dict~,
-namely ~view~, as follows:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from parsearg import ParseArg
-
-print(
-    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
-)
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-TODO
-    create
-        user
-        todo
-    show
-        todos
-        users
-    update
-        user
-            email
-            phone
-        todo
-            description
-            title
-    purge
-        todos
-        users
-
-
-#+end_example
-
-\newpage
 ** The A-tree 
 The ``A tree'' has three levels. As each node of the tree must
 necessarily occupy a positional argument of the command line,
@@ -2048,3 +1806,245 @@ optional arguments:
 
 
 #+end_example
+** Let's build the interface for a TO-DO app 
+The ~examples~ folder in the source distribution contains a TO-DO app.
+The app
+
+1. illustrates a sufficiently realistic, but not overly complex, problem;
+2. illustrates operation of the MVC pattern in the wild;
+3. shows how ~parsearg~ neatly segments the View component of MVC with a ~dict~.
+  
+Let's start with the outer layer of the onion. How do we interact with
+~todos.py~?  First, we can create some users in a ~User~ table with the 
+~create user~ subcommand of ~todos.py~.  Note that we do not (yet) have a phone
+number for user ~Dick~, nor do we have an email address for user ~Harry~:
+#+BEGIN_SRC bash :session *bash* :exports none :results silent
+cd ./examples
+DATABASE=./todo.db
+
+if [[ -e $DATABASE ]]; then
+    python todos.py purge users
+    python todos.py purge todos
+fi
+#+END_SRC
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+python todos.py create user Tom -e tom@email.com -p 212-555-1234
+python todos.py create user Dick -e dick@email.com
+python todos.py create user Harry -p 212-123-5555
+#+END_SRC
+
+#+RESULTS:
+: 'create user Tom -e tom@email.com -p 212-555-1234':
+: ---------------------------------------------------
+: 	SUCCESS
+: 'create user Dick -e dick@email.com':
+: -------------------------------------
+: 	SUCCESS
+: 'create user Harry -p 212-123-5555':
+: ------------------------------------
+: 	SUCCESS
+
+Second, create some TO-DOs in the ~Todo~ table with the ~create todo~ subcommand of ~todos.py~. 
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+python todos.py create todo Tom title1 -c description1 -d 2020-11-30
+python todos.py create todo Tom title2 -c description2 --due-date=2020-12-31
+python todos.py create todo Harry todo-1 --description=Christmas-party -d 2020-11-30
+python todos.py create todo Harry todo-2 --description=New-Year-party
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+'create todo Tom title1 -c description1 -d 2020-11-30':
+-------------------------------------------------------
+	SUCCESS
+'create todo Tom title2 -c description2 --due-date=2020-12-31':
+---------------------------------------------------------------
+	SUCCESS
+'create todo Harry todo-1 --description=Christmas-party -d 2020-11-30':
+-----------------------------------------------------------------------
+	SUCCESS
+'create todo Harry todo-2 --description=New-Year-party':
+--------------------------------------------------------
+	SUCCESS
+#+end_example
+
+Let's make some changes to the records entered so far. We can add an email address
+for user ~Harry~ (using the ~update user email~ subcommands) and a phone number for user ~Dick~ 
+(using the ~update user phone~ subcommands):
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+python todos.py update user email Harry harry@email.com
+python todos.py update user phone Dick 203-555-1212
+#+END_SRC
+
+#+RESULTS:
+: 'update user email Harry harry@email.com':
+: ------------------------------------------
+: 	SUCCESS
+: 'update user phone Dick 203-555-1212':
+: --------------------------------------
+: 	SUCCESS
+
+Now update two of the TO-DOs, changing the ~title~ (using the ~update todo
+title~ subcommands) and the ~description~ (using the ~update todo description~
+subcommands) in the fourth TO-DO:
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+python todos.py update todo title 4 most-important
+python todos.py update todo description 4 2021-party
+#+END_SRC
+
+#+RESULTS:
+: 'update todo title 4 most-important':
+: -------------------------------------
+: 	SUCCESS
+: 'update todo description 4 2021-party':
+: ---------------------------------------
+: 	SUCCESS
+
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+python todos.py show users
+python todos.py show todos
+#+END_SRC
+
+#+RESULTS:
+: 'show users':
+: -------------
+: 	SUCCESS
+: 'show todos':
+: -------------
+: 	SUCCESS
+
+The result of these commands is that the two tables (~User~ and ~Todo~)
+are populated in a [[https://www.sqlite.org/index.html][SQLite]] database:
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+sqlite3 todo.db 'select * from User;'
+#+END_SRC
+
+#+RESULTS:
+: Tom|tom@email.com|212-555-1234|2021-06-12 18:41:44
+: Dick|dick@email.com|203-555-1212|2021-06-12 18:41:44
+: Harry|harry@email.com|212-123-5555|2021-06-12 18:41:44
+
+#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+sqlite3 todo.db 'select * from Todo;'
+#+END_SRC
+
+#+RESULTS:
+: 17|title1|description1|2020-11-30|2021-06-12 18:41:47|Tom
+: 18|title2|description2|2020-12-31|2021-06-12 18:41:47|Tom
+: 19|todo-1|Christmas-party|2020-11-30|2021-06-12 18:41:47|Harry
+: 20|todo-2|New-Year-party|None|2021-06-12 18:41:47|Harry
+
+Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/doc/examples/todos.py][~todos.py~]].
+
+The View component is entirely contained within a single ~dict~, /viz./ 
+~view~, which has been formatted here for clarity using ~parsearg.utils.show~:
+#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
+%cd ./examples
+#+END_SRC
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes
+from todos import view
+from parsearg.utils import show
+
+show(view)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+'purge|users':
+    'callback':
+    <function purge_users at 0x7fa92bce5430>
+'purge|todos':
+    'callback':
+    <function purge_todos at 0x7fa92bcf0160>
+'show|users':
+    'callback':
+    <function show_users at 0x7fa92bcf01f0>
+'show|todos':
+    'callback':
+    <function show_todos at 0x7fa92bcf0280>
+'create|user':
+    'callback':
+    <function create_user at 0x7fa92bcf0310>
+    'name':
+    {'help': 'create user name', 'action': 'store'}
+    '-e|--email':
+    {'help': "create user's email address", 'action': 'store', 'default': ''}
+    '-p|--phone':
+    {'help': "create user's phone number", 'action': 'store', 'default': ''}
+'create|todo':
+    'callback':
+    <function create_todo at 0x7fa92bcf03a0>
+    'user':
+    {'help': 'user name', 'action': 'store'}
+    'title':
+    {'help': 'title of to-do', 'action': 'store'}
+    '-c|--description':
+    {'help': 'description of to-do', 'action': 'store', 'default': ''}
+    '-d|--due-date':
+    {'help': 'due date for the to-do', 'action': 'store', 'default': None}
+'update|user|email':
+    'callback':
+    <function update_user_email at 0x7fa92bcf0430>
+    'name':
+    {'help': 'user name', 'action': 'store'}
+    'email':
+    {'help': 'user email', 'action': 'store'}
+'update|user|phone':
+    'callback':
+    <function update_user_phone at 0x7fa92bcf04c0>
+    'name':
+    {'help': 'user name', 'action': 'store'}
+    'phone':
+    {'help': 'user phone', 'action': 'store'}
+'update|todo|title':
+    'callback':
+    <function update_todo_title at 0x7fa92bcf0550>
+    'id':
+    {'help': 'ID of to-do', 'action': 'store'}
+    'title':
+    {'help': 'title of to-do', 'action': 'store'}
+'update|todo|description':
+    'callback':
+    <function update_todo_description at 0x7fa92bcf05e0>
+    'id':
+    {'help': 'ID of to-do', 'action': 'store'}
+    'description':
+    {'help': 'description of to-do', 'action': 'store'}
+
+
+#+end_example
+
+We can generate a tree view of the CLI design specified by the above ~dict~,
+namely ~view~, as follows:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg import ParseArg
+
+print(
+    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
+)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+TODO
+    create
+        user
+        todo
+    show
+        todos
+        users
+    update
+        user
+            email
+            phone
+        todo
+            description
+            title
+    purge
+        todos
+        users
+
+
+#+end_example
+
+\newpage
