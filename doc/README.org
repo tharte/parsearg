@@ -253,248 +253,6 @@ what's already available without introducing dependencies.
 Simple? The following examples should help.
 
 \newpage
-* Worked Example: Let's build the interface for a TO-DO app 
-The ~examples~ folder in the source distribution contains a TO-DO app.
-The app
-
-1. illustrates a sufficiently realistic, but not overly complex, problem;
-2. illustrates operation of the MVC pattern in the wild;
-3. shows how ~parsearg~ neatly segments the View component of MVC with a ~dict~.
-  
-Let's start with the outer layer of the onion. How do we interact with
-~todos.py~?  First, we can create some users in a ~User~ table with the 
-~create user~ subcommand of ~todos.py~.  Note that we do not (yet) have a phone
-number for user ~Dick~, nor do we have an email address for user ~Harry~:
-#+BEGIN_SRC bash :session *bash* :exports none :results silent
-cd ./examples
-DATABASE=./todo.db
-
-if [[ -e $DATABASE ]]; then
-    python todos.py purge users
-    python todos.py purge todos
-fi
-#+END_SRC
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py create user Tom -e tom@email.com -p 212-555-1234
-python todos.py create user Dick -e dick@email.com
-python todos.py create user Harry -p 212-123-5555
-#+END_SRC
-
-#+RESULTS:
-: 'create user Tom -e tom@email.com -p 212-555-1234':
-: ---------------------------------------------------
-: 	SUCCESS
-: 'create user Dick -e dick@email.com':
-: -------------------------------------
-: 	SUCCESS
-: 'create user Harry -p 212-123-5555':
-: ------------------------------------
-: 	SUCCESS
-
-Second, create some TO-DOs in the ~Todo~ table with the ~create todo~ subcommand of ~todos.py~. 
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py create todo Tom title1 -c description1 -d 2020-11-30
-python todos.py create todo Tom title2 -c description2 --due-date=2020-12-31
-python todos.py create todo Harry todo-1 --description=Christmas-party -d 2020-11-30
-python todos.py create todo Harry todo-2 --description=New-Year-party
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-'create todo Tom title1 -c description1 -d 2020-11-30':
--------------------------------------------------------
-	SUCCESS
-'create todo Tom title2 -c description2 --due-date=2020-12-31':
----------------------------------------------------------------
-	SUCCESS
-'create todo Harry todo-1 --description=Christmas-party -d 2020-11-30':
------------------------------------------------------------------------
-	SUCCESS
-'create todo Harry todo-2 --description=New-Year-party':
---------------------------------------------------------
-	SUCCESS
-#+end_example
-
-Let's make some changes to the records entered so far. We can add an email address
-for user ~Harry~ (using the ~update user email~ subcommands) and a phone number for user ~Dick~ 
-(using the ~update user phone~ subcommands):
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py update user email Harry harry@email.com
-python todos.py update user phone Dick 203-555-1212
-#+END_SRC
-
-#+RESULTS:
-: 'update user email Harry harry@email.com':
-: ------------------------------------------
-: 	SUCCESS
-: 'update user phone Dick 203-555-1212':
-: --------------------------------------
-: 	SUCCESS
-
-Now update two of the TO-DOs, changing the ~title~ (using the ~update todo
-title~ subcommands) and the ~description~ (using the ~update todo description~
-subcommands) in the fourth TO-DO:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py update todo title 4 most-important
-python todos.py update todo description 4 2021-party
-#+END_SRC
-
-#+RESULTS:
-: 'update todo title 4 most-important':
-: -------------------------------------
-: 	SUCCESS
-: 'update todo description 4 2021-party':
-: ---------------------------------------
-: 	SUCCESS
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python todos.py show users
-python todos.py show todos
-#+END_SRC
-
-#+RESULTS:
-: 'show users':
-: -------------
-: 	SUCCESS
-: 'show todos':
-: -------------
-: 	SUCCESS
-
-The result of these commands is that the two tables (~User~ and ~Todo~)
-are populated in a [[https://www.sqlite.org/index.html][SQLite]] database:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-sqlite3 todo.db 'select * from User;'
-#+END_SRC
-
-#+RESULTS:
-: Tom|tom@email.com|212-555-1234|2021-06-12 18:41:44
-: Dick|dick@email.com|203-555-1212|2021-06-12 18:41:44
-: Harry|harry@email.com|212-123-5555|2021-06-12 18:41:44
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-sqlite3 todo.db 'select * from Todo;'
-#+END_SRC
-
-#+RESULTS:
-: 17|title1|description1|2020-11-30|2021-06-12 18:41:47|Tom
-: 18|title2|description2|2020-12-31|2021-06-12 18:41:47|Tom
-: 19|todo-1|Christmas-party|2020-11-30|2021-06-12 18:41:47|Harry
-: 20|todo-2|New-Year-party|None|2021-06-12 18:41:47|Harry
-
-Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/doc/examples/todos.py][~todos.py~]].
-
-The View component is entirely contained within a single ~dict~, /viz./ 
-~view~, which has been formatted here for clarity using ~parsearg.utils.show~:
-#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
-%cd ./examples
-#+END_SRC
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes
-from todos import view
-from parsearg.utils import show
-
-show(view)
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-'purge|users':
-    'callback':
-    <function purge_users at 0x7fa92bce5430>
-'purge|todos':
-    'callback':
-    <function purge_todos at 0x7fa92bcf0160>
-'show|users':
-    'callback':
-    <function show_users at 0x7fa92bcf01f0>
-'show|todos':
-    'callback':
-    <function show_todos at 0x7fa92bcf0280>
-'create|user':
-    'callback':
-    <function create_user at 0x7fa92bcf0310>
-    'name':
-    {'help': 'create user name', 'action': 'store'}
-    '-e|--email':
-    {'help': "create user's email address", 'action': 'store', 'default': ''}
-    '-p|--phone':
-    {'help': "create user's phone number", 'action': 'store', 'default': ''}
-'create|todo':
-    'callback':
-    <function create_todo at 0x7fa92bcf03a0>
-    'user':
-    {'help': 'user name', 'action': 'store'}
-    'title':
-    {'help': 'title of to-do', 'action': 'store'}
-    '-c|--description':
-    {'help': 'description of to-do', 'action': 'store', 'default': ''}
-    '-d|--due-date':
-    {'help': 'due date for the to-do', 'action': 'store', 'default': None}
-'update|user|email':
-    'callback':
-    <function update_user_email at 0x7fa92bcf0430>
-    'name':
-    {'help': 'user name', 'action': 'store'}
-    'email':
-    {'help': 'user email', 'action': 'store'}
-'update|user|phone':
-    'callback':
-    <function update_user_phone at 0x7fa92bcf04c0>
-    'name':
-    {'help': 'user name', 'action': 'store'}
-    'phone':
-    {'help': 'user phone', 'action': 'store'}
-'update|todo|title':
-    'callback':
-    <function update_todo_title at 0x7fa92bcf0550>
-    'id':
-    {'help': 'ID of to-do', 'action': 'store'}
-    'title':
-    {'help': 'title of to-do', 'action': 'store'}
-'update|todo|description':
-    'callback':
-    <function update_todo_description at 0x7fa92bcf05e0>
-    'id':
-    {'help': 'ID of to-do', 'action': 'store'}
-    'description':
-    {'help': 'description of to-do', 'action': 'store'}
-
-
-#+end_example
-
-We can generate a tree view of the CLI design specified by the above ~dict~,
-namely ~view~, as follows:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from parsearg import ParseArg
-
-print(
-    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
-)
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-TODO
-    create
-        user
-        todo
-    show
-        todos
-        users
-    update
-        user
-            email
-            phone
-        todo
-            description
-            title
-    purge
-        todos
-        users
-
-
-#+end_example
-
-\newpage
 * How ~parsearg~ works 
 ** Heterogeneous trees: recursive data structures
 Trees are recursive data structures.  Any node of a tree is identified by
@@ -1602,6 +1360,56 @@ print( type(Key(key).value) )
 : <class 'parsearg.data_structures.Node'>
 : 
 : 
+#+begin_example
+'A':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f94501f0>
+    '-c':
+    {'help': 'A [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A verbosity', 'action': 'store_true'}
+'A|B':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f936ef70>
+    '-c':
+    {'help': 'A B [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A B verbosity', 'action': 'store_true'}
+'A|BB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93d7040>
+    '-c':
+    {'help': 'A BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB erbosity', 'action': 'store_true'}
+'A|BB|C':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93d70d0>
+    '-c':
+    {'help': 'A BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB C verbosity', 'action': 'store_true'}
+'A|BB|CC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93d7160>
+    '-c':
+    {'help': 'A BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CC verbosity', 'action': 'store_true'}
+'A|BB|CCC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93d71f0>
+    '-c':
+    {'help': 'A BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CCC verbosity', 'action': 'store_true'}
+'A|BBB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93d7280>
+    '-c':
+    {'help': 'A BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BBB verbosity', 'action': 'store_true'}
 
 What is a ~Node~? It is a tuple that has a ~head~ and a ~tail~. The 
 ~head~ is the name of the node and the ~tail~ is a nested list containing
@@ -1662,6 +1470,105 @@ print( Node(head='A', tail=['B', ['C']]) << 3 )
 : (None, [])
 : 
 : 
+#+begin_example
+'A':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377e50>
+    '-c':
+    {'help': 'A [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A verbosity', 'action': 'store_true'}
+'A|B':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377ee0>
+    '-c':
+    {'help': 'A B [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A B verbosity', 'action': 'store_true'}
+'A|BB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377dc0>
+    '-c':
+    {'help': 'A BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB erbosity', 'action': 'store_true'}
+'A|BB|C':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377040>
+    '-c':
+    {'help': 'A BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB C verbosity', 'action': 'store_true'}
+'A|BB|CC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93770d0>
+    '-c':
+    {'help': 'A BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CC verbosity', 'action': 'store_true'}
+'A|BB|CCC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377160>
+    '-c':
+    {'help': 'A BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BB CCC verbosity', 'action': 'store_true'}
+'A|BBB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93771f0>
+    '-c':
+    {'help': 'A BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'A BBB verbosity', 'action': 'store_true'}
+'AA':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377280>
+    '-c':
+    {'help': 'AA [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA verbosity', 'action': 'store_true'}
+'AA|B':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377310>
+    '-c':
+    {'help': 'AA B [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA B verbosity', 'action': 'store_true'}
+'AA|BB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377430>
+    '-c':
+    {'help': 'AA BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB verbosity', 'action': 'store_true'}
+'AA|BB|C':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93773a0>
+    '-c':
+    {'help': 'AA BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB C verbosity', 'action': 'store_true'}
+'AA|BB|CC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f93775e0>
+    '-c':
+    {'help': 'AA BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB CC verbosity', 'action': 'store_true'}
+'AA|BB|CCC':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377700>
+    '-c':
+    {'help': 'AA BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BB CCC verbosity', 'action': 'store_true'}
+'AA|BBB':
+    'callback':
+    <function make_callback.<locals>.func at 0x7f47f9377790>
+    '-c':
+    {'help': 'AA BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
+    '-v|--verbose':
+    {'help': 'AA BBB verbosity', 'action': 'store_true'}
 
 ** Creating a tree from its leaf nodes
 
@@ -1841,9 +1748,445 @@ def to_tree_backwards(view, root_name='root', sep='|'):
         root_name, 
         children=d.iloc[which(d['ancestors']==root_name), col('leaf')].to_list()
     )
+NODE :: 'A BB C':
+-------------------
+usage: ipython A BB C [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB C [optional pi]
+  -v, --verbose  A BB C verbosity
+
+
+'A BB C':
+---------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139947100922976'>
+'A BB C -v':
+------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139947100922976'>
+'A BB C -c':
+------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139947100922976'>
+'A BB C -v -c':
+---------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139947100922976'>
+
+
+NODE :: 'A BB CC':
+--------------------
+usage: ipython A BB CC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CC [optional pi]
+  -v, --verbose  A BB CC verbosity
+
+
+'A BB CC':
+----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139947100924128'>
+'A BB CC -v':
+-------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139947100924128'>
+'A BB CC -c':
+-------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139947100924128'>
+'A BB CC -v -c':
+----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139947100924128'>
+
+
+NODE :: 'A BB CCC':
+---------------------
+usage: ipython A BB CCC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CCC [optional pi]
+  -v, --verbose  A BB CCC verbosity
+
+
+'A BB CCC':
+-----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+'A BB CCC -v':
+--------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+'A BB CCC -c':
+--------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+'A BB CCC -v -c':
+-----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+
+
+#+end_example
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from a_aa import main
+main()
 #+END_SRC
 
 #+RESULTS:
-: 
-: 
-: 
+#+begin_example
+NODE :: 'A':
+--------------
+usage: ipython A [-h] [-c] [-v] {B,BB,BBB} ...
+
+positional arguments:
+  {B,BB,BBB}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A [optional pi]
+  -v, --verbose  A verbosity
+
+
+'A':
+----
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A' id='139947112579024'>
+'A -v':
+-------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A' id='139947112579024'>
+'A -c':
+-------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A' id='139947112579024'>
+'A -v -c':
+----------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A' id='139947112579024'>
+
+
+NODE :: 'A B':
+----------------
+usage: ipython A B [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A B [optional pi]
+  -v, --verbose  A B verbosity
+
+
+'A B':
+------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_B' id='139947100555488'>
+'A B -v':
+---------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_B' id='139947100555488'>
+'A B -c':
+---------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_B' id='139947100555488'>
+'A B -v -c':
+------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_B' id='139947100555488'>
+
+
+NODE :: 'A BB':
+-----------------
+usage: ipython A BB [-h] [-c] [-v] {C,CCC,CC} ...
+
+positional arguments:
+  {C,CCC,CC}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB [optional pi]
+  -v, --verbose  A BB erbosity
+
+
+'A BB':
+-------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB' id='139947100557120'>
+'A BB -v':
+----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB' id='139947100557120'>
+'A BB -c':
+----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB' id='139947100557120'>
+'A BB -v -c':
+-------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB' id='139947100557120'>
+
+
+NODE :: 'A BB C':
+-------------------
+usage: ipython A BB C [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB C [optional pi]
+  -v, --verbose  A BB C verbosity
+
+
+'A BB C':
+---------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139947100555200'>
+'A BB C -v':
+------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139947100555200'>
+'A BB C -c':
+------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_C' id='139947100555200'>
+'A BB C -v -c':
+---------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_C' id='139947100555200'>
+
+
+NODE :: 'A BB CC':
+--------------------
+usage: ipython A BB CC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CC [optional pi]
+  -v, --verbose  A BB CC verbosity
+
+
+'A BB CC':
+----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139947100553856'>
+'A BB CC -v':
+-------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139947100553856'>
+'A BB CC -c':
+-------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CC' id='139947100553856'>
+'A BB CC -v -c':
+----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CC' id='139947100553856'>
+
+
+NODE :: 'A BB CCC':
+---------------------
+usage: ipython A BB CCC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             A BB CCC [optional pi]
+  -v, --verbose  A BB CCC verbosity
+
+
+'A BB CCC':
+-----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+'A BB CCC -v':
+--------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+'A BB CCC -c':
+--------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+'A BB CCC -v -c':
+-----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+
+
+NODE :: 'AA':
+---------------
+usage: ipython AA [-h] [-c] [-v] {B,BB,BBB} ...
+
+positional arguments:
+  {B,BB,BBB}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA [optional pi]
+  -v, --verbose  AA verbosity
+
+
+'AA':
+-----
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA' id='139947100554336'>
+'AA -v':
+--------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA' id='139947100554336'>
+'AA -c':
+--------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA' id='139947100554336'>
+'AA -v -c':
+-----------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA' id='139947100554336'>
+
+
+NODE :: 'AA B':
+-----------------
+usage: ipython AA B [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA B [optional pi]
+  -v, --verbose  AA B verbosity
+
+
+'AA B':
+-------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_B' id='139947100554384'>
+'AA B -v':
+----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_B' id='139947100554384'>
+'AA B -c':
+----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_B' id='139947100554384'>
+'AA B -v -c':
+-------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_B' id='139947100554384'>
+
+
+NODE :: 'AA BB':
+------------------
+usage: ipython AA BB [-h] [-c] [-v] {C,CCC,CC} ...
+
+positional arguments:
+  {C,CCC,CC}
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB [optional pi]
+  -v, --verbose  AA BB verbosity
+
+
+'AA BB':
+--------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB' id='139947100555776'>
+'AA BB -v':
+-----------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB' id='139947100555776'>
+'AA BB -c':
+-----------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB' id='139947100555776'>
+'AA BB -v -c':
+--------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB' id='139947100555776'>
+
+
+NODE :: 'AA BB C':
+--------------------
+usage: ipython AA BB C [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB C [optional pi]
+  -v, --verbose  AA BB C verbosity
+
+
+'AA BB C':
+----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB_C' id='139947100556592'>
+'AA BB C -v':
+-------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB_C' id='139947100556592'>
+'AA BB C -c':
+-------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB_C' id='139947100556592'>
+'AA BB C -v -c':
+----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB_C' id='139947100556592'>
+
+
+NODE :: 'AA BB CC':
+---------------------
+usage: ipython AA BB CC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB CC [optional pi]
+  -v, --verbose  AA BB CC verbosity
+
+
+'AA BB CC':
+-----------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+'AA BB CC -v':
+--------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+'AA BB CC -c':
+--------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+'AA BB CC -v -c':
+-----------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+
+
+NODE :: 'AA BB CCC':
+----------------------
+usage: ipython AA BB CCC [-h] [-c] [-v]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -c             AA BB CCC [optional pi]
+  -v, --verbose  AA BB CCC verbosity
+
+
+'AA BB CCC':
+------------
+	args: {'c': None, 'verbose': False}
+	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+'AA BB CCC -v':
+---------------
+	args: {'c': None, 'verbose': True}
+	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+'AA BB CCC -c':
+---------------
+	args: {'c': 3.141593, 'verbose': False}
+	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+'AA BB CCC -v -c':
+------------------
+	args: {'c': 3.141593, 'verbose': True}
+	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+
+
+#+end_example
