@@ -500,13 +500,17 @@ TODO
 Trees are recursive data structures.  Any node of a tree is identified by
 a value and a set of /child trees/, thus establishing the recursion.
 
+\begin{defn}
 An heterogeneous tree is either:
-
-    1. a value and a set of child trees; or,
-    2. the empty tree.
+    \begin{enumerate}
+        \item a value and a set of child trees; or,
+        \item the empty tree.
+    \end{enumerate}
+\end{defn}
 
 The value is also known as a ``node'', or ``name''; its set of child trees 
 (also known as the ``children'' of the value/node/name) is possibly empty.
+The value/node/name is referred to as the ``parent'' of its children.
 The empty tree has no value/node/name and an empty set of children.
 
 \begin{remark}
