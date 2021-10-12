@@ -519,6 +519,13 @@ There is a duality here:
 2. we need to make use of the structure of the tree itself 
    (the ``unflattened'' tree).
 
+Thus, ~parsearg~ transforms a ~dict~, representing the tree's nodes, into
+a ~Tree~.  The keys of the ~dict~ are shorthand for the tree's nodes and
+the values of the ~dict~ are the nodes' payloads.  We need the shorthand
+of the ~dict~ for ease of specification, and we need the ~Tree~ to avail of
+the data structure's properties.
+
+
 ** The A Tree and the AA Tree 
 In order to further explain how ~parsearg~ works, we will make repeated
 use two simple abstractions, based on nested trees (or ``sub-trees''):
@@ -666,14 +673,20 @@ TODO
 #+end_example
 
 ** Some useful helper data structures 
-~parsearg~ transforms a ~dict~---the keys of which are shorthand for the
-tree's nodes and the values of which are the nodes' payloads---into a 
-~Tree~. We need the shorthand of the ~dict~ for ease of specification, 
-and we need the ~Tree~ to avail of the data structure's properties. 
-
-First, ~parsearg~ defines a ~Key~. Take a key that represents a leaf
-node ~'A|BB|C'~:
+We need to use three classes:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.data_structures import Key, Node, Tree
+#+END_SRC
+Both ~Key~ and ~Node~ help to marshall keys and their payloads when 
+unflattening a flat tree structure. The ~Tree~ class represents the
+actual tree. 
+
+*** The ~Key~ class
+First, ~parsearg~ defines a ~Key~ class. Take a key  ~'A|BB|C'~ that represents
+a leaf node:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.data_structures import Tree, Node, Key
+
 key = 'A|BB|C'
 print( Key(key) )
 #+END_SRC
@@ -683,88 +696,165 @@ print( Key(key) )
 : 
 : 
 
-The ~Key~ stores the key: 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print( Key(key).key )
-#+END_SRC
+The ~Key~ stores the following: 
+1. the key:
+    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    print( Key(key).key )
+    #+END_SRC
 
-#+RESULTS:
-: A|BB|C
-: 
-: 
+    #+RESULTS:
+    : A|BB|C
+    : 
+    : 
 
-along with a ~Node~, which is a representation of the key's delimited string
-as a nested list:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print( Key(key).value )
-print( type(Key(key).value) )
-#+END_SRC
+2. the ~dict~ assocated with the key (if any):
+    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    payload = 3.141593
+    d = {key: payload}
 
-#+RESULTS:
-: ('A', ['BB', ['C']])
-: <class 'parsearg.data_structures.Node'>
-: 
-: 
+    print( Key(key, d=d).d )
+    #+END_SRC
 
-What is a ~Node~? It is a tuple that has a ~head~ and a ~tail~. The 
-~head~ is the name of the node and the ~tail~ is a nested list containing
-the remainder of the leaf node's specification:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print( Key(key).value.head() )
-print( Key(key).value.tail() )
-#+END_SRC
+    #+RESULTS:
+    : {'A|BB|C': 3.141593}
+    : 
+    : 
 
-#+RESULTS:
-: A
-: ['BB', ['C']]
-: 
-: 
+3. the ~Node~, which is a representation of the key's delimited string
+   as a nested list:
+    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    print( Key(key).value )
+    print( type(Key(key).value) )
+    #+END_SRC
 
-Each ~Key~ can also store a ~payload~, but it is ~None~ here:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-payload = 3.141593
-d = {key: payload}
+    #+RESULTS:
+    : ('A', ['BB', ['C']])
+    : <class 'parsearg.data_structures.Node'>
+    : 
+    : 
 
-print( Key(key, d).payload )
-#+END_SRC
+4. the ~payload~ (/i.e./ the value of the ~dict~, as above):
+    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    payload = 3.141593
+    d = {key: payload}
 
-#+RESULTS:
-: 3.141593
-: 
-: 
+    print( Key(key, d).payload )
+    #+END_SRC
 
 A ~Key~ can be shifted:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( Key(key) )
+# same thing:
+print( Key(key) << 0 )
+# real shifts:
 print( Key(key) << 1 )
 print( Key(key) << 2 )
 print( Key(key) << 3 )
+# same thing:
+print( Key(key) << 4 )
 #+END_SRC
 
 #+RESULTS:
 : 'A|BB|C': ('A', ['BB', ['C']])
+: 'A|BB|C': ('A', ['BB', ['C']])
 : 'A|BB|C': ('BB', ['C'])
 : 'A|BB|C': ('C', [])
+: 'A|BB|C': (None, [])
 : 'A|BB|C': (None, [])
 : 
 : 
 
-but the ~key~ is preserved. A ~Node~, upon which the ~Key~ is based, can also 
-be shifted:
+but the ~key~ is preserved regardless of the shift value:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print( Node(head='A', tail=['B', ['C']]) )
-print( Node(head='A', tail=['B', ['C']]) << 1 )
-print( Node(head='A', tail=['B', ['C']]) << 2 )
-print( Node(head='A', tail=['B', ['C']]) << 3 )
+print( (Key(key) << 0).key )
+print( (Key(key) << 1).key )
+print( (Key(key) << 2).key )
+print( (Key(key) << 3).key )
+#+END_SRC
+
+#+RESULTS:
+: A|BB|C
+: A|BB|C
+: A|BB|C
+: A|BB|C
+: 
+: 
+
+*** The ~Node~ class
+A ~Node~ is a tuple that has a ~head~ and a ~tail~: 
+
+1. the ~head~ is the name of the node, and 
+2. the ~tail~ is a nested list containing the remainder of the leaf node's
+   specification.
+
+For example:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Key(key).value )
+print( Key(key).value.head() )
+print( Key(key).value.tail() )
+# use a Node to construct the ~value~ part: 
+print( Node(head='A', tail=['BB', ['C']]) )
+#+END_SRC
+
+#+RESULTS:
+: ('A', ['BB', ['C']])
+: A
+: ['BB', ['C']]
+: ('A', ['BB', ['C']])
+: 
+: 
+
+A ~Node~, upon which the ~Key~ is based, can also be shifted:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+node = Node(head='A', tail=['B', ['C']])
+print( node )
+# same thing:
+print( node << 0 )
+print( node << 1 )
+print( node << 2 )
+print( node << 3 )
+# same thing:
+print( node << 4 )
 #+END_SRC
 
 #+RESULTS:
 : ('A', ['B', ['C']])
+: ('A', ['B', ['C']])
 : ('B', ['C'])
 : ('C', [])
 : (None, [])
+: (None, [])
 : 
 : 
+
+*** The ~Tree~ class
+As illustrated above a tree can be constructed directly with the ~Tree~ class.
+For example the A Tree is:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+tree = Tree('A', children=[
+    Tree('B', []),
+    Tree('BB', children=[
+        Tree('C', []),
+        Tree('CC', []),
+        Tree('CCC', [])
+    ]),
+    Tree('BBB', []),
+])
+
+print( tree.show(quiet=True) )
+#+END_SRC
+
+#+RESULTS:
+: A
+:     B
+:     BB
+:         C
+:         CC
+:         CCC
+:     BBB
+: 
+: 
+
 
 ** Reverse-definition tree: Creating a tree from its leaf nodes
    
