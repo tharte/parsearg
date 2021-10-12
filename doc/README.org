@@ -193,6 +193,7 @@ optional arguments:
                         due date for the TO-DO
 #+end_example
 
+\newpage
 * Overview
 The ``standard'' Python module for writing command-line interfaces (``CLI'') 
 is ~argparse~. It is standard in so far as it is one of the batteries 
@@ -251,6 +252,7 @@ what's already available without introducing dependencies.
 
 Simple? The following examples should help.
 
+\newpage
 * Let's build the interface for a TO-DO app 
 The ~examples~ folder in the source distribution contains a TO-DO app.
 The app
@@ -492,6 +494,7 @@ TODO
 
 #+end_example
 
+\newpage
 * How ~parsearg~ works 
 ** Heterogeneous trees: recursive data structures
 Any node of a tree is identified by a value and a set of children in a
