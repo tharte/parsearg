@@ -380,9 +380,8 @@ be aware of its children, so it is not strictly the reverse of the
 \end{remark}
 
 ** The A Tree and the AA Tree 
-In order to explain how ~parsearg~ works, we will entertain two simple abstractions,
+In order to explain how ~parsearg~ works, we will use two simple abstractions,
 based on nested trees (or ``sub-trees''):
-two trees to illustrate:
 
 1. The ``A Tree'', and
 2. The ``A-AA Tree''.
@@ -950,6 +949,7 @@ def to_tree_backwards(view, root_name='root', sep='|'):
 : 
 : 
 
+\newpage
 * Worked Examples
 ** The A-tree 
 The ``A tree'' has three levels. As each node of the tree must
@@ -1071,6 +1071,7 @@ TODO
 
 #+end_example
 
+\newpage
 ** The A-AA tree 
 The A-AA Tree simply extends the A Tree one level:
 #+headers:  :width 800 :height 500 
@@ -1806,6 +1807,8 @@ optional arguments:
 
 
 #+end_example
+
+\newpage
 ** Let's build the interface for a TO-DO app 
 The ~examples~ folder in the source distribution contains a TO-DO app.
 The app
