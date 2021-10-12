@@ -253,7 +253,7 @@ what's already available without introducing dependencies.
 Simple? The following examples should help.
 
 \newpage
-* Let's build the interface for a TO-DO app 
+* Worked Example: Let's build the interface for a TO-DO app 
 The ~examples~ folder in the source distribution contains a TO-DO app.
 The app
 
