@@ -384,7 +384,7 @@ While it's possible to create a ``longhand'' version of the A tree using the
 ~Tree~ class that comes with the ~parsearg~ package, 
 it is cumbersome to use and---more specifically---it can 
 easily obfuscate the tree structure itself when the node names and 
-payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted.] 
+payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted here.] 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 """
        A
@@ -435,7 +435,7 @@ print(['root'] + list(view.keys()))
 : 
 
 This representation can be considered to be a ``flattened'' version
-of the A-tree:
+of the A Tree:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print(
     ParseArg.to_tree(view, root_name='root').show(quiet=True) 
@@ -457,17 +457,17 @@ root
 #+end_example
 
 Each string in this ``flat tree'' (or ``flattened tree'')
-represents a node in the tree and names that node. 
+represents a node in the tree and uniquely names that node. 
 The singular constraint on the tree's structure is that each node's
 children must contain a unique set of node names.
 If this were not the case, then the tree's structure would be indeterminate. 
 In point of fact, the example of the A-AA Tree illustrates that the structure of 
-the A tree can be duplicated: only the root
+the A Tree can be duplicated: only the root
 node names of each sub-tree (~A~ and ~AA~, respectively) need to be unique.
 
-Leaf nodes are terminating nodes in the tree's hierarchy. 
-In the above, the terminating nodes are
-easily discerned visually within the tree's hierarchy:
+Leaf nodes are terminating nodes in the tree's hierarchy (/i.e./ nodes that
+have no children).  In the above, the terminating nodes are easily discerned
+visually within the tree's hierarchy:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
 #+END_SRC
@@ -503,12 +503,21 @@ while the non-terminating nodes are:
 
 The separator in each key (here, a pipe ~|~) separates one level of the tree
 from the next level down. It is this delimited-string representation that 
-allows us to easily specify a tree. But taking advantage of 
+allows us to easily specify a tree. However, taking advantage of 
 a tree as a data structure requires working with a tree, not a flattened
 version of it. In other words, we have a 
 flattened-tree which is shorthand to specify the tree, but we need 
-to unflatten this shorthand to create the tree data structure in order to 
-for it to be useful.
+to unflatten this shorthand to create the tree data structure in order 
+for it to be useful. 
+
+There is a duality here:
+
+1. we need a shorthand in order for the 
+   tree's structure to be specified in a simple way 
+   (the ``flattened'' shorthand); and 
+
+2. we need to make use of the structure of the tree itself 
+   (the ``unflattened'' tree).
 
 ** The A Tree and the AA Tree 
 In order to further explain how ~parsearg~ works, we will make repeated
