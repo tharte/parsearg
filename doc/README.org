@@ -1466,6 +1466,8 @@ tree structure itself when the node names and payloads are in any way complex.[f
      C CC CCC
 """
 
+from parsearg.data_structures import Tree, Node, Key
+
 tree = Tree('A', children=[
     Tree('B', []),
     Tree('BB', children=[
