@@ -680,9 +680,64 @@ from parsearg.data_structures import Key, Node, Tree
 Both ~Key~ and ~Node~ help to marshall keys and their payloads when 
 unflattening a flat tree structure. The ~Tree~ class represents the
 actual tree.  
+
 ~Key~ and ~Node~ commandeer the data in the ~dict~ in the View layer.
 Their principle use is in unflattening the View ~dict~ by left-shifting the
 keys that represent the nodes of the tree.
+The basic algorithm for rendering an unflattened tree from a flat tree
+follows the logic of splitting the key (/i.e./ the ~str~ representing the key)
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output 
+# 1. take key
+key = 'A|B|C' 
+#+end_src
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+# 2. split string 
+sep = '|'
+print( Key.split(key) )
+#+end_src
+
+#+RESULTS:
+: ['A', '|', 'B', '|', 'C']
+: 
+: 
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+# 3. unflatten the split key (i.e. create a nested list)
+unflattened = Key.unflatten(Key.split(key))
+print(unflattened)
+#+end_src
+
+#+RESULTS:
+: ['A', ['B', ['C']]]
+: 
+: 
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+# 4. create a Node from the unflattened list
+node = Node.from_nested_list(unflattened)
+print(node)
+#+end_src
+
+#+RESULTS:
+: ('A', ['B', ['C']])
+: 
+: 
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+# 5. the node can now be shifted until the empty node is reached
+print(node << 1)
+print(node << 2)
+print(node << 3)
+#+end_src
+
+#+RESULTS:
+: ('B', ['C'])
+: ('C', [])
+: (None, [])
+: 
+: 
+
 
 *** The ~Key~ class
 First, ~parsearg~ defines a ~Key~ class. Take a key  ~'A|BB|C'~ that represents
@@ -827,6 +882,28 @@ print( node << 4 )
 : ('C', [])
 : (None, [])
 : (None, [])
+: 
+: 
+
+You can build a ~Node~ from a nested ~list~:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+ll = ['A', ['B', ['C']]]
+print( Node.from_nested_list(ll) )
+#+END_SRC
+
+#+RESULTS:
+: ('A', ['B', ['C']])
+: 
+: 
+
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+print( Node.from_nested_list(['A', ['B', ['C']]]) )
+print( Node.from_nested_list(['A']) )
+#+END_SRC
+
+#+RESULTS:
+: ('A', ['B', ['C']])
+: ('A', [])
 : 
 : 
 
