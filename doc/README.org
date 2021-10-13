@@ -944,6 +944,117 @@ print( Node.from_nested_list(['A']) )
 : 
 : 
 
+*** Putting it together
+Let's say we have the following View:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from parsearg.utils import show
+d = {
+    'A': {
+        'arg1': {}, 'arg2': {}, 'arg3': {},
+    },
+    'A|B': {
+        'arg1': {}, 'arg2': {}, 'arg3': {},
+    },
+    'A|B|C': {
+        'arg1': {}, 'arg2': {}, 'arg3': {},
+    },
+}
+show( d )
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+'A':
+    'arg1':
+    {}
+    'arg2':
+    {}
+    'arg3':
+    {}
+'A|B':
+    'arg1':
+    {}
+    'arg2':
+    {}
+    'arg3':
+    {}
+'A|B|C':
+    'arg1':
+    {}
+    'arg2':
+    {}
+    'arg3':
+    {}
+
+
+#+end_example
+
+We can gather the keys as ~Key~ objects:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+keys = list(map(lambda key: Key(key), list(d.keys())))
+for key in keys: print(key)
+#+END_SRC
+
+#+RESULTS:
+: 'A': ('A', [])
+: 'A|B': ('A', ['B'])
+: 'A|B|C': ('A', ['B', ['C']])
+: 
+: 
+
+We can gather the leaves (there's only one leaf node: ~A~):
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+leaves = list(filter(lambda key: key.is_leaf(), keys))
+for leaf in leaves: print(leaf)
+#+END_SRC
+
+#+RESULTS:
+: 'A': ('A', [])
+: 
+: 
+
+We can shift the keys and then gather the leaves (there's only one leaf node: ~A|B~):
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+leaves = list(filter(lambda key: (key << 1).is_leaf(), keys))
+for leaf in leaves: print(leaf)
+#+END_SRC
+
+#+RESULTS:
+: 'A|B': ('A', ['B'])
+: 
+: 
+
+We can shift the keys and then gather the leaves (there's only one leaf node: ~A|B|C~):
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+leaves = list(filter(lambda key: (key << 2).is_leaf(), keys))
+for leaf in leaves: print(leaf)
+#+END_SRC
+
+#+RESULTS:
+: 'A|B|C': ('A', ['B', ['C']])
+: 
+: 
+
+Note how the ~Key~ object preserves the key ~A|B|C~ even when the associated ~Node~ object
+is left-shifted:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+node = leaves[0]
+print( (node << 1).key )
+print( (node << 2).key )
+print( (node << 3).key )
+print( (node << 3) )
+#+END_SRC
+
+#+RESULTS:
+: A|B|C
+: A|B|C
+: A|B|C
+: 'A|B|C': (None, [])
+: 
+: 
+
+
+
 *** The ~Tree~ class
 As illustrated above a tree can be constructed directly with the ~Tree~ class.
 For example the A Tree is:
