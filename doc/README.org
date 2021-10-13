@@ -738,6 +738,43 @@ print(node << 3)
 : 
 : 
 
+Note that the ~key~, above, can be directly transformed into a ~Node~:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+print( key )
+print( Key.to_node(key) )
+#+end_src
+
+#+RESULTS:
+: A|B|C
+: ('A', ['B', ['C']])
+: 
+: 
+
+A ~Node~ is really a convenient way to view the ~key~. Shifting the ~Node~
+until it is empty provides a convenient way to determine when a 
+leaf node has been reached:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+n = node
+i = 0
+while not n.is_empty():
+    i += 1
+    n = node << i  
+    
+print(i)
+print(node << i)
+#+end_src
+
+#+RESULTS:
+: 3
+: (None, [])
+: 
+: 
+
+
+A ~Key~ just keeps track of the node's payload and the key itself while
+this iteration is performed over all nodes at a particular level of the 
+flat tree.
+
 
 *** The ~Key~ class
 First, ~parsearg~ defines a ~Key~ class. Take a key  ~'A|BB|C'~ that represents
