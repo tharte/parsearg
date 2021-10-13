@@ -858,6 +858,28 @@ print( tree.show(quiet=True) )
 : 
 : 
 
+The ~Tree~ class has a nested class called ~Value~, which stores a node's value.
+The ~Value~ constructor checks that everything is in sync, as the following shows:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+key = 'A|BB|C'
+payload = 3.141593
+d = {key: payload}
+
+value = Tree.Value(name='C', key=key, d=d)
+
+print( value )
+print( value.key )
+print( value.name )
+print( value.payload )
+#+END_SRC
+
+#+RESULTS:
+: C
+: A|BB|C
+: C
+: 3.141593
+: 
+: 
 
 ** Reverse-definition tree: Creating a tree from its leaf nodes
    
