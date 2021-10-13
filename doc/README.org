@@ -673,13 +673,16 @@ TODO
 #+end_example
 
 ** Some useful helper data structures 
-We need to use three classes:
+~parsearg~ provides three core classes:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 from parsearg.data_structures import Key, Node, Tree
 #+END_SRC
 Both ~Key~ and ~Node~ help to marshall keys and their payloads when 
 unflattening a flat tree structure. The ~Tree~ class represents the
-actual tree. 
+actual tree.  
+~Key~ and ~Node~ commandeer the data in the ~dict~ in the View layer.
+Their principle use is in unflattening the View ~dict~ by left-shifting the
+keys that represent the nodes of the tree.
 
 *** The ~Key~ class
 First, ~parsearg~ defines a ~Key~ class. Take a key  ~'A|BB|C'~ that represents
