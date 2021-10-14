@@ -49,6 +49,7 @@ In this respect, ~parsearg~ turns ~argparse~ on its head, in the sense that
 it replaces imperative instructions with declarative data.
 
 ** Usage
+<<sec:quickstart:usage>>
 Suppose we wish to create a program called ~quickstart-todos.py~ to manage the TO-DOs
 of a set of different users. We want to have subprograms of ~quickstart-todos.py~; for
 example, we may want to create a user (~python quickstart-todos.py create user~, say),
@@ -524,7 +525,6 @@ a ~Tree~.  The keys of the ~dict~ are shorthand for the tree's nodes and
 the values of the ~dict~ are the nodes' payloads.  We need the shorthand
 of the ~dict~ for ease of specification, and we need the ~Tree~ to avail of
 the data structure's properties.
-
 
 ** The A Tree and the AA Tree 
 In order to further explain how ~parsearg~ works, we will make repeated
@@ -1105,6 +1105,87 @@ print( value.payload )
 : 3.141593
 : 
 : 
+
+** Creating parsers with ~parsearg~
+~parsearg~ creates parsers in two steps:
+
+1. transform the View ~dict~ into a ~Tree~;
+2. create a parser---and subparsers---using the ~Tree~.
+   
+There is nothing specific to parsers in the first step, so this 
+forms a generic pattern: transforming a View into a tree. 
+The second step is specific to creating command-line parsers: 
+It traverses the tree structure created in the first step
+and uses it to create a tree structure of parsers. 
+
+Consider Step 1. Any ~dict~ that conforms to the shorthand notation for 
+representing nodes (/i.e./ a flat tree) can be converted
+to a ~Tree~ using ~parsearg.parser.ParseArg.to_tree~. Take
+the View ~dict~ from Section [[sec:quickstart:usage]]:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+def create_user(x): return x
+def create_todo(x): return x
+
+view = {
+    'create|user': {
+        'callback':   create_user,
+        'name':       {'help': 'create user name', 'action': 'store'},
+        '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
+        '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
+    },
+    'create|todo': {
+        'callback':   create_todo,
+        'user':       {'help': 'user name', 'action': 'store'},
+        'title':      {'help': 'title of TO-DO', 'action': 'store'},
+        '-d|--due-date': {'help': 'due date for the TO-DO', 'action': 'store', 'default': None},
+    },
+}
+
+
+from parsearg import ParseArg
+
+tree = ParseArg.to_tree(d=view)
+tree.show()
+#+end_src
+
+#+RESULTS:
+: root
+:     create
+:         user
+:         todo
+: 
+: 
+
+
+Now consider Step 2. This is specific to building ~argparse~ subparsers:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+args   = 'create user Harry -e harry@hogworts.edu -p 212-456-1234'.split()
+
+import argparse
+parser = argparse.ArgumentParser(add_help=True)
+ParseArg.make_subparsers(tree, parser)
+
+# parser.parse_args returns an argparse.Namespace
+print( parser.parse_args(args) )
+#+end_src
+
+#+RESULTS:
+: Namespace(callback=<function create_user at 0x7f64814115e0>, email='harry@hogworts.edu', name='Harry', phone='212-456-1234')
+: 
+: 
+
+The ~ParseArg~ constructor abstracts this process and wraps the calls 
+to ~argparse~ methods:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+parser = ParseArg(d=view)
+print( parser.parse_args(args) )
+#+end_src
+
+#+RESULTS:
+: Namespace(callback=<function create_user at 0x7f64814115e0>, email='harry@hogworts.edu', name='Harry', phone='212-456-1234')
+: 
+: 
+
 
 ** Reverse-definition tree: Creating a tree from its leaf nodes
    
