@@ -304,32 +304,8 @@ The empty tree is represented by
 #+begin_quote
 ~(None, {None})~,
 #+end_quote
-where ~None~ represents no value, and ~{}~ is the empty set of children.[fn:: Python has a quirk where ~{}~ is of type ~dict~, whereas ~{None}~ is of type ~set~. Thus, the ``empty set'' is really represented by ~{None}~ and not ~{}~.] 
+where ~None~ represents no value, and ~{None}~ is the empty set of children.[fn:: Python has a quirk where ~{}~ is of type ~dict~, whereas ~{None}~ is of type ~set~. Thus, the ``empty set'' is properly represented by ~{None}~ and not ~{}~.] 
        
-This type of tree is termed /heterogeneous/ because the cardinality of
-the set of child trees for each value can vary. Contrast with 
-#+latex: an $n$-ary tree, 
-which has the same number of children at each node 
-(/e.g./ two for a binary tree, three for a ternary tree, and in general 
-$n$ for an 
-#+latex: an $n$-ary tree).
-
-Nothing in the definition precludes the possibility of a child tree's
-value from containing an identical value to that of its parent. Thus,
-#+begin_quote
-~(value, {(value, {e1, e2, ....}), e2, ....})~,
-#+end_quote
-is perfectly valid. The requirement does explicitly require 
-each of node's child trees to be unique, in so far as they are members
-of a /set/.
-       
-A terminating (or ``leaf'') node is:
-#+begin_quote
-a tree whose set of child trees is empty.
-#+end_quote
-A leaf node is represented by ~(value, {})~.  Note that the empty tree,
-~(None, {})~, is also a valid leaf node.
-
 \textcolor{blue}{\bf QUESTION:}
 #+begin_quote
 Is ~(value, {(None, {})})~ equivalent to ~(value, {})~?
@@ -353,6 +329,33 @@ which is /not/ the same as
 is not the same as the null set itself?
 #+end_quote
        
+This type of tree is termed /heterogeneous/ because the cardinality of
+the set of child trees for each value can vary. Contrast with 
+#+latex: an $n$-ary tree, 
+which has the same number of children at each node 
+(/e.g./ two for a binary tree, three for a ternary tree, and in general 
+$n$ for an 
+#+latex: an $n$-ary tree).
+
+Nothing in the definition precludes the possibility of a child tree's
+value from containing an identical value to that of its parent. Thus,
+#+begin_quote
+~(value, {e1, (value, {e1}))~,
+#+end_quote
+is perfectly valid. The requirement does explicitly require 
+each of node's child trees to be unique, in so far as they are members
+of a /set/.
+       
+\begin{defn}
+\label{defn:3}
+A terminating (or ``leaf'') node is:
+    \begin{quote}
+    a tree whose set of child trees is empty.
+    \end{quote}
+\end{defn}
+A leaf node is represented by ~(value, {})~.  Note that the empty tree,
+~(None, {})~, is also a valid leaf node.
+
 We can define an heterogeneous tree in reverse, /viz./ instead of starting
 with a parent and recursively defining the tree through its children, we
 can start with a terminating node and recursively define the tree 
