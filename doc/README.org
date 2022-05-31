@@ -268,12 +268,23 @@ An heterogeneous tree is either:
     \end{enumerate}
 \end{defn}
 
+\begin{remark}
 The value is also known as a ``node'', or ``name''; its set of child trees 
 (also known as the ``children'' of the value/node/name) is possibly empty.
+\end{remark}
+
+\begin{remark}
 The value/node/name is referred to as the ``parent'' of its children.
+\end{remark}
+
+\begin{remark}
 The children of a unique parent tree are termed ``siblings'', though
 they are not necessarily aware of each other.
+\end{remark}
+
+\begin{remark}
 The empty tree has no value/node/name and an empty set of children.
+\end{remark}
 
 \begin{remark}
 The definition implies that a parent tree ``points'' to its children, in so far
