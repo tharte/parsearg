@@ -418,22 +418,18 @@ print(tree.show(quiet=True))
 :         CC
 :         CCC
 :     BBB
-: 
-: 
 
 We need a ``shorthand'' for constructing trees.
 To this end, ~parsearg~ uses a set of pipe-delimited strings: 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 # from a import view
-from doc.examples.a import view
+from examples.a import view
 
 print(['root'] + list(view.keys()))
 #+END_SRC
 
 #+RESULTS:
 : ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
-: 
-: 
 
 This representation can be considered to be a ``flattened'' version
 of the A Tree:
@@ -444,18 +440,14 @@ print(
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-root
-    A
-        B
-        BBB
-        BB
-            CCC
-            C
-            CC
-
-
-#+end_example
+: root
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
 
 Each string in this ``flat tree'' (or ``flattened tree'')
 represents a node in the tree and uniquely names that node. 
@@ -474,18 +466,14 @@ print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-root
-    A
-        B
-        BBB
-        BB
-            CCC
-            C
-            CC
-
-
-#+end_example
+: root
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
 
 Thus, the terminating nodes are:
 #+begin_example
@@ -568,7 +556,7 @@ Let's take a very brief look at the Python code for [[https://github.com/tharte/
 Consider the ~dict~ that represents the View component.
 The tree that the parsed ~dict~ is represented by is given as:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a import view
+from examples.a import view
 
 print(
     ParseArg(d=view, root_name='root').tree.show(quiet=True)
@@ -576,18 +564,14 @@ print(
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-root
-    A
-        BBB
-        BB
-            C
-            CC
-            CCC
-        B
-
-
-#+end_example
+: root
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
 
 *** The A-AA Tree 
 The A-AA Tree simply extends the A Tree one level and replicates the A Tree's 
@@ -644,7 +628,7 @@ Let's take a brief look at the Python code for [[https://github.com/tharte/parse
 Consider the ~dict~ that represents the View component:
 and then the tree that the parsed ~dict~ is represented by:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a_aa import view
+from examples.a_aa import view
 
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
@@ -654,29 +638,28 @@ print(
 #+RESULTS:
 #+begin_example
 TODO
-    AA
-        BBB
-        BB
-            C
-            CC
-            CCC
-        B
     A
-        BBB
         BB
+            CCC
             C
             CC
-            CCC
+        BBB
         B
-
-
+    AA
+        BB
+            CCC
+            C
+            CC
+        BBB
+        B
 #+end_example
 
 ** Some useful helper data structures 
 ~parsearg~ provides three core classes:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+BEGIN_SRC python :session *Python-3.x* :exports code :results silent :eval yes 
 from parsearg.data_structures import Key, Node, Tree
 #+END_SRC
+
 Both ~Key~ and ~Node~ help to marshall keys and their payloads when 
 unflattening a flat tree structure. The ~Tree~ class represents the
 actual tree.  
@@ -686,7 +669,7 @@ Their principle use is in unflattening the View ~dict~ by left-shifting the
 keys that represent the nodes of the tree.
 The basic algorithm for rendering an unflattened tree from a flat tree
 follows the logic of splitting the key (/i.e./ the ~str~ representing the key)
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output 
+#+BEGIN_SRC python :session *Python-3.x* :exports code :results silent
 # 1. take key
 key = 'A|B|C' 
 #+end_src
@@ -699,8 +682,6 @@ print( Key.split(key) )
 
 #+RESULTS:
 : ['A', '|', 'B', '|', 'C']
-: 
-: 
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output
 # 3. unflatten the split key (i.e. create a nested list)
@@ -710,8 +691,6 @@ print(unflattened)
 
 #+RESULTS:
 : ['A', ['B', ['C']]]
-: 
-: 
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output
 # 4. create a Node from the unflattened list
@@ -721,8 +700,6 @@ print(node)
 
 #+RESULTS:
 : ('A', ['B', ['C']])
-: 
-: 
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output
 # 5. the node can now be shifted until the empty node is reached
@@ -735,8 +712,6 @@ print(node << 3)
 : ('B', ['C'])
 : ('C', [])
 : (None, [])
-: 
-: 
 
 Note that the ~key~, above, can be directly transformed into a ~Node~:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output
@@ -747,8 +722,6 @@ print( Key.to_node(key) )
 #+RESULTS:
 : A|B|C
 : ('A', ['B', ['C']])
-: 
-: 
 
 A ~Node~ is really a convenient way to view the ~key~. Shifting the ~Node~
 until it is empty provides a convenient way to determine when a 
@@ -767,14 +740,10 @@ print(node << i)
 #+RESULTS:
 : 3
 : (None, [])
-: 
-: 
-
 
 A ~Key~ just keeps track of the node's payload and the key itself while
 this iteration is performed over all nodes at a particular level of the 
 flat tree.
-
 
 *** The ~Key~ class
 First, ~parsearg~ defines a ~Key~ class. Take a key  ~'A|BB|C'~ that represents
@@ -788,8 +757,6 @@ print( Key(key) )
 
 #+RESULTS:
 : 'A|BB|C': ('A', ['BB', ['C']])
-: 
-: 
 
 The ~Key~ stores the following: 
 1. the key:
@@ -799,8 +766,6 @@ The ~Key~ stores the following:
 
     #+RESULTS:
     : A|BB|C
-    : 
-    : 
 
 2. the ~dict~ assocated with the key (if any):
     #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -812,8 +777,6 @@ The ~Key~ stores the following:
 
     #+RESULTS:
     : {'A|BB|C': 3.141593}
-    : 
-    : 
 
 3. the ~Node~, which is a representation of the key's delimited string
    as a nested list:
@@ -825,8 +788,6 @@ The ~Key~ stores the following:
     #+RESULTS:
     : ('A', ['BB', ['C']])
     : <class 'parsearg.data_structures.Node'>
-    : 
-    : 
 
 4. the ~payload~ (/i.e./ the value of the ~dict~, as above):
     #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -835,6 +796,9 @@ The ~Key~ stores the following:
 
     print( Key(key, d).payload )
     #+END_SRC
+
+    #+RESULTS:
+    : 3.141593
 
 A ~Key~ can be shifted:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -856,8 +820,6 @@ print( Key(key) << 4 )
 : 'A|BB|C': ('C', [])
 : 'A|BB|C': (None, [])
 : 'A|BB|C': (None, [])
-: 
-: 
 
 but the ~key~ is preserved regardless of the shift value:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -872,8 +834,6 @@ print( (Key(key) << 3).key )
 : A|BB|C
 : A|BB|C
 : A|BB|C
-: 
-: 
 
 *** The ~Node~ class
 A ~Node~ is a tuple that has a ~head~ and a ~tail~: 
@@ -896,8 +856,6 @@ print( Node(head='A', tail=['BB', ['C']]) )
 : A
 : ['BB', ['C']]
 : ('A', ['BB', ['C']])
-: 
-: 
 
 A ~Node~, upon which the ~Key~ is based, can also be shifted:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -919,8 +877,6 @@ print( node << 4 )
 : ('C', [])
 : (None, [])
 : (None, [])
-: 
-: 
 
 You can build a ~Node~ from a nested ~list~:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -930,8 +886,6 @@ print( Node.from_nested_list(ll) )
 
 #+RESULTS:
 : ('A', ['B', ['C']])
-: 
-: 
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( Node.from_nested_list(['A', ['B', ['C']]]) )
@@ -941,8 +895,6 @@ print( Node.from_nested_list(['A']) )
 #+RESULTS:
 : ('A', ['B', ['C']])
 : ('A', [])
-: 
-: 
 
 *** Putting it together
 Let's say we have the following View:
@@ -985,8 +937,6 @@ show( d )
     {}
     'arg3':
     {}
-
-
 #+end_example
 
 We can gather the keys as ~Key~ objects:
@@ -999,8 +949,6 @@ for key in keys: print(key)
 : 'A': ('A', [])
 : 'A|B': ('A', ['B'])
 : 'A|B|C': ('A', ['B', ['C']])
-: 
-: 
 
 We can gather the leaves (there's only one leaf node: ~A~):
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1010,8 +958,6 @@ for leaf in leaves: print(leaf)
 
 #+RESULTS:
 : 'A': ('A', [])
-: 
-: 
 
 We can shift the keys and then gather the leaves (there's only one leaf node: ~A|B~):
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1021,8 +967,6 @@ for leaf in leaves: print(leaf)
 
 #+RESULTS:
 : 'A|B': ('A', ['B'])
-: 
-: 
 
 We can shift the keys and then gather the leaves (there's only one leaf node: ~A|B|C~):
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1032,8 +976,6 @@ for leaf in leaves: print(leaf)
 
 #+RESULTS:
 : 'A|B|C': ('A', ['B', ['C']])
-: 
-: 
 
 Note how the ~Key~ object preserves the key ~A|B|C~ even when the associated ~Node~ object
 is left-shifted:
@@ -1050,10 +992,6 @@ print( (node << 3) )
 : A|B|C
 : A|B|C
 : 'A|B|C': (None, [])
-: 
-: 
-
-
 
 *** The ~Tree~ class
 As illustrated above a tree can be constructed directly with the ~Tree~ class.
@@ -1080,8 +1018,6 @@ print( tree.show(quiet=True) )
 :         CC
 :         CCC
 :     BBB
-: 
-: 
 
 The ~Tree~ class has a nested class called ~Value~, which stores a node's value.
 The ~Value~ constructor checks that everything is in sync, as the following shows:
@@ -1103,8 +1039,6 @@ print( value.payload )
 : A|BB|C
 : C
 : 3.141593
-: 
-: 
 
 ** Creating parsers with ~parsearg~
 ~parsearg~ creates parsers in two steps:
@@ -1153,8 +1087,6 @@ tree.show()
 :     create
 :         user
 :         todo
-: 
-: 
 
 
 Now consider Step 2. This is specific to building ~argparse~ subparsers:
@@ -1170,9 +1102,7 @@ print( parser.parse_args(args) )
 #+end_src
 
 #+RESULTS:
-: Namespace(callback=<function create_user at 0x7f64814115e0>, email='harry@hogworts.edu', name='Harry', phone='212-456-1234')
-: 
-: 
+: Namespace(callback=<function create_user at 0x7f166ad43af0>, email='harry@hogworts.edu', name='Harry', phone='212-456-1234')
 
 The ~ParseArg~ constructor abstracts this process and wraps the calls 
 to ~argparse~ methods:
@@ -1182,13 +1112,10 @@ print( parser.parse_args(args) )
 #+end_src
 
 #+RESULTS:
-: Namespace(callback=<function create_user at 0x7f64814115e0>, email='harry@hogworts.edu', name='Harry', phone='212-456-1234')
-: 
-: 
+: Namespace(callback=<function create_user at 0x7f166ad43af0>, email='harry@hogworts.edu', name='Harry', phone='212-456-1234')
 
 
 ** Reverse-definition tree: Creating a tree from its leaf nodes
-   
 \mbox{}
 
 \textcolor{blue}{\bf TODO:}
@@ -1197,7 +1124,7 @@ This section is incomplete.
 #+end_quote
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a_aa import view
+from examples.a_aa import view
 sep = '|'
 
 k = list(map(lambda x: x.split(sep), view.keys())) 
@@ -1220,12 +1147,10 @@ for e in k: print(e)
 ['AA', 'BB', 'CC']
 ['AA', 'BB', 'CCC']
 ['AA', 'BBB']
-
-
 #+end_example
 
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
 n = list(map(len, k))
 
 for key, depth, lkey in zip(view.keys(), n, k): print(f'({key}:\t{depth}, {lkey})')
@@ -1283,7 +1208,7 @@ for key, depth, lkey in zip(view.keys(), n, k): print(f'({key}:\t{depth}, {lkey}
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
 import pandas as pd
-from a_aa import view
+from examples.a_aa import view
 sep = '|'
 
 keys  = list(view.keys())
@@ -1317,7 +1242,7 @@ while depth > 0:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
 import numpy as np
 import pandas as pd
-from a_aa import view
+from examples.a_aa import view
 
 def to_tree_backwards(view, root_name='root', sep='|'):
     def make_key_frame(view, root_name):
@@ -1421,7 +1346,7 @@ Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/mast
 
 Consider the ~dict~ that represents the View component:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a import view
+from examples.a import view
 
 show(view)
 #+END_SRC
@@ -1430,55 +1355,53 @@ show(view)
 #+begin_example
 'A':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f94501f0>
+    <function make_callback.<locals>.func at 0x7f166ae7a3a0>
     '-c':
     {'help': 'A [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A verbosity', 'action': 'store_true'}
 'A|B':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f936ef70>
+    <function make_callback.<locals>.func at 0x7f166ad430d0>
     '-c':
     {'help': 'A B [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A B verbosity', 'action': 'store_true'}
 'A|BB':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93d7040>
+    <function make_callback.<locals>.func at 0x7f166ad43160>
     '-c':
     {'help': 'A BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB erbosity', 'action': 'store_true'}
 'A|BB|C':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93d70d0>
+    <function make_callback.<locals>.func at 0x7f166ad431f0>
     '-c':
     {'help': 'A BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB C verbosity', 'action': 'store_true'}
 'A|BB|CC':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93d7160>
+    <function make_callback.<locals>.func at 0x7f166ad43280>
     '-c':
     {'help': 'A BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB CC verbosity', 'action': 'store_true'}
 'A|BB|CCC':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93d71f0>
+    <function make_callback.<locals>.func at 0x7f166ad43310>
     '-c':
     {'help': 'A BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB CCC verbosity', 'action': 'store_true'}
 'A|BBB':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93d7280>
+    <function make_callback.<locals>.func at 0x7f166ad433a0>
     '-c':
     {'help': 'A BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BBB verbosity', 'action': 'store_true'}
-
-
 #+end_example
 and then the tree that the parsed ~dict~ is represented by:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1488,18 +1411,14 @@ print(
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-TODO
-    A
-        B
-        BBB
-        BB
-            CCC
-            C
-            CC
-
-
-#+end_example
+: TODO
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
 
 \newpage
 ** The A-AA tree 
@@ -1560,7 +1479,7 @@ Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/mast
 
 Consider the ~dict~ that represents the View component:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a_aa import view
+from examples.a_aa import view
 
 show(view)
 #+END_SRC
@@ -1569,104 +1488,102 @@ show(view)
 #+begin_example
 'A':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377e50>
+    <function make_callback.<locals>.func at 0x7f166ad59310>
     '-c':
     {'help': 'A [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A verbosity', 'action': 'store_true'}
 'A|B':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377ee0>
+    <function make_callback.<locals>.func at 0x7f166ad59280>
     '-c':
     {'help': 'A B [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A B verbosity', 'action': 'store_true'}
 'A|BB':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377dc0>
+    <function make_callback.<locals>.func at 0x7f166ad59160>
     '-c':
     {'help': 'A BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB erbosity', 'action': 'store_true'}
 'A|BB|C':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377040>
+    <function make_callback.<locals>.func at 0x7f166ad59b80>
     '-c':
     {'help': 'A BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB C verbosity', 'action': 'store_true'}
 'A|BB|CC':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93770d0>
+    <function make_callback.<locals>.func at 0x7f166ad59c10>
     '-c':
     {'help': 'A BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB CC verbosity', 'action': 'store_true'}
 'A|BB|CCC':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377160>
+    <function make_callback.<locals>.func at 0x7f166ad59ca0>
     '-c':
     {'help': 'A BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BB CCC verbosity', 'action': 'store_true'}
 'A|BBB':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93771f0>
+    <function make_callback.<locals>.func at 0x7f166ad59d30>
     '-c':
     {'help': 'A BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'A BBB verbosity', 'action': 'store_true'}
 'AA':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377280>
+    <function make_callback.<locals>.func at 0x7f166ad59dc0>
     '-c':
     {'help': 'AA [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA verbosity', 'action': 'store_true'}
 'AA|B':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377310>
+    <function make_callback.<locals>.func at 0x7f166ad59e50>
     '-c':
     {'help': 'AA B [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA B verbosity', 'action': 'store_true'}
 'AA|BB':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377430>
+    <function make_callback.<locals>.func at 0x7f166ad59ee0>
     '-c':
     {'help': 'AA BB [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA BB verbosity', 'action': 'store_true'}
 'AA|BB|C':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93773a0>
+    <function make_callback.<locals>.func at 0x7f166ad59f70>
     '-c':
     {'help': 'AA BB C [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA BB C verbosity', 'action': 'store_true'}
 'AA|BB|CC':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f93775e0>
+    <function make_callback.<locals>.func at 0x7f166ace9040>
     '-c':
     {'help': 'AA BB CC [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA BB CC verbosity', 'action': 'store_true'}
 'AA|BB|CCC':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377700>
+    <function make_callback.<locals>.func at 0x7f166ace90d0>
     '-c':
     {'help': 'AA BB CCC [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA BB CCC verbosity', 'action': 'store_true'}
 'AA|BBB':
     'callback':
-    <function make_callback.<locals>.func at 0x7f47f9377790>
+    <function make_callback.<locals>.func at 0x7f166ace9160>
     '-c':
     {'help': 'AA BBB [optional pi]', 'action': 'store_const', 'const': 3.141593}
     '-v|--verbose':
     {'help': 'AA BBB verbosity', 'action': 'store_true'}
-
-
 #+end_example
 and then the tree that the parsed ~dict~ is represented by:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1699,18 +1616,20 @@ TODO
 
 We can now run the A Tree and the A-AA Tree examples, respectively:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a import main
+from examples.a import main
 main()
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
+
+
 NODE :: 'A':
 --------------
-usage: ipython A [-h] [-c] [-v] {B,BB,BBB} ...
+usage: ipython A [-h] [-c] [-v] {BB,BBB,B} ...
 
 positional arguments:
-  {B,BB,BBB}
+  {BB,BBB,B}
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -1721,19 +1640,19 @@ optional arguments:
 'A':
 ----
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A' id='139947101347168'>
+	<Mock name='mock.A' id='139734259391360'>
 'A -v':
 -------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A' id='139947101347168'>
+	<Mock name='mock.A' id='139734259391360'>
 'A -c':
 -------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A' id='139947101347168'>
+	<Mock name='mock.A' id='139734259391360'>
 'A -v -c':
 ----------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A' id='139947101347168'>
+	<Mock name='mock.A' id='139734259391360'>
 
 
 NODE :: 'A B':
@@ -1749,27 +1668,27 @@ optional arguments:
 'A B':
 ------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_B' id='139947101462384'>
+	<Mock name='mock.A_B' id='139734259392320'>
 'A B -v':
 ---------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_B' id='139947101462384'>
+	<Mock name='mock.A_B' id='139734259392320'>
 'A B -c':
 ---------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_B' id='139947101462384'>
+	<Mock name='mock.A_B' id='139734259392320'>
 'A B -v -c':
 ------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_B' id='139947101462384'>
+	<Mock name='mock.A_B' id='139734259392320'>
 
 
 NODE :: 'A BB':
 -----------------
-usage: ipython A BB [-h] [-c] [-v] {C,CCC,CC} ...
+usage: ipython A BB [-h] [-c] [-v] {CCC,C,CC} ...
 
 positional arguments:
-  {C,CCC,CC}
+  {CCC,C,CC}
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -1780,19 +1699,19 @@ optional arguments:
 'A BB':
 -------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB' id='139947100865632'>
+	<Mock name='mock.A_BB' id='139734258643200'>
 'A BB -v':
 ----------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB' id='139947100865632'>
+	<Mock name='mock.A_BB' id='139734258643200'>
 'A BB -c':
 ----------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB' id='139947100865632'>
+	<Mock name='mock.A_BB' id='139734258643200'>
 'A BB -v -c':
 -------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB' id='139947100865632'>
+	<Mock name='mock.A_BB' id='139734258643200'>
 
 
 NODE :: 'A BB C':
@@ -1808,19 +1727,19 @@ optional arguments:
 'A BB C':
 ---------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB_C' id='139947100922976'>
+	<Mock name='mock.A_BB_C' id='139734258188544'>
 'A BB C -v':
 ------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB_C' id='139947100922976'>
+	<Mock name='mock.A_BB_C' id='139734258188544'>
 'A BB C -c':
 ------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB_C' id='139947100922976'>
+	<Mock name='mock.A_BB_C' id='139734258188544'>
 'A BB C -v -c':
 ---------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB_C' id='139947100922976'>
+	<Mock name='mock.A_BB_C' id='139734258188544'>
 
 
 NODE :: 'A BB CC':
@@ -1836,19 +1755,19 @@ optional arguments:
 'A BB CC':
 ----------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB_CC' id='139947100924128'>
+	<Mock name='mock.A_BB_CC' id='139734258189696'>
 'A BB CC -v':
 -------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB_CC' id='139947100924128'>
+	<Mock name='mock.A_BB_CC' id='139734258189696'>
 'A BB CC -c':
 -------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB_CC' id='139947100924128'>
+	<Mock name='mock.A_BB_CC' id='139734258189696'>
 'A BB CC -v -c':
 ----------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB_CC' id='139947100924128'>
+	<Mock name='mock.A_BB_CC' id='139734258189696'>
 
 
 NODE :: 'A BB CCC':
@@ -1864,36 +1783,36 @@ optional arguments:
 'A BB CCC':
 -----------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+	<Mock name='mock.A_BB_CCC' id='139734258190992'>
 'A BB CCC -v':
 --------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+	<Mock name='mock.A_BB_CCC' id='139734258190992'>
 'A BB CCC -c':
 --------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB_CCC' id='139947100925424'>
+	<Mock name='mock.A_BB_CCC' id='139734258190992'>
 'A BB CCC -v -c':
 -----------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB_CCC' id='139947100925424'>
-
-
+	<Mock name='mock.A_BB_CCC' id='139734258190992'>
 #+end_example
 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from a_aa import main
+from examples.a_aa import main
 main()
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
+
+
 NODE :: 'A':
 --------------
-usage: ipython A [-h] [-c] [-v] {B,BB,BBB} ...
+usage: ipython A [-h] [-c] [-v] {BB,BBB,B} ...
 
 positional arguments:
-  {B,BB,BBB}
+  {BB,BBB,B}
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -1904,19 +1823,19 @@ optional arguments:
 'A':
 ----
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A' id='139947112579024'>
+	<Mock name='mock.A' id='139734258340288'>
 'A -v':
 -------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A' id='139947112579024'>
+	<Mock name='mock.A' id='139734258340288'>
 'A -c':
 -------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A' id='139947112579024'>
+	<Mock name='mock.A' id='139734258340288'>
 'A -v -c':
 ----------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A' id='139947112579024'>
+	<Mock name='mock.A' id='139734258340288'>
 
 
 NODE :: 'A B':
@@ -1932,27 +1851,27 @@ optional arguments:
 'A B':
 ------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_B' id='139947100555488'>
+	<Mock name='mock.A_B' id='139734258341680'>
 'A B -v':
 ---------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_B' id='139947100555488'>
+	<Mock name='mock.A_B' id='139734258341680'>
 'A B -c':
 ---------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_B' id='139947100555488'>
+	<Mock name='mock.A_B' id='139734258341680'>
 'A B -v -c':
 ------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_B' id='139947100555488'>
+	<Mock name='mock.A_B' id='139734258341680'>
 
 
 NODE :: 'A BB':
 -----------------
-usage: ipython A BB [-h] [-c] [-v] {C,CCC,CC} ...
+usage: ipython A BB [-h] [-c] [-v] {CCC,C,CC} ...
 
 positional arguments:
-  {C,CCC,CC}
+  {CCC,C,CC}
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -1963,19 +1882,19 @@ optional arguments:
 'A BB':
 -------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB' id='139947100557120'>
+	<Mock name='mock.A_BB' id='139734258383360'>
 'A BB -v':
 ----------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB' id='139947100557120'>
+	<Mock name='mock.A_BB' id='139734258383360'>
 'A BB -c':
 ----------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB' id='139947100557120'>
+	<Mock name='mock.A_BB' id='139734258383360'>
 'A BB -v -c':
 -------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB' id='139947100557120'>
+	<Mock name='mock.A_BB' id='139734258383360'>
 
 
 NODE :: 'A BB C':
@@ -1991,19 +1910,19 @@ optional arguments:
 'A BB C':
 ---------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB_C' id='139947100555200'>
+	<Mock name='mock.A_BB_C' id='139734258382640'>
 'A BB C -v':
 ------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB_C' id='139947100555200'>
+	<Mock name='mock.A_BB_C' id='139734258382640'>
 'A BB C -c':
 ------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB_C' id='139947100555200'>
+	<Mock name='mock.A_BB_C' id='139734258382640'>
 'A BB C -v -c':
 ---------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB_C' id='139947100555200'>
+	<Mock name='mock.A_BB_C' id='139734258382640'>
 
 
 NODE :: 'A BB CC':
@@ -2019,19 +1938,19 @@ optional arguments:
 'A BB CC':
 ----------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB_CC' id='139947100553856'>
+	<Mock name='mock.A_BB_CC' id='139734258383552'>
 'A BB CC -v':
 -------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB_CC' id='139947100553856'>
+	<Mock name='mock.A_BB_CC' id='139734258383552'>
 'A BB CC -c':
 -------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB_CC' id='139947100553856'>
+	<Mock name='mock.A_BB_CC' id='139734258383552'>
 'A BB CC -v -c':
 ----------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB_CC' id='139947100553856'>
+	<Mock name='mock.A_BB_CC' id='139734258383552'>
 
 
 NODE :: 'A BB CCC':
@@ -2047,27 +1966,27 @@ optional arguments:
 'A BB CCC':
 -----------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+	<Mock name='mock.A_BB_CCC' id='139734258383504'>
 'A BB CCC -v':
 --------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+	<Mock name='mock.A_BB_CCC' id='139734258383504'>
 'A BB CCC -c':
 --------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+	<Mock name='mock.A_BB_CCC' id='139734258383504'>
 'A BB CCC -v -c':
 -----------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.A_BB_CCC' id='139947100553424'>
+	<Mock name='mock.A_BB_CCC' id='139734258383504'>
 
 
 NODE :: 'AA':
 ---------------
-usage: ipython AA [-h] [-c] [-v] {B,BB,BBB} ...
+usage: ipython AA [-h] [-c] [-v] {BB,BBB,B} ...
 
 positional arguments:
-  {B,BB,BBB}
+  {BB,BBB,B}
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -2078,19 +1997,19 @@ optional arguments:
 'AA':
 -----
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.AA' id='139947100554336'>
+	<Mock name='mock.AA' id='139734258387408'>
 'AA -v':
 --------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.AA' id='139947100554336'>
+	<Mock name='mock.AA' id='139734258387408'>
 'AA -c':
 --------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.AA' id='139947100554336'>
+	<Mock name='mock.AA' id='139734258387408'>
 'AA -v -c':
 -----------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.AA' id='139947100554336'>
+	<Mock name='mock.AA' id='139734258387408'>
 
 
 NODE :: 'AA B':
@@ -2106,27 +2025,27 @@ optional arguments:
 'AA B':
 -------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.AA_B' id='139947100554384'>
+	<Mock name='mock.AA_B' id='139734258387792'>
 'AA B -v':
 ----------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.AA_B' id='139947100554384'>
+	<Mock name='mock.AA_B' id='139734258387792'>
 'AA B -c':
 ----------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.AA_B' id='139947100554384'>
+	<Mock name='mock.AA_B' id='139734258387792'>
 'AA B -v -c':
 -------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.AA_B' id='139947100554384'>
+	<Mock name='mock.AA_B' id='139734258387792'>
 
 
 NODE :: 'AA BB':
 ------------------
-usage: ipython AA BB [-h] [-c] [-v] {C,CCC,CC} ...
+usage: ipython AA BB [-h] [-c] [-v] {CCC,C,CC} ...
 
 positional arguments:
-  {C,CCC,CC}
+  {CCC,C,CC}
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -2137,19 +2056,19 @@ optional arguments:
 'AA BB':
 --------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.AA_BB' id='139947100555776'>
+	<Mock name='mock.AA_BB' id='139734258386304'>
 'AA BB -v':
 -----------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.AA_BB' id='139947100555776'>
+	<Mock name='mock.AA_BB' id='139734258386304'>
 'AA BB -c':
 -----------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.AA_BB' id='139947100555776'>
+	<Mock name='mock.AA_BB' id='139734258386304'>
 'AA BB -v -c':
 --------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.AA_BB' id='139947100555776'>
+	<Mock name='mock.AA_BB' id='139734258386304'>
 
 
 NODE :: 'AA BB C':
@@ -2165,19 +2084,19 @@ optional arguments:
 'AA BB C':
 ----------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.AA_BB_C' id='139947100556592'>
+	<Mock name='mock.AA_BB_C' id='139734258387504'>
 'AA BB C -v':
 -------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.AA_BB_C' id='139947100556592'>
+	<Mock name='mock.AA_BB_C' id='139734258387504'>
 'AA BB C -c':
 -------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.AA_BB_C' id='139947100556592'>
+	<Mock name='mock.AA_BB_C' id='139734258387504'>
 'AA BB C -v -c':
 ----------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.AA_BB_C' id='139947100556592'>
+	<Mock name='mock.AA_BB_C' id='139734258387504'>
 
 
 NODE :: 'AA BB CC':
@@ -2193,19 +2112,19 @@ optional arguments:
 'AA BB CC':
 -----------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+	<Mock name='mock.AA_BB_CC' id='139734258387072'>
 'AA BB CC -v':
 --------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+	<Mock name='mock.AA_BB_CC' id='139734258387072'>
 'AA BB CC -c':
 --------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+	<Mock name='mock.AA_BB_CC' id='139734258387072'>
 'AA BB CC -v -c':
 -----------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.AA_BB_CC' id='139947100557024'>
+	<Mock name='mock.AA_BB_CC' id='139734258387072'>
 
 
 NODE :: 'AA BB CCC':
@@ -2221,21 +2140,19 @@ optional arguments:
 'AA BB CCC':
 ------------
 	args: {'c': None, 'verbose': False}
-	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+	<Mock name='mock.AA_BB_CCC' id='139734258387984'>
 'AA BB CCC -v':
 ---------------
 	args: {'c': None, 'verbose': True}
-	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+	<Mock name='mock.AA_BB_CCC' id='139734258387984'>
 'AA BB CCC -c':
 ---------------
 	args: {'c': 3.141593, 'verbose': False}
-	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
+	<Mock name='mock.AA_BB_CCC' id='139734258387984'>
 'AA BB CCC -v -c':
 ------------------
 	args: {'c': 3.141593, 'verbose': True}
-	<Mock name='mock.AA_BB_CCC' id='139947100556064'>
-
-
+	<Mock name='mock.AA_BB_CCC' id='139734258387984'>
 #+end_example
 
 \newpage
@@ -2374,8 +2291,8 @@ The View component is entirely contained within a single ~dict~, /viz./
 #+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
 %cd ./examples
 #+END_SRC
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes
-from todos import view
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
+from examples.todos import view
 from parsearg.utils import show
 
 show(view)
@@ -2449,7 +2366,7 @@ show(view)
 
 We can generate a tree view of the CLI design specified by the above ~dict~,
 namely ~view~, as follows:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
 from parsearg import ParseArg
 
 print(
