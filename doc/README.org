@@ -204,13 +204,13 @@ Probably because ~argparse~ is a bit clunky to use,
 many other (non-standard) packages have been developed for creating CLIs.
 Why ``clunky''? Putting together a CLI with ~argparse~
 alone is nothing if not an exercise in imperative programming, and this
-has three very negative consequences:
+has negative consequences:
 
 1. It obfuscates the intention of the CLI design;
 2. It is prone to errors;
-3. It discourages CLI design in the first instance; it
-   makes debugging a CLI design very difficult; and it makes refactoring or
-   re-configuring the CLI design overly burdensome.
+3. It discourages CLI design in the first instance;
+4. It makes debugging a CLI design very difficult; and
+5. It makes refactoring or re-configuring the CLI design overly burdensome.
 
 In spite of this clunkiness, ~argparse~ has everything we need in 
 terms of functionality. ~parsearg~, then, is nothing more than a layer
