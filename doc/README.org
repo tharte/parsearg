@@ -566,7 +566,8 @@ digraph G {
 #+RESULTS:
 [[file:./img/a-tree.png]]
 
-Let's take a very brief look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a.py][~a.py~]].
+Let's take a very brief look at the Python code
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a.py][~a.py~]].
 Consider the ~dict~ that represents the View component.
 The tree that the parsed ~dict~ is represented by is given as:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -638,7 +639,9 @@ digraph G {
 #+RESULTS:
 [[file:./img/aa-tree.png]]
 
-Let's take a brief look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a_aa.py][~a_aa.py~]].
+
+Let's take a brief look at the Python code
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a_aa.py][~a_aa.py~]].
 Consider the ~dict~ that represents the View component:
 and then the tree that the parsed ~dict~ is represented by:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1356,7 +1359,8 @@ digraph G {
 #+RESULTS:
 [[file:./img/tree-abc-a.png]]
 
-Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a.py][~a.py~]].
+Let's look at the Python code for
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a.py][~a.py~]].
 
 Consider the ~dict~ that represents the View component:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -1489,7 +1493,8 @@ digraph G {
 #+RESULTS:
 [[file:./img/tree-abc-a-aa.png]]
 
-Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/parsearg/examples/a_aa.py][~a_aa.py~]].
+Let's look at the Python code
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a_aa.py][~a_aa.py~]].
 
 Consider the ~dict~ that represents the View component:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
@@ -2298,7 +2303,9 @@ sqlite3 todo.db 'select * from Todo;'
 : 19|todo-1|Christmas-party|2020-11-30|2021-06-12 18:41:47|Harry
 : 20|todo-2|New-Year-party|None|2021-06-12 18:41:47|Harry
 
-Let's look at the Python code for [[https://github.com/tharte/parsearg/blob/master/doc/examples/todos.py][~todos.py~]].
+Let's look at the Python code 
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/todos.py][~todos.py~]].
+
 
 The View component is entirely contained within a single ~dict~, /viz./ 
 ~view~, which has been formatted here for clarity using ~parsearg.utils.show~:
