@@ -291,9 +291,9 @@ where ~{e1, e2, ...}~ is the ~set~ of children containing elements
 ~e1~, ~e2~, and so on, and each element of the ~set~ is itself a tree.  
 The empty tree is represented by
 #+begin_quote
-~(None, {})~,
+~(None, {None})~,
 #+end_quote
-where ~None~ represents no value, and ~{}~ is the empty set of children.
+where ~None~ represents no value, and ~{}~ is the empty set of children.[fn:: Python has a quirk where ~{}~ is of type ~dict~, whereas ~{None}~ is of type ~set~. Thus, the ``empty set'' is really represented by ~{None}~ and not ~{}~.] 
        
 This type of tree is termed /heterogeneous/ because the cardinality of
 the set of child trees for each value can vary. Contrast with 
