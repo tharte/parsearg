@@ -157,6 +157,37 @@ def test_Key_split():
     key = 'A|B|C'
     assert Key.split(key) == ['A', '|', 'B', '|', 'C']
 
+    key = 'A|B'
+    assert Key.split(key) == ['A', '|', 'B']
+
+    # Key.split implementation is based on str.partition
+    # corner cases below may not be quite right:
+    key = 'AB'
+    assert Key.split(key) == ['AB']
+
+    key = '|AB'
+    assert Key.split(key) == ['', '|', 'AB']
+
+    key = 'AB|'
+    assert Key.split(key) == ['AB']
+
+    key = ''
+    assert Key.split(key) == []
+    
+
+def test_str_partition():
+    assert 'A|B'.partition('|') == ('A', '|', 'B')
+    assert 'A|B|C'.partition('|') == ('A', '|', 'B|C')
+
+    # test corner cases brought up in test_Key_split :
+    assert 'AB'.partition('|') == ('AB', '', '')
+
+    assert '|AB'.partition('|') == ('', '|', 'AB')
+
+    assert 'AB|'.partition('|') == ('AB', '|', '')
+
+    assert ''.partition('|') == ('', '', '')
+
 def test_Key_unflatten():
     key = 'A|B|C'
     assert Key.unflatten(Key.split(key)) == ['A', ['B', ['C']]]
