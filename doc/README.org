@@ -44,7 +44,7 @@ nature of ~argparse~, it makes it hard to understand how a program's interface
 is structured (/viz./ the program's ``view'').
 
 ~parsearg~ puts a layer on top of ~argparse~ that makes writing a CLI easy: You
-declare your view (/i.e./ the CLI), with a ~dict~ so that the view
+declare your view with a ~dict~, so that the view
 is a data structure (/i.e./ pure configuration). The data structure declares
 the /intent/ of the CLI and you no longer have to instruct ~argparse~
 on how to put the CLI together: ~parsearg~ does that for you.
@@ -59,13 +59,14 @@ example, we want to create a user with the command
 
 : python quickstart-todos.py create user
 
-or we want to create a TO-DO for a particular user 
+or we want to create a TO-DO for a particular user with the command
 
 : python quickstart-todos.py create todo
 
 We also want to add optional parameters to each subprogram, such as
 the user's email and phone number, or the TO-DO's due date. 
-The program's CLI should look like the following:
+The program's CLI should look like the following, where the
+``flags'' are optional inputs (/e.g./ ~--email~):
 #+BEGIN_SRC bash :session *bash* :exports none :results silent 
 SDIST=/home/tharte/dot/py/python/parsearg
 cd $SDIST/doc
@@ -174,24 +175,33 @@ if __name__ == "__main__":
     main(' '.join(args))
 #+end_src
 
-The output of the listings above is:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
-#+END_SRC
+The output of Listing [[list:quickstart-argparse]] and Listing [[list:quickstart-parsearg]] is identical:
 
-#+RESULTS:
-: created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
+- Listing [[list:quickstart-argparse]] produces:
 
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
-#+END_SRC
+    #+begin_src bash :session *bash* :exports both :results output :eval yes 
+    python quickstart-todos-argparse.py create user Bob --email=bob@email.com --phone=212-555-1234
+    python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
+    #+end_src
 
-#+RESULTS:
-: created TO-DO for user 'Bob': taxes (due: 2021-05-17)
+    #+RESULTS:
+    : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
+    : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
+
+- Listing [[list:quickstart-parsearg]] produces:
+
+    #+begin_src bash :session *bash* :exports both :results output :eval yes 
+    python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
+    python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
+    #+end_src
+
+    #+RESULTS:
+    : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
+    : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
 
 Comparing Listing [[list:quickstart-argparse]] (built with ~argparse~) 
 and Listing [[list:quickstart-parsearg]] (built with ~parsearg~), it is
-apparent that ~parsearg~ allows:
+apparent that ~parsearg~ affords:
 
 1. the CLI to be declared as pure data, and not constructed with imperative specifications;
 2. the callback to the declared with the data, thus co-locating the callback with
