@@ -9,6 +9,9 @@
 #+latex_header:  \usepackage[ruled]{algorithm2e}
 #+latex_header:  \usepackage{enumitem}
 #+options:       tex:imagemagick
+
+#+startup: overview
+
 #+include:       /home/tharte/dot/include/newcommands.tex src latex
 #+bind:          org-latex-image-default-width 0.5\linewidth $
 #+bind:          org-latex-prefer-user-labels t
