@@ -206,8 +206,8 @@ apparent that ~parsearg~ affords:
 1. the CLI to be declared as pure data, and not constructed with imperative specifications;
 2. the callback to be declared with the data, thus co-locating the callback with
    the position of its specification in the tree of subprograms;
-3. the nodes within the tree of subprograms to be specified with a syntax (/e.g./
-   ~create|user~), which means that the hierarchy of the
+3. the nodes within the tree of subprograms to be specified with an intuitive
+   syntax (/e.g./ ~create|user~), which means that the hierarchy of the
    tree of subprograms can be easily altered. 
  
 A fully-worked version of the TO-DO example is presented later in the docs. 
@@ -288,6 +288,7 @@ that comes included with the Python distribution, so no special
 installation is required. 
 Probably because ~argparse~ is a bit clunky to use,
 many other (non-standard) packages have been developed for creating CLIs.
+
 Why ``clunky''? Putting together a CLI with ~argparse~
 alone is nothing if not an exercise in imperative programming, and this
 has negative consequences:
@@ -328,13 +329,19 @@ then generates a parser (or set of nested parsers) using ~argparse~.
 The Controller is then free to use the generated parser.
 
 The ~parsearg~ approach is declarative because it manifests the CLI design
-in a data structure: a ~dict~, which is one of Python's built-in data structures.
-The keys of this ~dict~ form a flattened tree of the CLI's subcommands. 
-Keys like ~A|B|C~ are easy to specify and neatly summarize the nested
-hierarchy of subcommands: ~A -> B -> C~. They are also easy to change. 
-The magic, such as it is, of ~parsearg~ is that it unflattens 
-this flattened tree into a tree of ~argparse~ parsers. ~parsearg~ requires nothing 
-special: It works with Python out of the box, and therefore uses
+in a data structure: a ~dict~ (which is one of Python's built-in data structures).
+The keys of this ~dict~, for example ~A|B|C~, represent nodes in the tree
+of subprograms. The keys are easy to specify and neatly summarize the nested
+hierarchy of subcommands: ~A -> B -> C~. The order of the keys is also easy to change. 
+The keys of this ~dict~ are used to specify a /flattened tree/ (/i.e./ the leaf nodes)
+of the CLI's hierarchy of subcommands. 
+The magic of ~parsearg~ is therefore this:
+
+#+begin_quote
+/It unflattens this flattened tree into a tree of ~argparse~ parsers./
+#+end_quote
+
+~parsearg~ requires nothing special: It works with Python out of the box, thus using
 what's already available without introducing dependencies.
 
 Simple? The following examples should help.
