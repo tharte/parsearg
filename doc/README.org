@@ -53,14 +53,19 @@ it replaces imperative instructions with declarative data.
 
 ** Usage
 <<sec:quickstart:usage>>
-Suppose we wish to create a program called ~quickstart-todos.py~ to manage the TO-DOs
-of a set of different users. We want to have subprograms of ~quickstart-todos.py~; for
-example, we may want to create a user (~python quickstart-todos.py create user~, say),
-or we may want to create a TO-DO for a particular user 
-(~python quickstart-todos.py create todo~, say).  
-We might also want to add optional parameters to each subprogram such as
-the user's email and phone number, or the TO-DO's due date. An invocation
-of the program's CLI might look like the following:
+Suppose we wish to create a program---~quickstart-todos.py~---to manage the TO-DOs
+of a set of different users. We want ~quickstart-todos.py~ to have subprograms. For
+example, we want to create a user with the command
+
+: python quickstart-todos.py create user
+
+or we want to create a TO-DO for a particular user 
+
+: python quickstart-todos.py create todo
+
+We also want to add optional parameters to each subprogram, such as
+the user's email and phone number, or the TO-DO's due date. 
+The program's CLI should look like the following:
 #+BEGIN_SRC bash :session *bash* :exports none :results silent 
 SDIST=/home/tharte/dot/py/python/parsearg
 cd $SDIST/doc
@@ -69,8 +74,8 @@ cd $SDIST/doc
 python quickstart-todos.py create user Bob --email=bob@email.com --phone=+1-212-555-1234
 python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
 #+END_SRC
-With ~argparse~, the subprogram ~create~ would necessitate fiddling
-with subparsers.  With ~parsearg~, the CLI for the above is declared
+If we use ~argparse~, adding the subprogram ~create~ would mean having to
+explicitly add a subparser.  With ~parsearg~, the CLI for the above is declared
 with a ~dict~ and ~parsearg.parser.ParseArg~ supplants the normal use of
 ~argparse.ArgumentParser~. Moreover, the callback associated with
 each subcommand is explicitly linked to its declaration.
@@ -113,9 +118,10 @@ if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
     
     main(' '.join(args))
-#+END_SRC
+#+end_src
+
 A fully-worked version of the TO-DO example is presented in the docs. The output
-of the above is:
+of the listings above is:
 #+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
 python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
 #+END_SRC
