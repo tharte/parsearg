@@ -126,7 +126,6 @@ def main(args):
 
 if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-    
     main(args)
 #+end_src
 
@@ -162,16 +161,13 @@ view = {
 def main(args):
     # ParseArg takes the place of argparse.ArgumentParser
     parser = ParseArg(d=view)
-
     # parser.parse_args returns an argparse.Namespace
     ns     = parser.parse_args(args)
-
     # ns.callback contains the function in the 'callback' key of 'view'
     result = ns.callback(ns)
 
 if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-    
     main(' '.join(args))
 #+end_src
 
@@ -329,7 +325,7 @@ then generates a parser (or set of nested parsers) using ~argparse~.
 The Controller is then free to use the generated parser.
 
 The ~parsearg~ approach is declarative because it manifests the CLI design
-in a data structure: a ~dict~ (which is one of Python's built-in data structures).
+in a data structure: a ~dict~ (which is one of Python's built-ins).
 The keys of this ~dict~, for example ~A|B|C~, represent nodes in the tree
 of subprograms. The keys are easy to specify and neatly summarize the nested
 hierarchy of subcommands: ~A -> B -> C~. The order of the keys is also easy to change. 
@@ -344,13 +340,13 @@ The magic of ~parsearg~ is therefore this:
 ~parsearg~ requires nothing special: It works with Python out of the box, thus using
 what's already available without introducing dependencies.
 
-Simple? The following examples should help.
+Simple? The following sections should help to peel the onion.
 
 \newpage
 * How ~parsearg~ works 
 ** Heterogeneous trees: recursive data structures
 Trees are recursive data structures.  Any node of a tree is identified by
-a value and a set of /child trees/, thus establishing the recursion.
+a /value/ and an associated set of /child trees/, thus establishing the recursion.
 
 \begin{defn}
 \label{defn:1}
@@ -376,7 +372,7 @@ they are not necessarily aware of each other.
 \end{remark}
 
 \begin{remark}
-The empty tree has no value/node/name and an empty set of children.
+The empty tree has no value/node/name and has an empty set of children.
 \end{remark}
 
 \begin{remark}
