@@ -59,8 +59,7 @@ class Tree:
         return str(self.value)
 
     def is_empty(self):
-        return (self.value is None) and \
-               len(self.children) == 0
+        return (self.value is None) and len(self.children) == 0
        
     def show(self, level=0, indent = 4 * ' ', quiet=False):
         # depth-first search (DFS)
