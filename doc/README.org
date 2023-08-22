@@ -67,14 +67,14 @@ We also want to add optional parameters to each subprogram, such as
 the user's email and phone number, or the TO-DO's due date. 
 The program's CLI should look like the following, where the
 ``flags'' are optional inputs (/e.g./ ~--email~):
-#+BEGIN_SRC bash :session *bash* :exports none :results silent 
+#+begin_src bash :session *bash* :exports none :results silent 
 SDIST=/home/tharte/dot/py/python/parsearg
 cd $SDIST/doc
-#+END_SRC
-#+BEGIN_SRC bash :session *bash* :exports code :results silent :eval no
+#+end_src
+#+begin_src bash :session *bash* :exports code :results silent :eval no
 python quickstart-todos.py create user Bob --email=bob@email.com --phone=+1-212-555-1234
 python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
-#+END_SRC
+#+end_src
 If we use ~argparse~, adding the subprogram ~create~ means having to
 explicitly instruct the parser to add a subparser---ditto for its subprograms ~user~ and ~todo~
 (see Listing [[list:quickstart-argparse]]).
@@ -84,7 +84,116 @@ Moreover, the callback associated with each subcommand is explicitly linked to
 the declaration of each node in the tree
 (see Listing [[list:quickstart-parsearg]]).
 
-#+caption: Construct parser with ~argparse~: the parser must be specified with imperative instructions
+The output of both listings at the end of this section is identical:
+
+- Listing [[list:quickstart-argparse]] (using ~argparse~) produces:
+
+    #+begin_src bash :session *bash* :exports both :results output :eval yes 
+    python quickstart-todos-argparse.py create user Bob --email=bob@email.com --phone=212-555-1234
+    python quickstart-todos-argparse.py create todo Bob 'taxes' --due-date=2021-05-17
+    #+end_src
+
+    #+RESULTS:
+    : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
+    : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
+
+- Listing [[list:quickstart-parsearg]] (using ~parsearg~) produces:
+
+    #+begin_src bash :session *bash* :exports both :results output :eval yes 
+    python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
+    python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
+    #+end_src
+
+    #+RESULTS:
+    : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
+    : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
+
+Comparing Listing [[list:quickstart-argparse]] (built with ~argparse~) 
+and Listing [[list:quickstart-parsearg]] (built with ~parsearg~), it is
+apparent that ~parsearg~ affords:
+
+1. the CLI to be declared as pure data, and not constructed with imperative specifications;
+2. the callback to be declared with the data, thus co-locating the callback with
+   the position of its specification in the tree of subprograms;
+3. the nodes within the tree of subprograms to be specified with an intuitive
+   syntax (/e.g./ ~create|user~), which means that the hierarchy of the
+   tree of subprograms can be easily altered. 
+ 
+A fully-worked version of the TO-DO example is presented later in the docs. 
+
+** Same functionality underneath
+Because ~parsearg~ is built on top of ~argparse~, all the usual features
+are available, such as the extensive help features (essentially
+making the CLI self-documenting):
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
+python quickstart-todos.py --help
+#+end_src
+
+#+RESULTS:
+: usage: quickstart-todos.py [-h] {create} ...
+: 
+: positional arguments:
+:   {create}
+: 
+: optional arguments:
+:   -h, --help  show this help message and exit
+
+
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
+python quickstart-todos.py create --help
+#+end_src
+
+#+RESULTS:
+: usage: quickstart-todos.py create [-h] {user,todo} ...
+: 
+: positional arguments:
+:   {user,todo}
+: 
+: optional arguments:
+:   -h, --help   show this help message and exit
+
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
+python quickstart-todos.py create user --help
+#+end_src
+
+#+RESULTS:
+#+begin_example
+usage: quickstart-todos.py create user [-h] [-e EMAIL] [-p PHONE] name
+
+positional arguments:
+  name                  create user name
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -e EMAIL, --email EMAIL
+                        create user's email address
+  -p PHONE, --phone PHONE
+                        create user's phone number
+#+end_example
+
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
+python quickstart-todos.py create todo --help
+#+end_src
+
+#+RESULTS:
+#+begin_example
+usage: quickstart-todos.py create todo [-h] [-d DUE_DATE] user title
+
+positional arguments:
+  user                  user name
+  title                 title of TO-DO
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DUE_DATE, --due-date DUE_DATE
+                        due date for the TO-DO
+#+end_example
+
+\newpage
+** ~quickstart-*.py~ Listings
+#+latex: \mbox{}
+
+#+caption: ~quickstart-todos-argparse.py~ (using ~argparse~): the parser must be specified with imperative instructions
 #+name: list:quickstart-argparse
 #+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos-argparse.py
 import sys
@@ -126,11 +235,11 @@ def main(args):
 
 if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-    
     main(args)
 #+end_src
 
-#+caption: Construct parser with ~parsearg~: the parser is specified with data only---it is declarative
+\newpage
+#+caption: ~quickstart-todos.py~ (using ~parsearg~): the parser is specified with data only---it is declarative
 #+name: list:quickstart-parsearg
 #+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos.py
 import sys
@@ -147,147 +256,50 @@ def create_todo(args):
 view = {
     'create|user': {
         'callback':   create_user,
-        'name':       {'help': 'create user name', 'action': 'store'},
-        '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
-        '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
+        'name':       {'help': 'create user name', 'type': str, 'action': 'store'},
+        '-e|--email': {'help': "create user's email address", 'type': str, 'action': 'store', 'default': ''},
+        '-p|--phone': {'help': "create user's phone number", 'type': str, 'action': 'store', 'default': ''},
     },
     'create|todo': {
         'callback':   create_todo,
-        'user':       {'help': 'user name', 'action': 'store'},
-        'title':      {'help': 'title of TO-DO', 'action': 'store'},
-        '-d|--due-date': {'help': 'due date for the TO-DO', 'action': 'store', 'default': None},
+        'user':       {'help': 'user name', 'type': str, 'action': 'store'},
+        'title':      {'help': 'title of TO-DO', 'type': str, 'action': 'store'},
+        '-d|--due-date': {'help': 'due date for the TO-DO', 'type': str, 'action': 'store', 'default': None},
     },
 }
 
 def main(args):
-    # ParseArg takes the place of argparse.ArgumentParser
     parser = ParseArg(d=view)
-
-    # parser.parse_args returns an argparse.Namespace
     ns     = parser.parse_args(args)
-
-    # ns.callback contains the function in the 'callback' key of 'view'
     result = ns.callback(ns)
 
 if __name__ == "__main__":
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-    
     main(' '.join(args))
 #+end_src
 
-The output of Listing [[list:quickstart-argparse]] and Listing [[list:quickstart-parsearg]] is identical:
+\textcolor{blue}{\bf TODO:}
+#+begin_quote
+Add a regression test for:
 
-- Listing [[list:quickstart-argparse]] produces:
+: main(' '.join(args))
 
-    #+begin_src bash :session *bash* :exports both :results output :eval yes 
-    python quickstart-todos-argparse.py create user Bob --email=bob@email.com --phone=212-555-1234
-    python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
-    #+end_src
+versus
 
-    #+RESULTS:
-    : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
-    : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
+: main(args)
 
-- Listing [[list:quickstart-parsearg]] produces:
-
-    #+begin_src bash :session *bash* :exports both :results output :eval yes 
-    python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
-    python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
-    #+end_src
-
-    #+RESULTS:
-    : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
-    : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
-
-Comparing Listing [[list:quickstart-argparse]] (built with ~argparse~) 
-and Listing [[list:quickstart-parsearg]] (built with ~parsearg~), it is
-apparent that ~parsearg~ affords:
-
-1. the CLI to be declared as pure data, and not constructed with imperative specifications;
-2. the callback to the declared with the data, thus co-locating the callback with
-   the position of its specification in the tree of subprograms;
-3. the nodes within the tree of subprograms to be specified with a syntax (/e.g./
-   ~create|user~), which means that the hierarchy of the
-   tree of subprograms can be easily altered. 
- 
-A fully-worked version of the TO-DO example is presented later in the docs. 
-
-** Same functionality underneath
-Because ~parsearg~ is built on top of ~argparse~, all the usual features
-are available, such as the extensive help features (essentially
-making the CLI self-documenting):
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python quickstart-todos.py --help
-#+END_SRC
-
-#+RESULTS:
-: usage: quickstart-todos.py [-h] {create} ...
-: 
-: positional arguments:
-:   {create}
-: 
-: optional arguments:
-:   -h, --help  show this help message and exit
-
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python quickstart-todos.py create --help
-#+END_SRC
-
-#+RESULTS:
-: usage: quickstart-todos.py create [-h] {user,todo} ...
-: 
-: positional arguments:
-:   {user,todo}
-: 
-: optional arguments:
-:   -h, --help   show this help message and exit
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python quickstart-todos.py create user --help
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-usage: quickstart-todos.py create user [-h] [-e EMAIL] [-p PHONE] name
-
-positional arguments:
-  name                  create user name
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -e EMAIL, --email EMAIL
-                        create user's email address
-  -p PHONE, --phone PHONE
-                        create user's phone number
-#+end_example
-
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
-python quickstart-todos.py create todo --help
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-usage: quickstart-todos.py create todo [-h] [-d DUE_DATE] user title
-
-positional arguments:
-  user                  user name
-  title                 title of TO-DO
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -d DUE_DATE, --due-date DUE_DATE
-                        due date for the TO-DO
-#+end_example
+where the latter is a list, rather than a string.
+#+end_quote
 
 \newpage
-* Overview
+* Some philosophy
 The ``standard'' Python module for writing command-line interfaces (``CLI'') 
 is ~argparse~. It is standard in so far as it is one of the batteries 
 that comes included with the Python distribution, so no special 
 installation is required. 
 Probably because ~argparse~ is a bit clunky to use,
 many other (non-standard) packages have been developed for creating CLIs.
+
 Why ``clunky''? Putting together a CLI with ~argparse~
 alone is nothing if not an exercise in imperative programming, and this
 has negative consequences:
@@ -328,301 +340,41 @@ then generates a parser (or set of nested parsers) using ~argparse~.
 The Controller is then free to use the generated parser.
 
 The ~parsearg~ approach is declarative because it manifests the CLI design
-in a data structure: a ~dict~, which is one of Python's built-in data structures.
-The keys of this ~dict~ form a flattened tree of the CLI's subcommands. 
-Keys like ~A|B|C~ are easy to specify and neatly summarize the nested
-hierarchy of subcommands: ~A -> B -> C~. They are also easy to change. 
-The magic, such as it is, of ~parsearg~ is that it unflattens 
-this flattened tree into a tree of ~argparse~ parsers. ~parsearg~ requires nothing 
-special: It works with Python out of the box, and therefore uses
+in a data structure: a ~dict~ (which is one of Python's built-ins).
+The keys of this ~dict~, for example ~A|B|C~, represent nodes in the tree
+of subprograms. The keys are easy to specify and neatly summarize the nested
+hierarchy of subcommands: ~A -> B -> C~. The order of the keys is also easy to change. 
+The keys of this ~dict~ are used to specify a /flattened tree/ (/i.e./ the leaf nodes)
+of the CLI's hierarchy of subcommands. 
+The magic of ~parsearg~ is therefore this:
+
+#+begin_quote
+/It unflattens a flattened tree into a tree of ~argparse~ parsers./
+#+end_quote
+
+~parsearg~ requires nothing special: It works with Python out of the box, thus using
 what's already available without introducing dependencies.
 
-Simple? The following examples should help.
+Simple? The following sections should help to peel the onion.
+
+#+attr_latex: :width 0.4\linewidth
+[[file:./img/pop-up-tree.png]]
 
 \newpage
-* How ~parsearg~ works 
-** Heterogeneous trees: recursive data structures
-Trees are recursive data structures.  Any node of a tree is identified by
-a value and a set of /child trees/, thus establishing the recursion.
-
-\begin{defn}
-\label{defn:1}
-An heterogeneous tree is either:
-    \begin{enumerate}
-        \item a value and a set of child trees; or,
-        \item the empty tree.
-    \end{enumerate}
-\end{defn}
-
-\begin{remark}
-The value is also known as a ``node'', or ``name''; its set of child trees 
-(also known as the ``children'' of the value/node/name) is possibly empty.
-\end{remark}
-
-\begin{remark}
-The value/node/name is referred to as the ``parent'' of its children.
-\end{remark}
-
-\begin{remark}
-The children of a unique parent tree are termed ``siblings'', though
-they are not necessarily aware of each other.
-\end{remark}
-
-\begin{remark}
-The empty tree has no value/node/name and an empty set of children.
-\end{remark}
-
-\begin{remark}
-The definition implies that a parent tree ``points'' to its children, in so far
-as the parent is necessarily aware of the children it contains, whereas its
-children are not necessarily aware of their parent, nor of each other.  
-We will therefore regard Definition \ref{defn:1} as the ``top-down'' definition.
-\end{remark}
-
-In Python, we represent the value/node/name and its ~set~ of children as the 
-~tuple~: 
-#+begin_quote
-~(value, {e1, e2, ....})~,
-#+end_quote
-where ~{e1, e2, ...}~ is the ~set~ of children containing elements 
-~e1~, ~e2~, and so on, and each element of the ~set~ is itself a tree.  
-The empty tree is represented by
-#+begin_quote
-~(None, {None})~,
-#+end_quote
-where ~None~ represents no value, and ~{None}~ is the empty set of children.[fn:: Python has a quirk where ~{}~ is of type ~dict~, whereas ~{None}~ is of type ~set~. Thus, the ``empty set'' is properly represented by ~{None}~ and not ~{}~.] 
-       
-\textcolor{blue}{\bf QUESTION:}
-#+begin_quote
-Is ~(value, {(None, {})})~ equivalent to ~(value, {})~?
-
-This would mean that the representation of an empty tree, /viz./ ~(None, {})~,
-is perfectly equivalent to the null set
-#+latex: $\varnothing$, 
-/i.e./
-~(value, {(None, {})})~ is equivalent to 
-~(value, {~
-#+latex: $\varnothing$
-~})~
-is equivalent to 
-~(value, {})~.
-But this requires a little mental gymnastics: Isn't the /tuple/ 
-~(None, {})~ equivalent to 
-#+latex: $(\varnothing, \{\varnothing\})$,
-which is /not/ the same as 
-#+latex: $\{\varnothing\} \equiv$
-~{}~, /i.e./ a /tuple/ containing a null value and the null set
-is not the same as the null set itself?
-#+end_quote
-       
-This type of tree is termed /heterogeneous/ because the cardinality of
-the set of child trees for each value can vary. Contrast with 
-#+latex: an $n$-ary tree, 
-which has the same number of children at each node 
-(/e.g./ two for a binary tree, three for a ternary tree, and in general 
-$n$ for an 
-#+latex: an $n$-ary tree).
-
-Nothing in the definition precludes the possibility of a child tree's
-value from containing an identical value to that of its parent. Thus,
-#+begin_quote
-~(value, {e1, (value, {e1}))~,
-#+end_quote
-is perfectly valid. The requirement does explicitly require 
-each of node's child trees to be unique, in so far as they are members
-of a /set/.
-       
-\begin{defn}
-\label{defn:3}
-A terminating (or ``leaf'') node is:
-    \begin{quote}
-    a tree whose set of child trees is empty.
-    \end{quote}
-\end{defn}
-A leaf node is represented by ~(value, {})~.  Note that the empty tree,
-~(None, {})~, is also a valid leaf node.
-
-We can define an heterogeneous tree in reverse, /viz./ instead of starting
-with a parent and recursively defining the tree through its children, we
-can start with a terminating node and recursively define the tree 
-by identifying each node's parent. 
-
-This definition yields the flip side of the ``top-down'' definition, above.
-
-\begin{defn}
-\label{defn:2}
-An heterogeneous tree is either:
-    \begin{enumerate}
-        \item a set of sibling trees sharing a common parent value/node/name; or,
-        \item the empty tree.
-    \end{enumerate}
-\end{defn}
-
-The set of sibling trees that shares a common parent is possibly empty. What is
-the parent of an empty set (/i.e./ that contains no trees)? It is the same as 
-any other tree: It must point to its parent. Optionally, siblings may point
-to each other. Further still, a child node may point to all of its ancestors
-(its parent's parent, and so on).
-
-In Python, we represent the ``reverse tree'' as.
-
-\textcolor{blue}{\bf TODO:}
-#+begin_quote
-Insert appropriate representation here. 
-#+end_quote
-
-\begin{remark}
-Definition \ref{defn:2} implies that a child tree points to its parent, which means
-that the child must be able to uniquely identify the parent tree in which
-it is contained. Because a parent contains its children, a parent must
-be aware of its children, so it is not strictly the reverse of the 
-``top-down'' definition. Nonetheless, we'll refer to Definition 
-\ref{defn:2} as the ``bottom-up'' definition.
-\end{remark}
-
-** Trees: flat and unflattened
-While it's possible to create a ``longhand'' version of the A tree using the 
-~Tree~ class that comes with the ~parsearg~ package, 
-it is cumbersome to use and---more specifically---it can 
-easily obfuscate the tree structure itself when the node names and 
-payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted here.] 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-"""
-       A
-     / | \
-    B  BB BBB
-      /| \
-     C CC CCC
-"""
-
-from parsearg.data_structures import Tree, Node, Key
-
-tree = Tree('A', children=[
-    Tree('B', []),
-    Tree('BB', children=[
-        Tree('C', []),
-        Tree('CC', []),
-        Tree('CCC', [])
-    ]),
-    Tree('BBB', []),
-])
-
-print(tree.show(quiet=True))
-#+END_SRC
-
-#+RESULTS:
-: A
-:     B
-:     BB
-:         C
-:         CC
-:         CCC
-:     BBB
-
-We need a ``shorthand'' for constructing trees.
-To this end, ~parsearg~ uses a set of pipe-delimited strings: 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-# from a import view
-from examples.a import view
-
-print(['root'] + list(view.keys()))
-#+END_SRC
-
-#+RESULTS:
-: ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
-
-This representation can be considered to be a ``flattened'' version
-of the A Tree:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print(
-    ParseArg.to_tree(view, root_name='root').show(quiet=True) 
-)
-#+END_SRC
-
-#+RESULTS:
-: root
-:     A
-:         BB
-:             CCC
-:             C
-:             CC
-:         BBB
-:         B
-
-Each string in this ``flat tree'' (or ``flattened tree'')
-represents a node in the tree and uniquely names that node. 
-The singular constraint on the tree's structure is that each node's
-children must contain a unique set of node names.
-If this were not the case, then the tree's structure would be indeterminate. 
-In point of fact, the example of the A-AA Tree illustrates that the structure of 
-the A Tree can be duplicated: only the root
-node names of each sub-tree (~A~ and ~AA~, respectively) need to be unique.
-
-Leaf nodes are terminating nodes in the tree's hierarchy (/i.e./ nodes that
-have no children).  In the above, the terminating nodes are easily discerned
-visually within the tree's hierarchy:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
-#+END_SRC
-
-#+RESULTS:
-: root
-:     A
-:         BB
-:             CCC
-:             C
-:             CC
-:         BBB
-:         B
-
-Thus, the terminating nodes are:
-#+begin_example
-'A|B'
-'A|BBB'
-'A|BB|C'
-'A|BB|CC'
-'A|BB|CCC'
-#+end_example
-
-while the non-terminating nodes are:
-#+begin_example
-'A'
-'A|BB'
-#+end_example
-
-The separator in each key (here, a pipe ~|~) separates one level of the tree
-from the next level down. It is this delimited-string representation that 
-allows us to easily specify a tree. However, taking advantage of 
-a tree as a data structure requires working with a tree, not a flattened
-version of it. In other words, we have a 
-flattened-tree which is shorthand to specify the tree, but we need 
-to unflatten this shorthand to create the tree data structure in order 
-for it to be useful. 
-
-There is a duality here:
-
-1. we need a shorthand in order for the 
-   tree's structure to be specified in a simple way 
-   (the ``flattened'' shorthand); and 
-
-2. we need to make use of the structure of the tree itself 
-   (the ``unflattened'' tree).
-
-Thus, ~parsearg~ transforms a ~dict~, representing the tree's nodes, into
-a ~Tree~.  The keys of the ~dict~ are shorthand for the tree's nodes and
-the values of the ~dict~ are the nodes' payloads.  We need the shorthand
-of the ~dict~ for ease of specification, and we need the ~Tree~ to avail of
-the data structure's properties.
-
+* More than you ever needed to know about trees
 ** The A Tree and the AA Tree 
-In order to further explain how ~parsearg~ works, we will make repeated
-use two simple abstractions, based on nested trees (or ``sub-trees''):
+In order to explain what trees are and how they work in the context of
+command-line argument-parsing, we will make repeated use two simple tree abstractions:
 
 1. The ``A Tree'', and
 2. The ``A-AA Tree''.
 
+The idea here is that the A-AA Tree nests the A Tree, thus forming
+identical ``sub-trees'', albeit with different parent nodes (called
+``A'' and ``AA'', respectively). 
+
 *** The A Tree 
-We have already seen the A Tree. It has three levels. 
+The A Tree has three levels. 
 #+headers:  :width 800 :height 500 
 #+begin_src dot :exports results :results output graphics :file ./img/a-tree.png
 digraph G {
@@ -646,7 +398,7 @@ digraph G {
 	BB -> CCC;
     }
 }
-#+END_SRC
+#+end_src
 
 #+attr_latex: :width 0.5\linewidth
 #+RESULTS:
@@ -656,13 +408,13 @@ Let's take a very brief look at the Python code
 for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a.py][~a.py~]].
 Consider the ~dict~ that represents the View component.
 The tree that the parsed ~dict~ is represented by is given as:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a import view
 
 print(
     ParseArg(d=view, root_name='root').tree.show(quiet=True)
 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : root
@@ -719,24 +471,23 @@ digraph G {
 	BB2 -> CCC2;
     }
 }
-#+END_SRC
+#+end_src
 
 #+attr_latex: :width 1.0\linewidth
 #+RESULTS:
 [[file:./img/aa-tree.png]]
 
-
 Let's take a brief look at the Python code
 for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a_aa.py][~a_aa.py~]].
 Consider the ~dict~ that represents the View component:
 and then the tree that the parsed ~dict~ is represented by:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a_aa import view
 
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -757,67 +508,373 @@ TODO
         B
 #+end_example
 
+\newpage
+** Heterogeneous trees: recursive data structures
+Trees are recursive data structures.  Any node of a tree is identified by
+a /value/ (that is to say, a /datum/) and its set of /child trees/, thus establishing the recursion.
+
+\begin{defn}
+\label{defn:1}
+An heterogeneous tree is either:
+    \begin{enumerate}
+        \item a value and a set of child trees; or,
+        \item the empty tree.
+    \end{enumerate}
+\end{defn}
+
+\begin{remark}
+Each node is a tree, containing a value and a set of child trees.
+A node's \emph{name\/} is synonymous with its value, and so
+often the node is referred to by name, meaning by its value. 
+\end{remark}
+
+\begin{remark}
+A node's set of child trees (also known as the ``children'' of the node)
+is possibly empty. There is nothing unusual in this, \emph{viz.\/}
+a node consisting of a value and an empty set of children.
+\end{remark}
+
+\begin{remark}
+The node is referred to as the ``parent'' of its children.
+\end{remark}
+
+\begin{remark}
+The children of a parent are termed ``siblings'', though
+they are not necessarily aware of each other.
+\end{remark}
+
+\begin{remark}
+The empty tree has no value (or, rather, its value is identically null, represented
+by $\varnothing$), and it has an empty set of children.
+\end{remark}
+
+\begin{remark}
+The definition implies that a parent node ``points'' to its children, in so far
+as the parent is necessarily aware of the children it contains, whereas its
+children are not necessarily aware of their parent, nor of each other.  
+We therefore regard Definition \ref{defn:1} as the ``top-down'' definition.
+\end{remark}
+
+In Python, we represent the value/node/name and its ~set~ of children as the 
+~tuple~: 
+#+begin_quote
+~(value, {e1, e2, ....})~,
+#+end_quote
+where ~{e1, e2, ...}~ is the ~set~ of children containing elements 
+~e1~, ~e2~, and so on, and each element of the ~set~ is itself a tree.  
+The empty tree is represented by
+#+begin_quote
+~(None, {None})~,
+#+end_quote
+where ~None~ represents no value, and ~{None}~ is the empty set of children.[fn:: Python has a quirk where ~{}~ is of type ~dict~, whereas ~{None}~ is of type ~set~. Thus, the ``empty set'' is properly represented by ~{None}~ and not ~{}~.] 
+       
+\textcolor{blue}{\bf QUESTION:}
+#+begin_quote
+Is ~(value, {(None, {})})~ equivalent to ~(value, {})~?
+
+This would mean that the representation of an empty tree, /viz./ ~(None, {})~,
+is perfectly equivalent to the null set
+#+latex: $\varnothing$, 
+/i.e./
+~(value, {(None, {})})~ is equivalent to 
+~(value, {~
+#+latex: $\varnothing$
+~})~
+is equivalent to 
+~(value, {})~.
+But this requires a little mental gymnastics: Isn't the /tuple/ 
+~(None, {})~ equivalent to 
+#+latex: $(\varnothing, \{\varnothing\})$,
+which is /not/ the same as 
+#+latex: $\{\varnothing\} \equiv$
+~{}~, /i.e./ a /tuple/ containing a null value and the null set
+is not the same as the null set itself?
+#+end_quote
+       
+\begin{remark}
+A tree is termed \emph{heterogeneous\/} because the cardinality of the set of child trees
+for each value can vary. Contrast with an $n$-ary tree, which has the same number of
+children at each node (\emph{e.g.\/} two for a binary tree, three for a ternary tree, and in
+general $n$ for an $n$-ary tree).
+\end{remark}
+
+\begin{remark}
+Nothing in the definition precludes the possibility of a child tree's value from
+containing an identical value to that of its parent.
+\end{remark}
+
+Thus,
+#+begin_quote
+~(value, {e1, (value, {e1}))~,
+#+end_quote
+is perfectly valid.
+
+\begin{remark}
+Every node's child trees must be unique, in so far as each child is a member of a
+\emph{set}. In practice, this means the each child tree is minimally required to have
+\emph{a unique value\/} (whereas the children of each child tree could be identical without
+affecting the uniqueness of the child trees in the set).
+\end{remark}
+       
+\begin{defn}
+\label{defn:3}
+A terminating node (or ``leaf node'') is:
+    \begin{quote}
+    a tree whose set of child trees is empty.
+    \end{quote}
+\end{defn}
+
+A leaf node is represented by ~(value, {})~.
+
+\begin{remark}
+The empty tree, $\texttt{(None, \{\})}$, is a valid leaf node.
+\end{remark}
+
+We can define an heterogeneous tree in reverse, /viz./ instead of starting
+with a parent and recursively defining the tree through its children, we
+can start with a terminating node and recursively define the tree 
+by identifying each node's parent. 
+
+This definition yields the flip side of the ``top-down'' definition, above.
+
+\begin{defn}
+\label{defn:4}
+An heterogeneous tree is either:
+    \begin{enumerate}
+        \item a set of sibling trees sharing a common parent node; or,
+        \item the empty tree.
+    \end{enumerate}
+\end{defn}
+
+The set of sibling trees that shares a common parent is possibly empty. What is
+the parent of an empty set (/i.e./ a set that contains no trees)? It is the same as 
+any other tree: It must point to its parent. Optionally, siblings may point
+to each other. Further still, a child node may point to all of its ancestors
+(its parent's parent, and so on).
+
+In Python, we represent the ``reverse tree'' as.
+
+\textcolor{blue}{\bf TODO:}
+#+begin_quote
+Insert appropriate representation here. 
+#+end_quote
+
+\begin{remark}
+Definition \ref{defn:4} implies that a child tree points to its parent, which means
+that the child must be able to uniquely identify the parent tree in which
+it is contained. Because a parent contains its children, a parent must
+be aware of its children, so it is not strictly the reverse of the 
+``top-down'' definition. Nonetheless, we'll refer to Definition 
+\ref{defn:4} as the ``bottom-up'' definition.
+\end{remark}
+
+** Trees: unflattened (no shorthand)
+You can create a ``longhand'' A Tree using the 
+~Tree~ class that comes with the ~parsearg~ package, as follows: 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
+"""
+       A
+     / | \
+    B  BB BBB
+      /| \
+     C CC CCC
+"""
+
+from parsearg.data_structures import Tree, Node, Key
+
+tree = Tree('A', children=[
+    Tree('B', []),
+    Tree('BB', children=[
+        Tree('C', []),
+        Tree('CC', []),
+        Tree('CCC', [])
+    ]),
+    Tree('BBB', []),
+])
+
+print(tree.show(quiet=True))
+#+end_src
+
+#+RESULTS:
+: A
+:     B
+:     BB
+:         C
+:         CC
+:         CCC
+:     BBB
+
+Defining a tree this way can obfuscate the tree's structure when the node names and 
+payloads are in any way complex.[fn:: For clarity, the nodes' payloads, /i.e./ the nodes' values, were omitted here.] 
+
+** Trees: flattened (shorthand)
+We need a ``shorthand'' for constructing trees---~parsearg~ uses a set of pipe-delimited strings: 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
+# from a import view
+from examples.a import view
+
+print(['root'] + list(view.keys()))
+#+end_src
+
+#+RESULTS:
+: ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
+
+This shorthand representation is a ``flattened'' version of the A Tree which fully
+specifies a tree down to each leaf node. The ``unflattened'' version of the
+shorthand is then:
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
+print(
+    ParseArg.to_tree(view, root_name='root').show(quiet=True) 
+)
+#+end_src
+
+#+RESULTS:
+: root
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
+
+Each string in this flattened tree (or ``flat tree'') represents a node in the
+tree and uniquely names that node.
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
+print(['root'] + list(view.keys()))
+#+end_src
+
+#+RESULTS:
+: ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
+
+The singular constraint on the tree's structure is that each node's children must contain
+a unique set of node names.  If this were not the case, then the tree's structure would
+be indeterminate.  In point of fact, the example of the A-AA Tree illustrates that the
+structure of the A Tree can be duplicated: only the root node names of each sub-tree
+(~A~ and ~AA~, respectively) need to be unique.
+
+Leaf nodes are terminating nodes in the tree's hierarchy (/i.e./ nodes that
+have the empty set for children). Take the A Tree:
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
+print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
+#+end_src
+
+#+RESULTS:
+: root
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
+
+- its /terminating nodes/ are:
+
+    #+begin_example
+    'A|B'
+    'A|BBB'
+    'A|BB|C'
+    'A|BB|CC'
+    'A|BB|CCC'
+    #+end_example
+
+- its /non-terminating nodes/ are:
+
+    #+begin_example
+    'A'
+    'A|BB'
+    #+end_example
+
+The separator in each key (here, a pipe ~|~) separates one level of the tree from the
+next level down. It is this delimited-string representation that allows us to easily
+specify a flat tree. However, taking advantage of the tree as a /data structure/
+requires working with an unflattened tree, and not the flattened version of it.
+In other words:
+#+begin_quote
+We use a shorthand to specify flattened tree, but we need to unflatten this tree to
+create the data structure in order for the tree to be useful.
+#+end_quote
+
+There is a duality here:
+
+1. We need a shorthand in order for the tree's structure to be specified in a simple way 
+   (the ``flattened'' shorthand); and 
+
+2. We need to make use of the structure of the tree itself 
+   (the ``unflattened'' tree).
+
+Thus, ~parsearg~ transforms a ~dict~, representing the tree's nodes, into a ~Tree~.
+The keys of the ~dict~ are shorthand for the tree's nodes and the values of the ~dict~
+are the nodes' payloads.  We need the shorthand of the ~dict~ for ease of specification,
+and we need the ~Tree~ to avail of the data structure's properties.
+
+\newpage
+* How ~parsearg~ works
 ** Some useful helper data structures 
+*** The gist
 ~parsearg~ provides three core classes:
-#+BEGIN_SRC python :session *Python-3.x* :exports code :results silent :eval yes 
+#+begin_src python :session *Python-3.x* :exports code :results silent :eval yes 
 from parsearg.data_structures import Key, Node, Tree
-#+END_SRC
+#+end_src
 
 Both ~Key~ and ~Node~ help to marshall keys and their payloads when 
-unflattening a flat tree structure. The ~Tree~ class represents the
+unflattening a flat-tree structure. The ~Tree~ class represents the
 actual tree.  
 
 ~Key~ and ~Node~ commandeer the data in the ~dict~ in the View layer.
 Their principle use is in unflattening the View ~dict~ by left-shifting the
 keys that represent the nodes of the tree.
-The basic algorithm for rendering an unflattened tree from a flat tree
+
+The algorithm for rendering an unflattened tree from a flat tree
 follows the logic of splitting the key (/i.e./ the ~str~ representing the key)
-#+BEGIN_SRC python :session *Python-3.x* :exports code :results silent
-# 1. take key
-key = 'A|B|C' 
-#+end_src
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
-# 2. split string 
-sep = '|'
-print( Key.split(key) )
-#+end_src
+    #+begin_src python :session *Python-3.x* :exports code :results silent
+    # 1. take key
+    key = 'A|B|C' 
+    #+end_src
 
-#+RESULTS:
-: ['A', '|', 'B', '|', 'C']
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 2. split string 
+    sep = '|'
+    print( Key.split(key) )
+    #+end_src
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
-# 3. unflatten the split key (i.e. create a nested list)
-unflattened = Key.unflatten(Key.split(key))
-print(unflattened)
-#+end_src
+    #+RESULTS:
+    : ['A', '|', 'B', '|', 'C']
 
-#+RESULTS:
-: ['A', ['B', ['C']]]
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 3. unflatten the split key: create a nested list
+    unflattened = Key.unflatten(Key.split(key))
+    print(unflattened)
+    #+end_src
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
-# 4. create a Node from the unflattened list
-node = Node.from_nested_list(unflattened)
-print(node)
-#+end_src
+    #+RESULTS:
+    : ['A', ['B', ['C']]]
 
-#+RESULTS:
-: ('A', ['B', ['C']])
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 4. create a Node from the unflattened list
+    node = Node.from_nested_list(unflattened)
+    print(node)
+    #+end_src
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
-# 5. the node can now be shifted until the empty node is reached
-print(node << 1)
-print(node << 2)
-print(node << 3)
-#+end_src
+    #+RESULTS:
+    : ('A', ['B', ['C']])
 
-#+RESULTS:
-: ('B', ['C'])
-: ('C', [])
-: (None, [])
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 5. the node can now be shifted until the empty node is reached
+    print(node << 1)
+    print(node << 2)
+    print(node << 3)
+    #+end_src
+
+    #+RESULTS:
+    : ('B', ['C'])
+    : ('C', [])
+    : (None, [])
 
 Note that the ~key~, above, can be directly transformed into a ~Node~:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+#+begin_src python :session *Python-3.x* :exports both :results output
 print( key )
 print( Key.to_node(key) )
 #+end_src
@@ -829,7 +886,7 @@ print( Key.to_node(key) )
 A ~Node~ is really a convenient way to view the ~key~. Shifting the ~Node~
 until it is empty provides a convenient way to determine when a 
 leaf node has been reached:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+#+begin_src python :session *Python-3.x* :exports both :results output
 n = node
 i = 0
 while not n.is_empty():
@@ -851,60 +908,60 @@ flat tree.
 *** The ~Key~ class
 First, ~parsearg~ defines a ~Key~ class. Take a key  ~'A|BB|C'~ that represents
 a leaf node:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from parsearg.data_structures import Tree, Node, Key
 
 key = 'A|BB|C'
 print( Key(key) )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'A|BB|C': ('A', ['BB', ['C']])
 
 The ~Key~ stores the following: 
 1. the key:
-    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    #+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
     print( Key(key).key )
-    #+END_SRC
+    #+end_src
 
     #+RESULTS:
     : A|BB|C
 
 2. the ~dict~ assocated with the key (if any):
-    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    #+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
     payload = 3.141593
     d = {key: payload}
 
     print( Key(key, d=d).d )
-    #+END_SRC
+    #+end_src
 
     #+RESULTS:
     : {'A|BB|C': 3.141593}
 
 3. the ~Node~, which is a representation of the key's delimited string
    as a nested list:
-    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    #+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
     print( Key(key).value )
     print( type(Key(key).value) )
-    #+END_SRC
+    #+end_src
 
     #+RESULTS:
     : ('A', ['BB', ['C']])
     : <class 'parsearg.data_structures.Node'>
 
 4. the ~payload~ (/i.e./ the value of the ~dict~, as above):
-    #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+    #+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
     payload = 3.141593
     d = {key: payload}
 
     print( Key(key, d).payload )
-    #+END_SRC
+    #+end_src
 
     #+RESULTS:
     : 3.141593
 
 A ~Key~ can be shifted:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 print( Key(key) )
 # same thing:
 print( Key(key) << 0 )
@@ -914,7 +971,7 @@ print( Key(key) << 2 )
 print( Key(key) << 3 )
 # same thing:
 print( Key(key) << 4 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'A|BB|C': ('A', ['BB', ['C']])
@@ -925,12 +982,12 @@ print( Key(key) << 4 )
 : 'A|BB|C': (None, [])
 
 but the ~key~ is preserved regardless of the shift value:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 print( (Key(key) << 0).key )
 print( (Key(key) << 1).key )
 print( (Key(key) << 2).key )
 print( (Key(key) << 3).key )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : A|BB|C
@@ -946,13 +1003,13 @@ A ~Node~ is a tuple that has a ~head~ and a ~tail~:
    specification.
 
 For example:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 print( Key(key).value )
 print( Key(key).value.head() )
 print( Key(key).value.tail() )
 # use a Node to construct the ~value~ part: 
 print( Node(head='A', tail=['BB', ['C']]) )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : ('A', ['BB', ['C']])
@@ -961,7 +1018,7 @@ print( Node(head='A', tail=['BB', ['C']]) )
 : ('A', ['BB', ['C']])
 
 A ~Node~, upon which the ~Key~ is based, can also be shifted:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 node = Node(head='A', tail=['B', ['C']])
 print( node )
 # same thing:
@@ -971,7 +1028,7 @@ print( node << 2 )
 print( node << 3 )
 # same thing:
 print( node << 4 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : ('A', ['B', ['C']])
@@ -982,18 +1039,18 @@ print( node << 4 )
 : (None, [])
 
 You can build a ~Node~ from a nested ~list~:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 ll = ['A', ['B', ['C']]]
 print( Node.from_nested_list(ll) )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : ('A', ['B', ['C']])
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 print( Node.from_nested_list(['A', ['B', ['C']]]) )
 print( Node.from_nested_list(['A']) )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : ('A', ['B', ['C']])
@@ -1001,7 +1058,7 @@ print( Node.from_nested_list(['A']) )
 
 *** Putting it together
 Let's say we have the following View:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from parsearg.utils import show
 d = {
     'A': {
@@ -1015,7 +1072,7 @@ d = {
     },
 }
 show( d )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1043,10 +1100,10 @@ show( d )
 #+end_example
 
 We can gather the keys as ~Key~ objects:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 keys = list(map(lambda key: Key(key), list(d.keys())))
 for key in keys: print(key)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'A': ('A', [])
@@ -1054,41 +1111,41 @@ for key in keys: print(key)
 : 'A|B|C': ('A', ['B', ['C']])
 
 We can gather the leaves (there's only one leaf node: ~A~):
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 leaves = list(filter(lambda key: key.is_leaf(), keys))
 for leaf in leaves: print(leaf)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'A': ('A', [])
 
 We can shift the keys and then gather the leaves (there's only one leaf node: ~A|B~):
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 leaves = list(filter(lambda key: (key << 1).is_leaf(), keys))
 for leaf in leaves: print(leaf)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'A|B': ('A', ['B'])
 
 We can shift the keys and then gather the leaves (there's only one leaf node: ~A|B|C~):
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 leaves = list(filter(lambda key: (key << 2).is_leaf(), keys))
 for leaf in leaves: print(leaf)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'A|B|C': ('A', ['B', ['C']])
 
 Note how the ~Key~ object preserves the key ~A|B|C~ even when the associated ~Node~ object
 is left-shifted:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 node = leaves[0]
 print( (node << 1).key )
 print( (node << 2).key )
 print( (node << 3).key )
 print( (node << 3) )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : A|B|C
@@ -1099,7 +1156,7 @@ print( (node << 3) )
 *** The ~Tree~ class
 As illustrated above a tree can be constructed directly with the ~Tree~ class.
 For example the A Tree is:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 tree = Tree('A', children=[
     Tree('B', []),
     Tree('BB', children=[
@@ -1111,7 +1168,7 @@ tree = Tree('A', children=[
 ])
 
 print( tree.show(quiet=True) )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : A
@@ -1124,7 +1181,7 @@ print( tree.show(quiet=True) )
 
 The ~Tree~ class has a nested class called ~Value~, which stores a node's value.
 The ~Value~ constructor checks that everything is in sync, as the following shows:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 key = 'A|BB|C'
 payload = 3.141593
 d = {key: payload}
@@ -1135,7 +1192,7 @@ print( value )
 print( value.key )
 print( value.name )
 print( value.payload )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : C
@@ -1159,7 +1216,7 @@ Consider Step 1. Any ~dict~ that conforms to the shorthand notation for
 representing nodes (/i.e./ a flat tree) can be converted
 to a ~Tree~ using ~parsearg.parser.ParseArg.to_tree~. Take
 the View ~dict~ from Section [[sec:quickstart:usage]]:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+#+begin_src python :session *Python-3.x* :exports both :results output
 def create_user(x): return x
 def create_todo(x): return x
 
@@ -1193,7 +1250,7 @@ tree.show()
 
 
 Now consider Step 2. This is specific to building ~argparse~ subparsers:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+#+begin_src python :session *Python-3.x* :exports both :results output
 args   = 'create user Harry -e harry@hogworts.edu -p 212-456-1234'.split()
 
 import argparse
@@ -1209,7 +1266,7 @@ print( parser.parse_args(args) )
 
 The ~ParseArg~ constructor abstracts this process and wraps the calls 
 to ~argparse~ methods:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output
+#+begin_src python :session *Python-3.x* :exports both :results output
 parser = ParseArg(d=view)
 print( parser.parse_args(args) )
 #+end_src
@@ -1225,13 +1282,13 @@ print( parser.parse_args(args) )
 This section is incomplete. 
 #+end_quote
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a_aa import view
 sep = '|'
 
 k = list(map(lambda x: x.split(sep), view.keys())) 
 for e in k: print(e)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1252,11 +1309,11 @@ for e in k: print(e)
 #+end_example
 
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no
 n = list(map(len, k))
 
 for key, depth, lkey in zip(view.keys(), n, k): print(f'({key}:\t{depth}, {lkey})')
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1308,7 +1365,7 @@ for key, depth, lkey in zip(view.keys(), n, k): print(f'({key}:\t{depth}, {lkey}
 
 #+end_example
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no
 import pandas as pd
 from examples.a_aa import view
 sep = '|'
@@ -1339,9 +1396,9 @@ while depth > 0:
             ancestors = sep.join(ancestors)
     depth -= 1
         
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no
 import numpy as np
 import pandas as pd
 from examples.a_aa import view
@@ -1399,7 +1456,7 @@ def to_tree_backwards(view, root_name='root', sep='|'):
         root_name, 
         children=d.iloc[which(d['ancestors']==root_name), col('leaf')].to_list()
     )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 
@@ -1438,7 +1495,7 @@ digraph G {
 	BB -> CCC;
     }
 }
-#+END_SRC
+#+end_src
 
 #+attr_latex: :width 0.5\linewidth
 #+RESULTS:
@@ -1448,11 +1505,11 @@ Let's look at the Python code for
 for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a.py][~a.py~]].
 
 Consider the ~dict~ that represents the View component:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a import view
 
 show(view)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1507,11 +1564,11 @@ show(view)
     {'help': 'A BBB verbosity', 'action': 'store_true'}
 #+end_example
 and then the tree that the parsed ~dict~ is represented by:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : TODO
@@ -1572,7 +1629,7 @@ digraph G {
 	BB2 -> CCC2;
     }
 }
-#+END_SRC
+#+end_src
 
 #+attr_latex: :width 1.0\linewidth
 #+RESULTS:
@@ -1582,11 +1639,11 @@ Let's look at the Python code
 for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a_aa.py][~a_aa.py~]].
 
 Consider the ~dict~ that represents the View component:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a_aa import view
 
 show(view)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1690,11 +1747,11 @@ show(view)
     {'help': 'AA BBB verbosity', 'action': 'store_true'}
 #+end_example
 and then the tree that the parsed ~dict~ is represented by:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1719,10 +1776,10 @@ TODO
 
 
 We can now run the A Tree and the A-AA Tree examples, respectively:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a import main
 main()
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -1902,10 +1959,10 @@ optional arguments:
 	<Mock name='mock.A_BB_CCC' id='139734258190992'>
 #+end_example
 
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
 from examples.a_aa import main
 main()
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -2272,7 +2329,7 @@ Let's start with the outer layer of the onion. How do we interact with
 ~todos.py~?  First, we can create some users in a ~User~ table with the 
 ~create user~ subcommand of ~todos.py~.  Note that we do not (yet) have a phone
 number for user ~Dick~, nor do we have an email address for user ~Harry~:
-#+BEGIN_SRC bash :session *bash* :exports none :results silent
+#+begin_src bash :session *bash* :exports none :results silent
 cd ./examples
 DATABASE=./todo.db
 
@@ -2280,12 +2337,12 @@ if [[ -e $DATABASE ]]; then
     python todos.py purge users
     python todos.py purge todos
 fi
-#+END_SRC
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+end_src
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 python todos.py create user Tom -e tom@email.com -p 212-555-1234
 python todos.py create user Dick -e dick@email.com
 python todos.py create user Harry -p 212-123-5555
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'create user Tom -e tom@email.com -p 212-555-1234':
@@ -2299,12 +2356,12 @@ python todos.py create user Harry -p 212-123-5555
 : 	SUCCESS
 
 Second, create some TO-DOs in the ~Todo~ table with the ~create todo~ subcommand of ~todos.py~. 
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 python todos.py create todo Tom title1 -c description1 -d 2020-11-30
 python todos.py create todo Tom title2 -c description2 --due-date=2020-12-31
 python todos.py create todo Harry todo-1 --description=Christmas-party -d 2020-11-30
 python todos.py create todo Harry todo-2 --description=New-Year-party
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -2325,10 +2382,10 @@ python todos.py create todo Harry todo-2 --description=New-Year-party
 Let's make some changes to the records entered so far. We can add an email address
 for user ~Harry~ (using the ~update user email~ subcommands) and a phone number for user ~Dick~ 
 (using the ~update user phone~ subcommands):
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 python todos.py update user email Harry harry@email.com
 python todos.py update user phone Dick 203-555-1212
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'update user email Harry harry@email.com':
@@ -2341,10 +2398,10 @@ python todos.py update user phone Dick 203-555-1212
 Now update two of the TO-DOs, changing the ~title~ (using the ~update todo
 title~ subcommands) and the ~description~ (using the ~update todo description~
 subcommands) in the fourth TO-DO:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 python todos.py update todo title 4 most-important
 python todos.py update todo description 4 2021-party
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'update todo title 4 most-important':
@@ -2354,10 +2411,10 @@ python todos.py update todo description 4 2021-party
 : ---------------------------------------
 : 	SUCCESS
 
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 python todos.py show users
 python todos.py show todos
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 'show users':
@@ -2369,18 +2426,18 @@ python todos.py show todos
 
 The result of these commands is that the two tables (~User~ and ~Todo~)
 are populated in a [[https://www.sqlite.org/index.html][SQLite]] database:
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 sqlite3 todo.db 'select * from User;'
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : Tom|tom@email.com|212-555-1234|2021-06-12 18:41:44
 : Dick|dick@email.com|203-555-1212|2021-06-12 18:41:44
 : Harry|harry@email.com|212-123-5555|2021-06-12 18:41:44
 
-#+BEGIN_SRC bash :session *bash* :exports both :results output :eval yes 
+#+begin_src bash :session *bash* :exports both :results output :eval yes 
 sqlite3 todo.db 'select * from Todo;'
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 : 17|title1|description1|2020-11-30|2021-06-12 18:41:47|Tom
@@ -2394,15 +2451,15 @@ for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/todo
 
 The View component is entirely contained within a single ~dict~, /viz./ 
 ~view~, which has been formatted here for clarity using ~parsearg.utils.show~:
-#+BEGIN_SRC python :session *Python-3.x* :exports none :results silent :eval yes
+#+begin_src python :session *Python-3.x* :exports none :results silent :eval yes
 %cd ./examples
-#+END_SRC
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
+#+end_src
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no
 from examples.todos import view
 from parsearg.utils import show
 
 show(view)
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example
@@ -2472,13 +2529,13 @@ show(view)
 
 We can generate a tree view of the CLI design specified by the above ~dict~,
 namely ~view~, as follows:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval no
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no
 from parsearg import ParseArg
 
 print(
     ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
 )
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 #+begin_example

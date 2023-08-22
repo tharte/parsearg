@@ -11,7 +11,7 @@ from parsearg.utils import (
     is_list_of,
 )
 
-def test_Fifo():
+def test_Fifo_ctor():
     import collections 
     assert isinstance(Fifo().values, collections.deque)
     assert len(Fifo().values)==0
@@ -109,7 +109,7 @@ def test_Tree_Value():
     assert value.payload==d['A|B|C']
 
 
-def test_Node():
+def test_Node_ctor():
     node = Node()
     assert Node().value==(None, [])
 
@@ -147,7 +147,7 @@ def test_Node_from_nested_list():
     assert Node.from_nested_list(ll) == Node(head='A', tail=['B', ['C']])
 
 
-def test_Key():
+def test_Key_ctor():
     key = Key()
     assert key.key is None
     assert key.value == Node()

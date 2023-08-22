@@ -1,4 +1,4 @@
-__version__ = '0.3.7'
+__version__ = '0.3.8'
 VERSION = __version__.split('.')
 
 def version(split=False):
