@@ -50,7 +50,6 @@ class Tree:
 
         __repr__ = __str__
 
-
     def __init__(self, value=None, children=None):
         self.value    = value
         self.children = children if children is not None else []
@@ -84,9 +83,9 @@ class Tree:
 
 class Node:
     def __init__(self, head=None, tail=None):
-        if not head is None:
+        if head is not None:
             assert isinstance(head, str)
-        if not tail is None:
+        if tail is not None:
             assert isinstance(tail, list)
 
         self.value = (head, tail if tail is not None else [])
