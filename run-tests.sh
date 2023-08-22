@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# env:parsearg
+#
+# the root folder of the package, e.g. the top level of the package structure 
+# as this script lives at the root level, it is just the pwd
+
+# bash$ tree -d $parsearg --charset=ascii | grep -v __pycache 
+#
+#    /home/tharte/dot/py/python/parsearg
+#    |-- build
+#    |-- dist
+#    |-- doc
+#    |   |-- examples
+#    |   |-- img
+#    |-- install
+#    |   |-- bin
+#    |   |-- include
+#    |   |-- lib
+#    |-- src
+#    |   |-- parsearg
+#    `-- tests
+# parsearg=/home/tharte/dot/py/python/parsearg
+
+parsearg=$(pwd)
+
+# explicitly declare the location of the source code: if the source changes
+# then pytest can pick up the change; otherwise pytest will use the /installed/
+# version of parsearg
+PYTHONPATH=$parsearg/src
+
+pytest -v $parsearg/tests

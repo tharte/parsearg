@@ -825,51 +825,53 @@ actual tree.
 ~Key~ and ~Node~ commandeer the data in the ~dict~ in the View layer.
 Their principle use is in unflattening the View ~dict~ by left-shifting the
 keys that represent the nodes of the tree.
-The basic algorithm for rendering an unflattened tree from a flat tree
+
+The algorithm for rendering an unflattened tree from a flat tree
 follows the logic of splitting the key (/i.e./ the ~str~ representing the key)
-#+begin_src python :session *Python-3.x* :exports code :results silent
-# 1. take key
-key = 'A|B|C' 
-#+end_src
 
-#+begin_src python :session *Python-3.x* :exports both :results output
-# 2. split string 
-sep = '|'
-print( Key.split(key) )
-#+end_src
+    #+begin_src python :session *Python-3.x* :exports code :results silent
+    # 1. take key
+    key = 'A|B|C' 
+    #+end_src
 
-#+RESULTS:
-: ['A', '|', 'B', '|', 'C']
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 2. split string 
+    sep = '|'
+    print( Key.split(key) )
+    #+end_src
 
-#+begin_src python :session *Python-3.x* :exports both :results output
-# 3. unflatten the split key: create a nested list
-unflattened = Key.unflatten(Key.split(key))
-print(unflattened)
-#+end_src
+    #+RESULTS:
+    : ['A', '|', 'B', '|', 'C']
 
-#+RESULTS:
-: ['A', ['B', ['C']]]
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 3. unflatten the split key: create a nested list
+    unflattened = Key.unflatten(Key.split(key))
+    print(unflattened)
+    #+end_src
 
-#+begin_src python :session *Python-3.x* :exports both :results output
-# 4. create a Node from the unflattened list
-node = Node.from_nested_list(unflattened)
-print(node)
-#+end_src
+    #+RESULTS:
+    : ['A', ['B', ['C']]]
 
-#+RESULTS:
-: ('A', ['B', ['C']])
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 4. create a Node from the unflattened list
+    node = Node.from_nested_list(unflattened)
+    print(node)
+    #+end_src
 
-#+begin_src python :session *Python-3.x* :exports both :results output
-# 5. the node can now be shifted until the empty node is reached
-print(node << 1)
-print(node << 2)
-print(node << 3)
-#+end_src
+    #+RESULTS:
+    : ('A', ['B', ['C']])
 
-#+RESULTS:
-: ('B', ['C'])
-: ('C', [])
-: (None, [])
+    #+begin_src python :session *Python-3.x* :exports both :results output
+    # 5. the node can now be shifted until the empty node is reached
+    print(node << 1)
+    print(node << 2)
+    print(node << 3)
+    #+end_src
+
+    #+RESULTS:
+    : ('B', ['C'])
+    : ('C', [])
+    : (None, [])
 
 Note that the ~key~, above, can be directly transformed into a ~Node~:
 #+begin_src python :session *Python-3.x* :exports both :results output
