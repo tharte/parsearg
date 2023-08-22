@@ -90,7 +90,7 @@ The output of both listings at the end of this section is identical:
 
     #+begin_src bash :session *bash* :exports both :results output :eval yes 
     python quickstart-todos-argparse.py create user Bob --email=bob@email.com --phone=212-555-1234
-    python quickstart-todos.py create todo Bob 'taxes' --due-date=2021-05-17
+    python quickstart-todos-argparse.py create todo Bob 'taxes' --due-date=2021-05-17
     #+end_src
 
     #+RESULTS:
@@ -193,7 +193,7 @@ optional arguments:
 ** ~quickstart-*.py~ Listings
 #+latex: \mbox{}
 
-#+caption: Parser constructed with ~argparse~: the parser must be specified with imperative instructions
+#+caption: ~quickstart-todos-argparse.py~ (using ~argparse~): the parser must be specified with imperative instructions
 #+name: list:quickstart-argparse
 #+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos-argparse.py
 import sys
@@ -239,7 +239,7 @@ if __name__ == "__main__":
 #+end_src
 
 \newpage
-#+caption: Parser constructed with ~parsearg~: the parser is specified with data only---it is declarative
+#+caption: ~quickstart-todos.py~ (using ~parsearg~): the parser is specified with data only---it is declarative
 #+name: list:quickstart-parsearg
 #+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos.py
 import sys
