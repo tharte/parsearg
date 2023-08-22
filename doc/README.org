@@ -521,12 +521,9 @@ be aware of its children, so it is not strictly the reverse of the
 \ref{defn:4} as the ``bottom-up'' definition.
 \end{remark}
 
-** Trees: flat and unflattened
-While it's possible to create a ``longhand'' version of the A tree using the 
-~Tree~ class that comes with the ~parsearg~ package, 
-it is cumbersome to use and---more specifically---it can 
-easily obfuscate the tree structure itself when the node names and 
-payloads are in any way complex.[fn:: For clarity the nodes' payloads, /i.e./ the nodes' values, are omitted here.] 
+** Trees: unflattened (no shorthand)
+You can create a ``longhand'' A Tree using the 
+~Tree~ class that comes with the ~parsearg~ package, as follows: 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 """
        A
@@ -560,8 +557,11 @@ print(tree.show(quiet=True))
 :         CCC
 :     BBB
 
-We need a ``shorthand'' for constructing trees.
-To this end, ~parsearg~ uses a set of pipe-delimited strings: 
+Defining a tree this way can obfuscate the tree's structure when the node names and 
+payloads are in any way complex.[fn:: For clarity, the nodes' payloads, /i.e./ the nodes' values, were omitted here.] 
+
+** Trees: flattened (shorthand)
+We need a ``shorthand'' for constructing trees---~parsearg~ uses a set of pipe-delimited strings: 
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 # from a import view
 from examples.a import view
@@ -572,8 +572,9 @@ print(['root'] + list(view.keys()))
 #+RESULTS:
 : ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
 
-This representation can be considered to be a ``flattened'' version
-of the A Tree:
+This shorthand representation is a ``flattened'' version of the A Tree which fully
+specifies a tree down to each leaf node. The ``unflattened'' version of the
+shorthand is then:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print(
     ParseArg.to_tree(view, root_name='root').show(quiet=True) 
@@ -590,18 +591,23 @@ print(
 :         BBB
 :         B
 
-Each string in this ``flat tree'' (or ``flattened tree'')
-represents a node in the tree and uniquely names that node. 
-The singular constraint on the tree's structure is that each node's
-children must contain a unique set of node names.
-If this were not the case, then the tree's structure would be indeterminate. 
-In point of fact, the example of the A-AA Tree illustrates that the structure of 
-the A Tree can be duplicated: only the root
-node names of each sub-tree (~A~ and ~AA~, respectively) need to be unique.
+Each string in this flattened tree (or ``flat tree'') represents a node in the
+tree and uniquely names that node.
+#+begin_src python :session *Python-3.x* :exports both :results output :eval yes 
+print(['root'] + list(view.keys()))
+#+end_src
+
+#+RESULTS:
+: ['root', 'A', 'A|B', 'A|BB', 'A|BB|C', 'A|BB|CC', 'A|BB|CCC', 'A|BBB']
+
+The singular constraint on the tree's structure is that each node's children must contain
+a unique set of node names.  If this were not the case, then the tree's structure would
+be indeterminate.  In point of fact, the example of the A-AA Tree illustrates that the
+structure of the A Tree can be duplicated: only the root node names of each sub-tree
+(~A~ and ~AA~, respectively) need to be unique.
 
 Leaf nodes are terminating nodes in the tree's hierarchy (/i.e./ nodes that
-have no children).  In the above, the terminating nodes are easily discerned
-visually within the tree's hierarchy:
+have no children). Take the A Tree:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
 #+END_SRC
@@ -616,44 +622,45 @@ print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
 :         BBB
 :         B
 
-Thus, the terminating nodes are:
-#+begin_example
-'A|B'
-'A|BBB'
-'A|BB|C'
-'A|BB|CC'
-'A|BB|CCC'
-#+end_example
+- its /terminating nodes/ are:
 
-while the non-terminating nodes are:
-#+begin_example
-'A'
-'A|BB'
-#+end_example
+    #+begin_example
+    'A|B'
+    'A|BBB'
+    'A|BB|C'
+    'A|BB|CC'
+    'A|BB|CCC'
+    #+end_example
 
-The separator in each key (here, a pipe ~|~) separates one level of the tree
-from the next level down. It is this delimited-string representation that 
-allows us to easily specify a tree. However, taking advantage of 
-a tree as a data structure requires working with a tree, not a flattened
-version of it. In other words, we have a 
-flattened-tree which is shorthand to specify the tree, but we need 
-to unflatten this shorthand to create the tree data structure in order 
-for it to be useful. 
+- its /non-terminating nodes/ are:
+
+    #+begin_example
+    'A'
+    'A|BB'
+    #+end_example
+
+The separator in each key (here, a pipe ~|~) separates one level of the tree from the
+next level down. It is this delimited-string representation that allows us to easily
+specify a flat tree. However, taking advantage of the tree as a /data structure/
+requires working with an unflattened tree, and not the flattened version of it.
+In other words:
+#+begin_quote
+We use a shorthand to specify flattened tree, but we need to unflatten this tree to
+create the data structure in order for the tree to be useful.
+#+end_quote
 
 There is a duality here:
 
-1. we need a shorthand in order for the 
-   tree's structure to be specified in a simple way 
+1. We need a shorthand in order for the tree's structure to be specified in a simple way 
    (the ``flattened'' shorthand); and 
 
-2. we need to make use of the structure of the tree itself 
+2. We need to make use of the structure of the tree itself 
    (the ``unflattened'' tree).
 
-Thus, ~parsearg~ transforms a ~dict~, representing the tree's nodes, into
-a ~Tree~.  The keys of the ~dict~ are shorthand for the tree's nodes and
-the values of the ~dict~ are the nodes' payloads.  We need the shorthand
-of the ~dict~ for ease of specification, and we need the ~Tree~ to avail of
-the data structure's properties.
+Thus, ~parsearg~ transforms a ~dict~, representing the tree's nodes, into a ~Tree~.
+The keys of the ~dict~ are shorthand for the tree's nodes and the values of the ~dict~
+are the nodes' payloads.  We need the shorthand of the ~dict~ for ease of specification,
+and we need the ~Tree~ to avail of the data structure's properties.
 
 ** The A Tree and the AA Tree 
 In order to further explain how ~parsearg~ works, we will make repeated
