@@ -84,96 +84,9 @@ Moreover, the callback associated with each subcommand is explicitly linked to
 the declaration of each node in the tree
 (see Listing [[list:quickstart-parsearg]]).
 
-#+caption: Construct parser with ~argparse~: the parser must be specified with imperative instructions
-#+name: list:quickstart-argparse
-#+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos-argparse.py
-import sys
-import argparse
+The output of both listings at the end of this section is identical:
 
-def create_user(args):
-    print(f'created user: {args.name!r} (email: {args.email}, phone: {args.phone})')
-    
-def create_todo(args):
-    print(f'created TO-DO for user {args.user!r}: {args.title} (due: {args.due_date})')
-    
-def make_parser():
-    # Imperative instructions are required to construct the CLI 
-    parser            = argparse.ArgumentParser()
-    subparsers        = parser.add_subparsers()
-
-    create            = subparsers.add_parser('create')
-    create_subparsers = create.add_subparsers()
-
-    user              = create_subparsers.add_parser('user')
-    todo              = create_subparsers.add_parser('todo')
-
-    user.add_argument("name", help="create user name", type=str, action="store")
-    user.add_argument("-e", "--email", help="create user's email address", type=str, action="store", default='')
-    user.add_argument("-p", "--phone", help="create user's phone number", type=str, action="store", default='')
-    user.set_defaults(callback=create_user)
-
-    todo.add_argument("user", help="user name for TO-DO", type=str, action="store")
-    todo.add_argument("title", help="title of TO-DO", type=str, action="store")
-    todo.add_argument("-d", "--due-date", help="due date for the TO-DO", type=str, action="store", default=None)
-    todo.set_defaults(callback=create_todo)
-
-    return parser
-
-def main(args):
-    parser = make_parser()
-    ns     = parser.parse_args(args)
-    result = ns.callback(ns)
-
-if __name__ == "__main__":
-    args = sys.argv[1:] if len(sys.argv) > 1 else []
-    main(args)
-#+end_src
-
-#+caption: Construct parser with ~parsearg~: the parser is specified with data only---it is declarative
-#+name: list:quickstart-parsearg
-#+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos.py
-import sys
-from parsearg import ParseArg
-
-def create_user(args):
-    print(f'created user: {args.name!r} (email: {args.email}, phone: {args.phone})')
-    
-def create_todo(args):
-    print(f'created TO-DO for user {args.user!r}: {args.title} (due: {args.due_date})')
-    
-# the CLI "view" comprises pure data: 
-#     the parser is fully specified by this view - no imperative instructions are required
-view = {
-    'create|user': {
-        'callback':   create_user,
-        'name':       {'help': 'create user name', 'action': 'store'},
-        '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
-        '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
-    },
-    'create|todo': {
-        'callback':   create_todo,
-        'user':       {'help': 'user name', 'action': 'store'},
-        'title':      {'help': 'title of TO-DO', 'action': 'store'},
-        '-d|--due-date': {'help': 'due date for the TO-DO', 'action': 'store', 'default': None},
-    },
-}
-
-def main(args):
-    # ParseArg takes the place of argparse.ArgumentParser
-    parser = ParseArg(d=view)
-    # parser.parse_args returns an argparse.Namespace
-    ns     = parser.parse_args(args)
-    # ns.callback contains the function in the 'callback' key of 'view'
-    result = ns.callback(ns)
-
-if __name__ == "__main__":
-    args = sys.argv[1:] if len(sys.argv) > 1 else []
-    main(' '.join(args))
-#+end_src
-
-The output of Listing [[list:quickstart-argparse]] and Listing [[list:quickstart-parsearg]] is identical:
-
-- Listing [[list:quickstart-argparse]] produces:
+- Listing [[list:quickstart-argparse]] (using ~argparse~) produces:
 
     #+begin_src bash :session *bash* :exports both :results output :eval yes 
     python quickstart-todos-argparse.py create user Bob --email=bob@email.com --phone=212-555-1234
@@ -184,7 +97,7 @@ The output of Listing [[list:quickstart-argparse]] and Listing [[list:quickstart
     : created user: 'Bob' (email: bob@email.com, phone: 212-555-1234)
     : created TO-DO for user 'Bob': taxes (due: 2021-05-17)
 
-- Listing [[list:quickstart-parsearg]] produces:
+- Listing [[list:quickstart-parsearg]] (using ~parsearg~) produces:
 
     #+begin_src bash :session *bash* :exports both :results output :eval yes 
     python quickstart-todos.py create user Bob --email=bob@email.com --phone=212-555-1234
@@ -275,6 +188,95 @@ optional arguments:
   -d DUE_DATE, --due-date DUE_DATE
                         due date for the TO-DO
 #+end_example
+
+\newpage
+** ~quickstart-*.py~ Listings
+#+latex: \mbox{}
+
+#+caption: Parser constructed with ~argparse~: the parser must be specified with imperative instructions
+#+name: list:quickstart-argparse
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos-argparse.py
+import sys
+import argparse
+
+def create_user(args):
+    print(f'created user: {args.name!r} (email: {args.email}, phone: {args.phone})')
+    
+def create_todo(args):
+    print(f'created TO-DO for user {args.user!r}: {args.title} (due: {args.due_date})')
+    
+def make_parser():
+    # Imperative instructions are required to construct the CLI 
+    parser            = argparse.ArgumentParser()
+    subparsers        = parser.add_subparsers()
+
+    create            = subparsers.add_parser('create')
+    create_subparsers = create.add_subparsers()
+
+    user              = create_subparsers.add_parser('user')
+    todo              = create_subparsers.add_parser('todo')
+
+    user.add_argument("name", help="create user name", type=str, action="store")
+    user.add_argument("-e", "--email", help="create user's email address", type=str, action="store", default='')
+    user.add_argument("-p", "--phone", help="create user's phone number", type=str, action="store", default='')
+    user.set_defaults(callback=create_user)
+
+    todo.add_argument("user", help="user name for TO-DO", type=str, action="store")
+    todo.add_argument("title", help="title of TO-DO", type=str, action="store")
+    todo.add_argument("-d", "--due-date", help="due date for the TO-DO", type=str, action="store", default=None)
+    todo.set_defaults(callback=create_todo)
+
+    return parser
+
+def main(args):
+    parser = make_parser()
+    ns     = parser.parse_args(args)
+    result = ns.callback(ns)
+
+if __name__ == "__main__":
+    args = sys.argv[1:] if len(sys.argv) > 1 else []
+    main(args)
+#+end_src
+
+\newpage
+#+caption: Parser constructed with ~parsearg~: the parser is specified with data only---it is declarative
+#+name: list:quickstart-parsearg
+#+begin_src python :session *Python-3.x* :exports both :results output :eval no :tangle ./quickstart-todos.py
+import sys
+from parsearg import ParseArg
+
+def create_user(args):
+    print(f'created user: {args.name!r} (email: {args.email}, phone: {args.phone})')
+    
+def create_todo(args):
+    print(f'created TO-DO for user {args.user!r}: {args.title} (due: {args.due_date})')
+    
+# the CLI "view" comprises pure data: 
+#     the parser is fully specified by this view - no imperative instructions are required
+view = {
+    'create|user': {
+        'callback':   create_user,
+        'name':       {'help': 'create user name', 'action': 'store'},
+        '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
+        '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
+    },
+    'create|todo': {
+        'callback':   create_todo,
+        'user':       {'help': 'user name', 'action': 'store'},
+        'title':      {'help': 'title of TO-DO', 'action': 'store'},
+        '-d|--due-date': {'help': 'due date for the TO-DO', 'action': 'store', 'default': None},
+    },
+}
+
+def main(args):
+    parser = ParseArg(d=view)
+    ns     = parser.parse_args(args)
+    result = ns.callback(ns)
+
+if __name__ == "__main__":
+    args = sys.argv[1:] if len(sys.argv) > 1 else []
+    main(' '.join(args))
+#+end_src
 
 \newpage
 * Overview
