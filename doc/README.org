@@ -362,6 +362,153 @@ Simple? The following sections should help to peel the onion.
 
 \newpage
 * More than you ever needed to know about trees
+** The A Tree and the AA Tree 
+In order to explain what trees are and how they work in the context of
+command-line argument-parsing, we will make repeated use two simple tree abstractions:
+
+1. The ``A Tree'', and
+2. The ``A-AA Tree''.
+
+The idea here is that the A-AA Tree nests the A Tree, thus forming
+identical ``sub-trees'', albeit with different parent nodes (called
+``A'' and ``AA'', respectively). 
+
+*** The A Tree 
+The A Tree has three levels. 
+#+headers:  :width 800 :height 500 
+#+begin_src dot :exports results :results output graphics :file ./img/a-tree.png
+digraph G {
+    subgraph {
+    edge [penwidth=0.5; arrowsize=0.65, arrowhead=normal];
+        A   [label="A"shape=none];
+        Aopt[label="", shape=none];
+        B   [shape=none];
+        BB  [shape=none];
+        BBB [shape=none];
+        BBopt[label="", shape=none];
+        C   [shape=none];
+        CC  [shape=none];
+        CCC [shape=none];
+
+	A -> B;
+	A -> BB;
+	A -> BBB;
+	BB -> C;
+	BB -> CC;
+	BB -> CCC;
+    }
+}
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth
+#+RESULTS:
+[[file:./img/a-tree.png]]
+
+Let's take a very brief look at the Python code
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a.py][~a.py~]].
+Consider the ~dict~ that represents the View component.
+The tree that the parsed ~dict~ is represented by is given as:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from examples.a import view
+
+print(
+    ParseArg(d=view, root_name='root').tree.show(quiet=True)
+)
+#+END_SRC
+
+#+RESULTS:
+: root
+:     A
+:         BB
+:             CCC
+:             C
+:             CC
+:         BBB
+:         B
+
+*** The A-AA Tree 
+The A-AA Tree simply extends the A Tree one level and replicates the A Tree's 
+structure in a sub-tree with root name ``AA'':
+#+headers:  :width 800 :height 500 
+#+begin_src dot :exports results :results output graphics :file ./img/aa-tree.png
+digraph G {
+    subgraph {
+    edge [penwidth=0.5; arrowsize=0.65];
+        root [label="root"; shape=none];
+        A    [shape=none];
+        AA   [shape=none];
+        Aopt [label="", shape=none];
+        AAopt [label="", shape=none];
+        B1   [label="B";   shape=none];
+        BB1  [label="BB";  shape=none];
+        BBB1 [label="BBB"; shape=none];
+        C1opt [label="";   shape=none];
+        C1   [label="C";   shape=none];
+        CC1  [label="CC";  shape=none];
+        CCC1 [label="CCC";  shape=none];
+        B2   [label="B";   shape=none];
+        BB2  [label="BB";  shape=none];
+        BBB2 [label="BBB"; shape=none];
+        C2opt [label="";   shape=none];
+        C2   [label="C";   shape=none];
+        CC2  [label="CC";  shape=none];
+        CCC2 [label="CCC";  shape=none];
+
+	root -> A;
+	root -> AA;
+	A -> B1;
+	A -> BB1;
+	A -> BBB1;
+	BB1 -> C1;
+	BB1 -> CC1;
+	BB1 -> CCC1;
+
+	AA -> B2;
+	AA -> BB2;
+	AA -> BBB2;
+	BB2 -> C2;
+	BB2 -> CC2;
+	BB2 -> CCC2;
+    }
+}
+#+END_SRC
+
+#+attr_latex: :width 1.0\linewidth
+#+RESULTS:
+[[file:./img/aa-tree.png]]
+
+Let's take a brief look at the Python code
+for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a_aa.py][~a_aa.py~]].
+Consider the ~dict~ that represents the View component:
+and then the tree that the parsed ~dict~ is represented by:
+#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
+from examples.a_aa import view
+
+print(
+    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
+)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+TODO
+    A
+        BB
+            CCC
+            C
+            CC
+        BBB
+        B
+    AA
+        BB
+            CCC
+            C
+            CC
+        BBB
+        B
+#+end_example
+
+\newpage
 ** Heterogeneous trees: recursive data structures
 Trees are recursive data structures.  Any node of a tree is identified by
 a /value/ (that is to say, a /datum/) and its set of /child trees/, thus establishing the recursion.
@@ -607,7 +754,7 @@ structure of the A Tree can be duplicated: only the root node names of each sub-
 (~A~ and ~AA~, respectively) need to be unique.
 
 Leaf nodes are terminating nodes in the tree's hierarchy (/i.e./ nodes that
-have no children). Take the A Tree:
+have the empty set for children). Take the A Tree:
 #+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
 print( ParseArg.to_tree(view, root_name='root').show(quiet=True) )
 #+END_SRC
@@ -662,149 +809,7 @@ The keys of the ~dict~ are shorthand for the tree's nodes and the values of the 
 are the nodes' payloads.  We need the shorthand of the ~dict~ for ease of specification,
 and we need the ~Tree~ to avail of the data structure's properties.
 
-** The A Tree and the AA Tree 
-In order to further explain how ~parsearg~ works, we will make repeated
-use two simple abstractions, based on nested trees (or ``sub-trees''):
-
-1. The ``A Tree'', and
-2. The ``A-AA Tree''.
-
-*** The A Tree 
-We have already seen the A Tree. It has three levels. 
-#+headers:  :width 800 :height 500 
-#+begin_src dot :exports results :results output graphics :file ./img/a-tree.png
-digraph G {
-    subgraph {
-    edge [penwidth=0.5; arrowsize=0.65, arrowhead=normal];
-        A   [label="A"shape=none];
-        Aopt[label="", shape=none];
-        B   [shape=none];
-        BB  [shape=none];
-        BBB [shape=none];
-        BBopt[label="", shape=none];
-        C   [shape=none];
-        CC  [shape=none];
-        CCC [shape=none];
-
-	A -> B;
-	A -> BB;
-	A -> BBB;
-	BB -> C;
-	BB -> CC;
-	BB -> CCC;
-    }
-}
-#+END_SRC
-
-#+attr_latex: :width 0.5\linewidth
-#+RESULTS:
-[[file:./img/a-tree.png]]
-
-Let's take a very brief look at the Python code
-for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a.py][~a.py~]].
-Consider the ~dict~ that represents the View component.
-The tree that the parsed ~dict~ is represented by is given as:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from examples.a import view
-
-print(
-    ParseArg(d=view, root_name='root').tree.show(quiet=True)
-)
-#+END_SRC
-
-#+RESULTS:
-: root
-:     A
-:         BB
-:             CCC
-:             C
-:             CC
-:         BBB
-:         B
-
-*** The A-AA Tree 
-The A-AA Tree simply extends the A Tree one level and replicates the A Tree's 
-structure in a sub-tree with root name ``AA'':
-#+headers:  :width 800 :height 500 
-#+begin_src dot :exports results :results output graphics :file ./img/aa-tree.png
-digraph G {
-    subgraph {
-    edge [penwidth=0.5; arrowsize=0.65];
-        root [label="root"; shape=none];
-        A    [shape=none];
-        AA   [shape=none];
-        Aopt [label="", shape=none];
-        AAopt [label="", shape=none];
-        B1   [label="B";   shape=none];
-        BB1  [label="BB";  shape=none];
-        BBB1 [label="BBB"; shape=none];
-        C1opt [label="";   shape=none];
-        C1   [label="C";   shape=none];
-        CC1  [label="CC";  shape=none];
-        CCC1 [label="CCC";  shape=none];
-        B2   [label="B";   shape=none];
-        BB2  [label="BB";  shape=none];
-        BBB2 [label="BBB"; shape=none];
-        C2opt [label="";   shape=none];
-        C2   [label="C";   shape=none];
-        CC2  [label="CC";  shape=none];
-        CCC2 [label="CCC";  shape=none];
-
-	root -> A;
-	root -> AA;
-	A -> B1;
-	A -> BB1;
-	A -> BBB1;
-	BB1 -> C1;
-	BB1 -> CC1;
-	BB1 -> CCC1;
-
-	AA -> B2;
-	AA -> BB2;
-	AA -> BBB2;
-	BB2 -> C2;
-	BB2 -> CC2;
-	BB2 -> CCC2;
-    }
-}
-#+END_SRC
-
-#+attr_latex: :width 1.0\linewidth
-#+RESULTS:
-[[file:./img/aa-tree.png]]
-
-
-Let's take a brief look at the Python code
-for [[https://raw.githubusercontent.com/tharte/parsearg/master/doc/examples/a_aa.py][~a_aa.py~]].
-Consider the ~dict~ that represents the View component:
-and then the tree that the parsed ~dict~ is represented by:
-#+BEGIN_SRC python :session *Python-3.x* :exports both :results output :eval yes 
-from examples.a_aa import view
-
-print(
-    ParseArg(d=view, root_name='TODO').tree.show(quiet=True)
-)
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-TODO
-    A
-        BB
-            CCC
-            C
-            CC
-        BBB
-        B
-    AA
-        BB
-            CCC
-            C
-            CC
-        BBB
-        B
-#+end_example
-
+* How ~parsearg~ works
 ** Some useful helper data structures 
 ~parsearg~ provides three core classes:
 #+BEGIN_SRC python :session *Python-3.x* :exports code :results silent :eval yes 
