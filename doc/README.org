@@ -357,6 +357,9 @@ what's already available without introducing dependencies.
 
 Simple? The following sections should help to peel the onion.
 
+#+attr_latex: :width 0.4\linewidth
+[[file:./img/pop-up-tree.png]]
+
 \newpage
 * More than you ever needed to know about trees
 ** Heterogeneous trees: recursive data structures
