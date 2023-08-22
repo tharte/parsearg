@@ -349,7 +349,7 @@ of the CLI's hierarchy of subcommands.
 The magic of ~parsearg~ is therefore this:
 
 #+begin_quote
-/It unflattens this flattened tree into a tree of ~argparse~ parsers./
+/It unflattens a flattened tree into a tree of ~argparse~ parsers./
 #+end_quote
 
 ~parsearg~ requires nothing special: It works with Python out of the box, thus using
@@ -364,7 +364,7 @@ Simple? The following sections should help to peel the onion.
 * More than you ever needed to know about trees
 ** Heterogeneous trees: recursive data structures
 Trees are recursive data structures.  Any node of a tree is identified by
-a /value/ and an associated set of /child trees/, thus establishing the recursion.
+a /value/ (that is to say, a /datum/) and its set of /child trees/, thus establishing the recursion.
 
 \begin{defn}
 \label{defn:1}
@@ -376,28 +376,36 @@ An heterogeneous tree is either:
 \end{defn}
 
 \begin{remark}
-The value is also known as a ``node'', or ``name''; its set of child trees 
-(also known as the ``children'' of the value/node/name) is possibly empty.
+Each node is a tree, containing a value and a set of child trees.
+A node's \emph{name\/} is synonymous with its value, and so
+often the node is referred to by name, meaning by its value. 
 \end{remark}
 
 \begin{remark}
-The value/node/name is referred to as the ``parent'' of its children.
+A node's set of child trees (also known as the ``children'' of the node)
+is possibly empty. There is nothing unusual in this, \emph{viz.\/}
+a node consisting of a value and an empty set of children.
 \end{remark}
 
 \begin{remark}
-The children of a unique parent tree are termed ``siblings'', though
+The node is referred to as the ``parent'' of its children.
+\end{remark}
+
+\begin{remark}
+The children of a parent are termed ``siblings'', though
 they are not necessarily aware of each other.
 \end{remark}
 
 \begin{remark}
-The empty tree has no value/node/name and has an empty set of children.
+The empty tree has no value (or, rather, its value is identically null, represented
+by $\varnothing$), and it has an empty set of children.
 \end{remark}
 
 \begin{remark}
-The definition implies that a parent tree ``points'' to its children, in so far
+The definition implies that a parent node ``points'' to its children, in so far
 as the parent is necessarily aware of the children it contains, whereas its
 children are not necessarily aware of their parent, nor of each other.  
-We will therefore regard Definition \ref{defn:1} as the ``top-down'' definition.
+We therefore regard Definition \ref{defn:1} as the ``top-down'' definition.
 \end{remark}
 
 In Python, we represent the value/node/name and its ~set~ of children as the 
@@ -436,32 +444,44 @@ which is /not/ the same as
 is not the same as the null set itself?
 #+end_quote
        
-This type of tree is termed /heterogeneous/ because the cardinality of
-the set of child trees for each value can vary. Contrast with 
-#+latex: an $n$-ary tree, 
-which has the same number of children at each node 
-(/e.g./ two for a binary tree, three for a ternary tree, and in general 
-$n$ for an 
-#+latex: an $n$-ary tree).
+\begin{remark}
+A tree is termed \emph{heterogeneous\/} because the cardinality of the set of child trees
+for each value can vary. Contrast with an $n$-ary tree, which has the same number of
+children at each node (\emph{e.g.\/} two for a binary tree, three for a ternary tree, and in
+general $n$ for an $n$-ary tree).
+\end{remark}
 
-Nothing in the definition precludes the possibility of a child tree's
-value from containing an identical value to that of its parent. Thus,
+\begin{remark}
+Nothing in the definition precludes the possibility of a child tree's value from
+containing an identical value to that of its parent.
+\end{remark}
+
+Thus,
 #+begin_quote
 ~(value, {e1, (value, {e1}))~,
 #+end_quote
-is perfectly valid. The requirement does explicitly require 
-each of node's child trees to be unique, in so far as they are members
-of a /set/.
+is perfectly valid.
+
+\begin{remark}
+Every node's child trees must be unique, in so far as each child is a member of a
+\emph{set}. In practice, this means the each child tree is minimally required to have
+\emph{a unique value\/} (whereas the children of each child tree could be identical without
+affecting the uniqueness of the child trees in the set).
+\end{remark}
        
 \begin{defn}
 \label{defn:3}
-A terminating (or ``leaf'') node is:
+A terminating node (or ``leaf node'') is:
     \begin{quote}
     a tree whose set of child trees is empty.
     \end{quote}
 \end{defn}
-A leaf node is represented by ~(value, {})~.  Note that the empty tree,
-~(None, {})~, is also a valid leaf node.
+
+A leaf node is represented by ~(value, {})~.
+
+\begin{remark}
+The empty tree, $\texttt{(None, \{\})}$, is a valid leaf node.
+\end{remark}
 
 We can define an heterogeneous tree in reverse, /viz./ instead of starting
 with a parent and recursively defining the tree through its children, we
@@ -471,16 +491,16 @@ by identifying each node's parent.
 This definition yields the flip side of the ``top-down'' definition, above.
 
 \begin{defn}
-\label{defn:2}
+\label{defn:4}
 An heterogeneous tree is either:
     \begin{enumerate}
-        \item a set of sibling trees sharing a common parent value/node/name; or,
+        \item a set of sibling trees sharing a common parent node; or,
         \item the empty tree.
     \end{enumerate}
 \end{defn}
 
 The set of sibling trees that shares a common parent is possibly empty. What is
-the parent of an empty set (/i.e./ that contains no trees)? It is the same as 
+the parent of an empty set (/i.e./ a set that contains no trees)? It is the same as 
 any other tree: It must point to its parent. Optionally, siblings may point
 to each other. Further still, a child node may point to all of its ancestors
 (its parent's parent, and so on).
@@ -493,12 +513,12 @@ Insert appropriate representation here.
 #+end_quote
 
 \begin{remark}
-Definition \ref{defn:2} implies that a child tree points to its parent, which means
+Definition \ref{defn:4} implies that a child tree points to its parent, which means
 that the child must be able to uniquely identify the parent tree in which
 it is contained. Because a parent contains its children, a parent must
 be aware of its children, so it is not strictly the reverse of the 
 ``top-down'' definition. Nonetheless, we'll refer to Definition 
-\ref{defn:2} as the ``bottom-up'' definition.
+\ref{defn:4} as the ``bottom-up'' definition.
 \end{remark}
 
 ** Trees: flat and unflattened
