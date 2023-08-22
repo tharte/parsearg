@@ -256,15 +256,15 @@ def create_todo(args):
 view = {
     'create|user': {
         'callback':   create_user,
-        'name':       {'help': 'create user name', 'action': 'store'},
-        '-e|--email': {'help': "create user's email address", 'action': 'store', 'default': ''},
-        '-p|--phone': {'help': "create user's phone number", 'action': 'store', 'default': ''},
+        'name':       {'help': 'create user name', 'type': str, 'action': 'store'},
+        '-e|--email': {'help': "create user's email address", 'type': str, 'action': 'store', 'default': ''},
+        '-p|--phone': {'help': "create user's phone number", 'type': str, 'action': 'store', 'default': ''},
     },
     'create|todo': {
         'callback':   create_todo,
-        'user':       {'help': 'user name', 'action': 'store'},
-        'title':      {'help': 'title of TO-DO', 'action': 'store'},
-        '-d|--due-date': {'help': 'due date for the TO-DO', 'action': 'store', 'default': None},
+        'user':       {'help': 'user name', 'type': str, 'action': 'store'},
+        'title':      {'help': 'title of TO-DO', 'type': str, 'action': 'store'},
+        '-d|--due-date': {'help': 'due date for the TO-DO', 'type': str, 'action': 'store', 'default': None},
     },
 }
 
