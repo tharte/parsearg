@@ -278,8 +278,21 @@ if __name__ == "__main__":
     main(' '.join(args))
 #+end_src
 
+\textcolor{blue}{\bf TODO:}
+#+begin_quote
+Add a regression test for:
+
+: main(' '.join(args))
+
+versus
+
+: main(args)
+
+where the latter is a list, rather than a string.
+#+end_quote
+
 \newpage
-* Overview
+* Some philosophy
 The ``standard'' Python module for writing command-line interfaces (``CLI'') 
 is ~argparse~. It is standard in so far as it is one of the batteries 
 that comes included with the Python distribution, so no special 
@@ -345,7 +358,7 @@ what's already available without introducing dependencies.
 Simple? The following sections should help to peel the onion.
 
 \newpage
-* How ~parsearg~ works 
+* More than you ever needed to know about trees
 ** Heterogeneous trees: recursive data structures
 Trees are recursive data structures.  Any node of a tree is identified by
 a /value/ and an associated set of /child trees/, thus establishing the recursion.
