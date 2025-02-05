@@ -20,7 +20,7 @@
 #        |-- src
 #        |   |-- parsearg
 #        `-- tests
-# parsearg=/home/tharte/dot/py/python/parsearg
+# parsearg=/path/to/top/level/package/source/parsearg
 parsearg=$(pwd)
 
 # env:PYTHONPATH
